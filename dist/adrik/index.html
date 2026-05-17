@@ -1,0 +1,1154 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Adrik Frostbeard · Compendium</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=Source+Sans+3:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #080b16;
+  --surface: #0f1425;
+  --surface2: #161e34;
+  --surface3: #1d2640;
+  --gold: #C9963A;
+  --gold2: #E8B84B;
+  --gold-dim: rgba(201,150,58,0.15);
+  --gold-border: rgba(201,150,58,0.3);
+  --gold-border2: rgba(201,150,58,0.55);
+  --text: #F8F3E8;
+  --text2: #C8BEA8;
+  --text3: #8A8070;
+  --amber: #C9963A;
+  --amber-bg: rgba(201,150,58,0.12);
+  --purple: #7B63CC;
+  --purple-bg: rgba(123,99,204,0.12);
+  --teal: #2A9D7F;
+  --teal2: #4ABFA0;
+  --teal-bg: rgba(42,157,127,0.12);
+  --coral: #CC5030;
+  --coral-bg: rgba(204,80,48,0.12);
+  --blue: #4A8ADE;
+  --blue-bg: rgba(74,138,222,0.12);
+  --red: #CC3333;
+  --red-bg: rgba(204,51,51,0.12);
+  --radius: 10px;
+  --radius-sm: 6px;
+  --char-color: #C9963A;
+  --char-border: rgba(201,150,58,0.55);
+  --char-bg: rgba(201,150,58,0.12);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Source Sans 3', sans-serif;
+  font-size: 16px;
+  line-height: 1.65;
+  min-height: 100vh;
+}
+h1, h2, h3, h4 { font-family: 'Cinzel', serif; }
+
+/* HEADER */
+.header {
+  background: linear-gradient(180deg, #060910 0%, #0b1020 100%);
+  border-bottom: 1px solid var(--char-border);
+  padding: 18px 28px 20px;
+  position: relative;
+  overflow: hidden;
+}
+.header::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--char-color), transparent);
+}
+.hub-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  color: var(--text3);
+  text-decoration: none;
+  font-family: 'Cinzel', serif;
+  letter-spacing: 0.5px;
+  margin-bottom: 16px;
+  transition: color 0.2s;
+}
+.hub-link:hover { color: var(--char-color); }
+.header-top { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 16px; }
+.header-identity { display: flex; gap: 20px; align-items: center; }
+
+.portrait-wrap { position: relative; flex-shrink: 0; }
+.portrait-img {
+  width: 76px; height: 76px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--char-border);
+  display: block;
+}
+.portrait-fallback {
+  width: 76px; height: 76px;
+  border-radius: 50%;
+  background: var(--char-bg);
+  border: 2px solid var(--char-border);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Cinzel', serif;
+  font-size: 28px; font-weight: 600;
+  color: var(--char-color);
+}
+
+.char-name { font-family: 'Cinzel', serif; font-size: 28px; font-weight: 600; color: var(--char-color); letter-spacing: 0.5px; line-height: 1.1; }
+.char-sub { font-size: 13px; color: var(--text2); margin-top: 5px; font-style: italic; letter-spacing: 0.2px; }
+.char-sub span { color: var(--char-color); font-style: normal; }
+
+.stat-grid { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 18px; }
+.stat-box {
+  background: var(--surface2);
+  border: 1px solid var(--gold-border);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  text-align: center;
+  min-width: 70px;
+}
+.stat-box.wide { min-width: 90px; }
+.stat-val { font-family: 'Cinzel', serif; font-size: 22px; font-weight: 500; color: var(--gold2); display: block; }
+.stat-label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.8px; margin-top: 2px; display: block; }
+
+.slots-area { margin-top: 18px; display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.slots-label { font-family: 'Cinzel', serif; font-size: 12px; color: var(--gold); text-transform: uppercase; letter-spacing: 0.8px; }
+.slots-pips { display: flex; gap: 8px; align-items: center; }
+.slot-pip {
+  width: 34px; height: 34px; border-radius: 50%;
+  border: 1.5px solid var(--gold-border2);
+  background: transparent;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; color: var(--gold-border2);
+  transition: all 0.2s;
+}
+.slot-pip.used { background: var(--coral-bg); border-color: var(--coral); color: var(--coral); }
+.slot-pip:hover { border-color: var(--gold); color: var(--gold); }
+.slots-reset {
+  font-size: 12px; color: var(--text2); background: transparent;
+  border: 1px solid var(--surface3); border-radius: 20px;
+  padding: 4px 12px; cursor: pointer; font-family: 'Source Sans 3', sans-serif;
+  transition: all 0.2s;
+}
+.slots-reset:hover { border-color: var(--gold-border); color: var(--text); }
+
+/* TABS */
+.tab-bar {
+  background: #060910;
+  border-bottom: 1px solid var(--gold-border);
+  padding: 0 8px;
+  display: flex;
+  align-items: stretch;
+  overflow-x: auto;
+  gap: 0;
+}
+.tab-group { display: flex; align-items: center; }
+.tab-group-label {
+  font-size: 9px;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  padding: 0 10px;
+  white-space: nowrap;
+  font-family: 'Cinzel', serif;
+  align-self: center;
+  flex-shrink: 0;
+}
+.tab-sep {
+  width: 1px;
+  background: var(--surface3);
+  margin: 10px 6px;
+  flex-shrink: 0;
+}
+.tab-btn {
+  font-family: 'Cinzel', serif;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text3);
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  padding: 14px 15px 12px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+  letter-spacing: 0.3px;
+}
+.tab-btn:hover { color: var(--text2); }
+.tab-btn.tab-personal.active { color: var(--gold2); border-bottom-color: var(--gold); }
+.tab-btn.tab-party.active { color: var(--teal2); border-bottom-color: var(--teal); }
+.tab-btn.tab-party:hover { color: var(--teal2); }
+
+/* CONTENT */
+.content { padding: 24px 28px; max-width: 1100px; }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* SECTION LABELS */
+.section-label {
+  font-family: 'Cinzel', serif;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--gold);
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  margin: 24px 0 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.section-label::before, .section-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--gold-border);
+}
+.section-label:first-child { margin-top: 0; }
+.section-label.teal { color: var(--teal2); }
+.section-label.teal::before, .section-label.teal::after { background: rgba(42,157,127,0.25); }
+
+/* CARDS */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--surface3);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  margin-bottom: 10px;
+  transition: border-color 0.2s;
+}
+.card:hover { border-color: var(--gold-border); }
+.card-title { font-family: 'Cinzel', serif; font-size: 15px; font-weight: 500; color: var(--text); margin-bottom: 4px; }
+.card-sub { font-size: 14px; color: var(--text2); line-height: 1.55; }
+.card-note { font-size: 13px; color: var(--text3); margin-top: 6px; font-style: italic; }
+
+.card.amber { border-left: 3px solid var(--amber); background: linear-gradient(90deg, var(--amber-bg), var(--surface)); }
+.card.purple { border-left: 3px solid var(--purple); background: linear-gradient(90deg, var(--purple-bg), var(--surface)); }
+.card.teal { border-left: 3px solid var(--teal); background: linear-gradient(90deg, var(--teal-bg), var(--surface)); }
+.card.coral { border-left: 3px solid var(--coral); background: linear-gradient(90deg, var(--coral-bg), var(--surface)); }
+.card.blue { border-left: 3px solid var(--blue); background: linear-gradient(90deg, var(--blue-bg), var(--surface)); }
+.card.red { border-left: 3px solid var(--red); background: linear-gradient(90deg, var(--red-bg), var(--surface)); }
+.card.gold { border: 1px solid var(--gold-border2); background: linear-gradient(135deg, rgba(201,150,58,0.08), var(--surface)); }
+
+/* GRID LAYOUTS */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+@media (max-width: 700px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
+
+/* PRIORITY ITEMS */
+.priority-list { list-style: none; }
+.priority-item {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  padding: 14px 18px;
+  margin-bottom: 8px;
+  background: var(--surface);
+  border: 1px solid var(--surface3);
+  border-radius: var(--radius);
+  transition: border-color 0.2s;
+}
+.priority-item:hover { border-color: var(--gold-border); }
+.priority-num {
+  width: 36px; height: 36px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Cinzel', serif; font-size: 16px; font-weight: 600;
+  flex-shrink: 0;
+}
+.priority-num.amber { background: var(--amber-bg); color: var(--amber); border: 1.5px solid var(--amber); }
+.priority-num.purple { background: var(--purple-bg); color: var(--purple); border: 1.5px solid var(--purple); }
+.priority-num.teal { background: var(--teal-bg); color: var(--teal); border: 1.5px solid var(--teal); }
+.priority-num.coral { background: var(--coral-bg); color: var(--coral); border: 1.5px solid var(--coral); }
+.priority-num.gray { background: var(--surface2); color: var(--text2); border: 1.5px solid var(--surface3); }
+.priority-body { flex: 1; }
+.priority-title { font-family: 'Cinzel', serif; font-size: 15px; font-weight: 500; color: var(--text); }
+.priority-dw { font-size: 13px; color: var(--gold); font-style: italic; margin: 3px 0 5px; }
+.priority-note { font-size: 14px; color: var(--text2); line-height: 1.5; }
+
+/* BADGES */
+.badge {
+  display: inline-block;
+  font-size: 11px;
+  padding: 3px 9px;
+  border-radius: 20px;
+  font-weight: 500;
+  font-family: 'Cinzel', serif;
+  letter-spacing: 0.2px;
+}
+.badge.amber { background: var(--amber-bg); color: var(--amber); border: 1px solid rgba(201,150,58,0.3); }
+.badge.purple { background: var(--purple-bg); color: var(--purple); border: 1px solid rgba(123,99,204,0.3); }
+.badge.teal { background: var(--teal-bg); color: var(--teal); border: 1px solid rgba(42,157,127,0.3); }
+.badge.coral { background: var(--coral-bg); color: var(--coral); border: 1px solid rgba(204,80,48,0.3); }
+.badge.blue { background: var(--blue-bg); color: var(--blue); border: 1px solid rgba(74,138,222,0.3); }
+.badge.red { background: var(--red-bg); color: var(--red); border: 1px solid rgba(204,51,51,0.3); }
+.badge.gray { background: var(--surface2); color: var(--text2); border: 1px solid var(--surface3); }
+
+/* SPELL GRID */
+.spell-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; }
+.spell-card {
+  background: var(--surface);
+  border: 1px solid var(--surface3);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  transition: border-color 0.2s;
+}
+.spell-card:hover { border-color: var(--gold-border); }
+.spell-card.cantrip { border-top: 2px solid var(--teal); }
+.spell-card.domain { border-top: 2px solid var(--purple); }
+.spell-card.prepared { border-top: 2px solid var(--amber); }
+.spell-name { font-family: 'Cinzel', serif; font-size: 14px; font-weight: 500; color: var(--text); margin-bottom: 4px; }
+.spell-dw { font-size: 12px; color: var(--gold); font-style: italic; margin-bottom: 6px; }
+.spell-tag { font-size: 11px; margin-bottom: 8px; }
+.spell-desc { font-size: 13px; color: var(--text2); line-height: 1.5; }
+
+/* SKILL BARS */
+.skill-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.skill-item {
+  display: flex; justify-content: space-between; align-items: center;
+  background: var(--surface); border: 1px solid var(--surface3);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+}
+.skill-name { font-family: 'Cinzel', serif; font-size: 13px; color: var(--text2); }
+.skill-val { font-family: 'Cinzel', serif; font-size: 18px; font-weight: 600; color: var(--gold2); }
+
+/* PERSONA CARDS */
+.persona-card {
+  background: var(--surface);
+  border: 1px solid var(--surface3);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  margin-bottom: 10px;
+}
+.persona-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; flex-wrap: wrap; }
+.persona-name { font-family: 'Cinzel', serif; font-size: 16px; font-weight: 500; }
+.persona-rel { font-size: 13px; color: var(--text3); font-style: italic; margin: 4px 0 6px; }
+.persona-note { font-size: 14px; color: var(--text2); line-height: 1.5; }
+
+/* PARTY MEMBER CARDS (for Personajes tab) */
+.party-char-card {
+  background: var(--surface);
+  border: 1px solid var(--surface3);
+  border-radius: var(--radius);
+  padding: 18px 20px;
+  margin-bottom: 12px;
+  display: flex;
+  gap: 18px;
+  align-items: flex-start;
+  transition: border-color 0.2s;
+}
+.party-char-card:hover { border-color: var(--gold-border); }
+.party-char-portrait {
+  width: 56px; height: 56px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Cinzel', serif; font-size: 20px; font-weight: 600;
+  border: 2px solid;
+  overflow: hidden;
+}
+.party-char-portrait img { width: 100%; height: 100%; object-fit: cover; }
+.party-char-body { flex: 1; }
+.party-char-name { font-family: 'Cinzel', serif; font-size: 16px; font-weight: 500; color: var(--text); margin-bottom: 3px; }
+.party-char-class { font-size: 12px; color: var(--text3); margin-bottom: 8px; }
+.party-char-bg { font-size: 14px; color: var(--text2); line-height: 1.55; margin-bottom: 6px; }
+.party-char-arc { font-size: 13px; color: var(--text3); font-style: italic; line-height: 1.5; }
+.party-char-moments { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 5px; }
+.moment-tag {
+  font-size: 11px; color: var(--text3);
+  background: var(--surface2); border: 1px solid var(--surface3);
+  border-radius: 20px; padding: 2px 10px;
+}
+.party-char-link {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 12px; color: var(--text3);
+  text-decoration: none; font-family: 'Cinzel', serif;
+  letter-spacing: 0.3px;
+  margin-top: 8px; transition: color 0.2s;
+}
+.party-char-link:hover { color: var(--gold); }
+
+/* MAP */
+.map-container {
+  background: var(--surface);
+  border: 1px solid var(--gold-border);
+  border-radius: var(--radius);
+  padding: 8px;
+  margin-bottom: 16px;
+  overflow: hidden;
+}
+.map-container svg { width: 100%; height: auto; display: block; }
+.map-img-container {
+  background: var(--surface);
+  border: 1px solid var(--gold-border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+.map-img-container img { width: 100%; height: auto; display: block; }
+
+/* QUEST CARD */
+.quest-card {
+  background: linear-gradient(135deg, rgba(201,150,58,0.1), var(--surface));
+  border: 1px solid var(--gold-border2);
+  border-radius: var(--radius);
+  padding: 20px 22px;
+  margin-bottom: 12px;
+}
+.quest-title { font-family: 'Cinzel', serif; font-size: 17px; color: var(--gold2); margin-bottom: 8px; }
+.quest-reward { font-size: 14px; color: var(--text); margin-bottom: 6px; }
+.quest-note { font-size: 13px; color: var(--text2); }
+
+/* MYSTERY CARD */
+.mystery-card {
+  background: var(--red-bg);
+  border: 1px solid rgba(204,51,51,0.4);
+  border-radius: var(--radius);
+  padding: 18px 20px;
+  margin-bottom: 10px;
+}
+.mystery-title { font-family: 'Cinzel', serif; font-size: 15px; color: #EE6060; margin-bottom: 8px; }
+.mystery-text { font-size: 14px; color: #CC9090; line-height: 1.55; }
+
+.divider { border: none; border-top: 1px solid var(--surface3); margin: 20px 0; }
+
+/* FEATURE CARD */
+.feature-card {
+  background: var(--surface);
+  border: 1px solid var(--surface3);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  margin-bottom: 10px;
+}
+.feature-card:hover { border-color: var(--gold-border); }
+.feature-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; flex-wrap: wrap; margin-bottom: 8px; }
+.feature-name { font-family: 'Cinzel', serif; font-size: 15px; font-weight: 500; color: var(--text); }
+.feature-desc { font-size: 14px; color: var(--text2); line-height: 1.55; }
+
+/* UPLOAD ZONE */
+.upload-zone {
+  border: 2px dashed var(--surface3);
+  border-radius: var(--radius);
+  padding: 48px 32px;
+  text-align: center;
+  margin: 20px 0;
+  transition: border-color 0.2s;
+}
+.upload-zone:hover { border-color: var(--char-border); }
+.upload-icon { font-size: 36px; margin-bottom: 12px; opacity: 0.6; }
+.upload-title { font-family: 'Cinzel', serif; font-size: 18px; color: var(--text); margin-bottom: 8px; }
+.upload-desc { font-size: 14px; color: var(--text2); margin-bottom: 24px; line-height: 1.6; max-width: 400px; margin-left: auto; margin-right: auto; }
+.upload-btn {
+  display: inline-block;
+  background: var(--char-bg);
+  color: var(--char-color);
+  border: 1.5px solid var(--char-border);
+  border-radius: 8px;
+  padding: 10px 24px;
+  font-family: 'Cinzel', serif;
+  font-size: 13px;
+  cursor: pointer;
+  letter-spacing: 0.3px;
+  transition: all 0.2s;
+  margin-bottom: 10px;
+}
+.upload-btn:hover { background: var(--char-color); color: #080b16; }
+.upload-note { font-size: 12px; color: var(--text3); margin-top: 12px; }
+
+/* Dynamic stat display (for uploaded chars) */
+#dynamic-stats { display: none; }
+#dynamic-stats.visible { display: block; }
+
+/* SCROLLBAR */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--surface3); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--gold-border); }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <a href="../index.html" class="hub-link">← Party Hub</a>
+  <div class="header-top">
+    <div class="header-identity">
+      <div class="portrait-wrap">
+        <img class="portrait-img" src="../assets/portraits/adrik.jpg" alt="Adrik Frostbeard"
+          onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+        <div class="portrait-fallback" style="display:none">A</div>
+      </div>
+      <div>
+        <div class="char-name">Adrik Frostbeard</div>
+        <div class="char-sub">Clérigo · <span>Dominio Crepúsculo</span> · Nivel 2 · Enano de Colina · Outlander · <span>Selûne</span></div>
+      </div>
+    </div>
+    <div style="font-size:11px;color:var(--text3);font-style:italic;align-self:flex-end">actualizado 16 May 2026</div>
+  </div>
+
+  <div style="margin:14px 0 0;padding:12px 16px;background:rgba(201,80,30,0.1);border:1px solid rgba(201,80,30,0.3);border-radius:8px;line-height:1.7"><strong style="color:var(--amber);font-size:13px">⚠ Alertas de configuración Foundry:</strong><div style="display:flex;gap:8px;align-items:flex-start;padding:5px 0;font-size:13px;color:var(--text2)"><span>🔴</span><span>HP máximo no configurado en Foundry — configúralo manualmente en la hoja de personaje.</span></div>
+<div style="display:flex;gap:8px;align-items:flex-start;padding:5px 0;font-size:13px;color:var(--text2)"><span>🔴</span><span>Spell slots no configurados en Foundry — revisa la pestaña de hechizos.</span></div>
+<div style="display:flex;gap:8px;align-items:flex-start;padding:5px 0;font-size:13px;color:var(--text2)"><span>🟡</span><span>Los hechizos de dominio (Sleep, Faerie Fire) no están agregados en Foundry.</span></div>
+<div style="display:flex;gap:8px;align-items:flex-start;padding:5px 0;font-size:13px;color:var(--text2)"><span>🟡</span><span>Tienes Scale Mail (CA 15). Considera cambiar a Chain Mail (CA 18) — tienes proficiencia en armadura pesada por Twilight Domain.</span></div></div>
+  
+  <div class="stat-grid">
+    <div class="stat-box"><span class="stat-val">+1</span><span class="stat-label">FUE 13</span></div>
+    <div class="stat-box"><span class="stat-val">-1</span><span class="stat-label">DES 8</span></div>
+    <div class="stat-box"><span class="stat-val">+3</span><span class="stat-label">CON 17</span></div>
+    <div class="stat-box"><span class="stat-val">-1</span><span class="stat-label">INT 8</span></div>
+    <div class="stat-box"><span class="stat-val">+3</span><span class="stat-label">SAB 16</span></div>
+    <div class="stat-box"><span class="stat-val">+1</span><span class="stat-label">CAR 12</span></div>
+    <div class="stat-box wide" title="Scale Mail+Escudo=15. Cambia a Chain Mail para CA 18."><span class="stat-val" style="color:var(--amber)">15 ⚠</span><span class="stat-label">Clase Armadura</span></div>
+    <div class="stat-box wide"><span class="stat-val" style="color:var(--amber)">11/? ⚠</span><span class="stat-label">HP</span></div>
+    <div class="stat-box wide"><span class="stat-val">25 ft</span><span class="stat-label">Velocidad</span></div>
+    <div class="stat-box wide"><span class="stat-val">+2</span><span class="stat-label">Proficiencia</span></div>
+    <div class="stat-box wide"><span class="stat-val">13</span><span class="stat-label">Spell Save DC</span></div>
+    <div class="stat-box wide"><span class="stat-val">+5</span><span class="stat-label">Ataque Hechizo</span></div>
+    <div class="stat-box wide" style="border-color:var(--gold-border2);background:rgba(201,150,58,0.08)"><span class="stat-val" style="color:var(--gold2)">✦</span><span class="stat-label">Inspiración</span></div>
+  </div>
+  <div class="slots-area">
+    <span class="slots-label">Spell Slots Niv. 1</span>
+    <div class="slots-pips" id="slotPips"><button class="slot-pip" onclick="toggleSlot(0)">●</button>
+      <button class="slot-pip" onclick="toggleSlot(1)">●</button>
+      <button class="slot-pip" onclick="toggleSlot(2)">●</button></div>
+    <button class="slots-reset" onclick="resetSlots()">↺ Resetear</button>
+    <span id="slotsCount" style="font-size:13px;color:var(--text2)">3 / 3 disponibles</span>
+    <span style="font-size:13px;color:var(--text2)">·</span>
+    <span style="font-size:13px;color:var(--text2)">Channel Divinity: <button onclick="toggleCD()" id="cdBtn" style="background:var(--teal-bg);color:var(--teal);border:1px solid rgba(42,157,127,0.3);border-radius:20px;padding:3px 10px;cursor:pointer;font-size:12px;font-family:'Source Sans 3',sans-serif">1 uso disponible</button></span>
+  </div>
+</div>
+
+<div class="tab-bar">
+  <div class="tab-group">
+    <span class="tab-group-label">Personal</span>
+    <button class="tab-btn tab-personal active" onclick="switchTab('combate',this)">⚔ Combate</button>
+<button class="tab-btn tab-personal" onclick="switchTab('hechizos',this)">✦ Hechizos</button>
+<button class="tab-btn tab-personal" onclick="switchTab('habilidades',this)">◈ Habilidades</button>
+  </div>
+  <div class="tab-sep"></div>
+  <div class="tab-group">
+    <span class="tab-group-label">Party</span>
+    <button class="tab-btn tab-party" onclick="switchTab('mapa',this)">🗺 Mapa</button>
+    <button class="tab-btn tab-party" onclick="switchTab('sesion',this)">📖 Sesión</button>
+    <button class="tab-btn tab-party" onclick="switchTab('personajes',this)">👥 Personajes</button>
+    <button class="tab-btn tab-party" onclick="switchTab('misiones',this)">🔍 Misiones</button>
+    <button class="tab-btn tab-party" onclick="switchTab('mundo',this)">🌍 Mundo</button>
+  </div>
+</div>
+
+<div class="content">
+
+<!-- TAB: COMBATE -->
+<div id="tab-combate" class="tab-panel active">
+  <div class="section-label">Prioridades de combate</div>
+  <ul class="priority-list">
+    <li class="priority-item">
+      <div class="priority-num amber">1</div>
+      <div class="priority-body">
+        <div class="priority-title">Bless — siempre el primer turno</div>
+        <div class="priority-dw">"Baraz azamar" · Slot nivel 1 · Concentración</div>
+        <div class="priority-note">Cubre a los 3 aliados que más atacan (Draxus, Sven, Yankavic). +1d4 a ataques y saving throws. Dura 1 minuto. Prioridad absoluta antes de cualquier otra acción.</div>
+      </div>
+    </li>
+    <li class="priority-item">
+      <div class="priority-num purple">2</div>
+      <div class="priority-body">
+        <div class="priority-title">Twilight Sanctuary — combate prolongado o daño en área</div>
+        <div class="priority-dw">"Sel kharak dur" · Channel Divinity · Sin spell slot</div>
+        <div class="priority-note">Esfera de 30 pies centrada en ti, se mueve contigo. Al final de cada turno dentro: 1d6+2 HP temporales O elimina miedo/encantamiento. No gasta slot.</div>
+      </div>
+    </li>
+    <li class="priority-item">
+      <div class="priority-num teal">3</div>
+      <div class="priority-body">
+        <div class="priority-title">Healing Word — si alguien cae a 0 HP</div>
+        <div class="priority-dw">"Kharak azamar" · Slot nivel 1 · Acción bonus</div>
+        <div class="priority-note">Acción bonus. Rango 60 pies. Levantas a un aliado inconsciente sin sacrificar tu acción principal. Siempre superior a Cure Wounds en economía de acción.</div>
+      </div>
+    </li>
+    <li class="priority-item">
+      <div class="priority-num gray">4</div>
+      <div class="priority-body">
+        <div class="priority-title">Command — control sin concentración</div>
+        <div class="priority-dw">"Karak dûm" · Slot nivel 1 · Sin concentración</div>
+        <div class="priority-note">Fuerza a un enemigo a perder su acción (huye, cae, detente). No compite con Bless en concentración. Úsalo cuando el combate lo requiera.</div>
+      </div>
+    </li>
+    <li class="priority-item">
+      <div class="priority-num coral">5</div>
+      <div class="priority-body">
+        <div class="priority-title">Guiding Bolt — daño ofensivo fuerte</div>
+        <div class="priority-dw">"Nar khalad sel" · Slot nivel 1</div>
+        <div class="priority-note">4d6 radiante + ventaja al siguiente ataque contra ese objetivo. Úsalo cuando Bless ya está activo y todos están en pie.</div>
+      </div>
+    </li>
+    <li class="priority-item">
+      <div class="priority-num gray">6</div>
+      <div class="priority-body">
+        <div class="priority-title">Warhammer / Toll the Dead — ataque básico</div>
+        <div class="priority-dw">"Kharak dûm" para Toll the Dead · Cantrip, sin slot</div>
+        <div class="priority-note">Toll the Dead NO usa spell slot — es cantrip. D8 normal, d12 si el objetivo ya está herido (SAB save). Warhammer en melee si hay flanqueo activo.</div>
+      </div>
+    </li>
+  </ul>
+  <div class="section-label">Antes del combate</div>
+  <div class="grid-2">
+    <div class="card purple">
+      <div class="card-title">Vigilant Blessing</div>
+      <div class="card-sub">Como acción, da ventaja en la próxima iniciativa a un aliado. Úsalo en el Fighter o el Rogue antes de combates que anticipas. Se consume al tirar iniciativa.</div>
+    </div>
+    <div class="card teal">
+      <div class="card-title">Eyes of Night (compartido)</div>
+      <div class="card-sub">Como acción, comparte darkvision 300 pies con 3 aliados por 1 hora. Actívalo antes de entrar a zonas oscuras. 1 uso por descanso largo.</div>
+    </div>
+  </div>
+  <div class="section-label">Skills de exploración</div>
+  <div class="skill-grid">
+    <div class="skill-item"><span class="skill-name">Survival</span><span class="skill-val">+5</span></div>
+    <div class="skill-item"><span class="skill-name">Insight</span><span class="skill-val">+5</span></div>
+    <div class="skill-item"><span class="skill-name">Athletics</span><span class="skill-val">+3</span></div>
+    <div class="skill-item"><span class="skill-name">Religion</span><span class="skill-val">+2</span></div>
+  </div>
+  <div class="card" style="margin-top:10px">
+    <div class="card-sub"><strong style="color:var(--text)">Saving throws con proficiencia:</strong> Sabiduría +5, Carisma +3. Concentración: CON save DC 10 o mitad del daño. Sin proficiencia en CON — posicionate detrás del frontline para no romper Bless.</div>
+  </div>
+</div>
+
+<!-- TAB: HECHIZOS -->
+<div id="tab-hechizos" class="tab-panel">
+  <div class="section-label">Cantrips — nunca usan spell slot</div>
+  <div class="spell-grid">
+    <div class="spell-card cantrip">
+      <div class="spell-name">Toll the Dead</div>
+      <div class="spell-dw">"Kharak dûm"</div>
+      <span class="badge teal spell-tag">Daño · Cantrip</span>
+      <div class="spell-desc">SAB save. 1d8 (1d12 si el objetivo ya está herido). Tu daño a distancia principal. Sin costo.</div>
+    </div>
+    <div class="spell-card cantrip">
+      <div class="spell-name">Guidance</div>
+      <div class="spell-dw">"Sel'ur"</div>
+      <span class="badge teal spell-tag">Utilidad · Cantrip</span>
+      <div class="spell-desc">Acción bonus. +1d4 al próximo check de un aliado. Úsalo siempre que puedas antes de checks importantes.</div>
+    </div>
+    <div class="spell-card cantrip">
+      <div class="spell-name">Sacred Flame</div>
+      <div class="spell-dw">"Nar sel"</div>
+      <span class="badge teal spell-tag">Daño · Cantrip</span>
+      <div class="spell-desc">DEX save. Radiante. Ignora cobertura. Backup cuando Toll the Dead no aplica.</div>
+    </div>
+  </div>
+  <div class="section-label">Dominio Crepúsculo — siempre preparados, no cuentan contra el límite</div>
+  <div class="spell-grid">
+    <div class="spell-card domain">
+      <div class="spell-name">Sleep</div>
+      <div class="spell-dw">"Khadûm"</div>
+      <span class="badge purple spell-tag">Control · 1 slot</span>
+      <div class="spell-desc">Afecta criaturas empezando por las de menos HP. Muy útil vs múltiples enemigos débiles.</div>
+    </div>
+    <div class="spell-card domain">
+      <div class="spell-name">Faerie Fire</div>
+      <div class="spell-dw">"Sel nar"</div>
+      <span class="badge purple spell-tag">Control · 1 slot · Concentración</span>
+      <div class="spell-desc">Ventaja en todos los ataques vs criaturas afectadas. No puedes tenerlo activo junto a Bless — elige uno.</div>
+    </div>
+  </div>
+  <div class="section-label">Hechizos preparados — usan spell slot de nivel 1</div>
+  <div class="spell-grid">
+    <div class="spell-card prepared">
+      <div class="spell-name">Bless ⭐</div>
+      <div class="spell-dw">"Baraz azamar"</div>
+      <span class="badge amber spell-tag">Soporte · 1 slot · Concentración</span>
+      <div class="spell-desc">PRIORIDAD 1. +1d4 ataques y saves a 3 aliados. 1 minuto. Cambia el combate completo.</div>
+    </div>
+    <div class="spell-card prepared">
+      <div class="spell-name">Healing Word</div>
+      <div class="spell-dw">"Kharak azamar"</div>
+      <span class="badge amber spell-tag">Curación · 1 slot · Acción bonus</span>
+      <div class="spell-desc">Rango 60 pies. Levanta inconscientes a distancia. Económicamente superior a Cure Wounds.</div>
+    </div>
+    <div class="spell-card prepared">
+      <div class="spell-name">Guiding Bolt</div>
+      <div class="spell-dw">"Nar khalad sel"</div>
+      <span class="badge amber spell-tag">Daño · 1 slot</span>
+      <div class="spell-desc">4d6 radiante + ventaja al siguiente ataque vs ese objetivo. Tu opción ofensiva fuerte.</div>
+    </div>
+    <div class="spell-card prepared">
+      <div class="spell-name">Shield of Faith</div>
+      <div class="spell-dw">"Sel'dur"</div>
+      <span class="badge amber spell-tag">Defensa · 1 slot · Concentración</span>
+      <div class="spell-desc">+2 AC a un aliado. Útil en Fighter o Rogue en combates difíciles.</div>
+    </div>
+    <div class="spell-card prepared">
+      <div class="spell-name">Command</div>
+      <div class="spell-dw">"Karak dûm"</div>
+      <span class="badge amber spell-tag">Control · 1 slot</span>
+      <div class="spell-desc">Sin concentración. Un enemigo pierde su acción. No compite con Bless.</div>
+    </div>
+  </div>
+  <div class="card gold" style="margin-top:16px">
+    <div class="card-title" style="color:var(--gold2);margin-bottom:6px">Gestión de slots</div>
+    <div class="card-sub">Tienes 3 slots de nivel 1. Bless ocupa 1. Guarda al menos 1 para Healing Word de emergencia. En nivel 3 obtendrás slots de nivel 2.</div>
+  </div>
+</div>
+
+<!-- TAB: HABILIDADES -->
+<div id="tab-habilidades" class="tab-panel">
+  <div class="section-label">Features de clase — Twilight Domain</div>
+  <div class="feature-card">
+    <div class="feature-top"><div class="feature-name">Eyes of Night</div><span class="badge purple">Nivel 1 · 1 uso/descanso largo</span></div>
+    <div class="feature-desc">Darkvision permanente de 300 pies para ti. Como acción: comparte esta visión con hasta 3 criaturas visibles durante 1 hora. En Icewind Dale, con 2 horas de luz al día, esta feature es crítica cada sesión.</div>
+  </div>
+  <div class="feature-card">
+    <div class="feature-top"><div class="feature-name">Vigilant Blessing</div><span class="badge purple">Nivel 1 · Gasto de acción</span></div>
+    <div class="feature-desc">Como acción, tocas a una criatura (o a ti) y le das ventaja en su próxima tirada de iniciativa. Se consume al tirar. Ideal para el Fighter o el Rogue antes de combates anticipados.</div>
+  </div>
+  <div class="feature-card">
+    <div class="feature-top"><div class="feature-name">Twilight Sanctuary</div><span class="badge purple">Nivel 2 · Channel Divinity</span></div>
+    <div class="feature-desc">Como acción, emana una esfera de penumbra de 30 pies centrada en ti. Se mueve contigo. Dura 1 minuto. Al final de cada turno dentro: 1d6+2 HP temporales, o elimina un efecto de miedo o encantamiento.</div>
+  </div>
+  <div class="feature-card">
+    <div class="feature-top"><div class="feature-name">Turn Undead</div><span class="badge gray">Nivel 2 · Channel Divinity</span></div>
+    <div class="feature-desc">Presenta tu símbolo sagrado. Cada no-muerto que te vea a 30 pies y falle SAB save es ahuyentado durante 1 minuto. Relevante en este módulo — ya hemos encontrado no-muertos.</div>
+  </div>
+  <div class="feature-card">
+    <div class="feature-top"><div class="feature-name">Dwarven Toughness</div><span class="badge gray">Pasivo · Enano de Colina</span></div>
+    <div class="feature-desc">+1 HP máximo por nivel. Ya incluido en tus HP. A nivel 2: +2 HP sobre la base normal. Aumenta cada nivel.</div>
+  </div>
+  <div class="feature-card">
+    <div class="feature-top"><div class="feature-name">Stonecunning</div><span class="badge gray">Pasivo · Enano</span></div>
+    <div class="feature-desc">Ventaja en Intelligence (History) relacionados con estructuras de piedra. Ya lo usaste en la cueva.</div>
+  </div>
+  <div class="section-label">Equipo importante</div>
+  <div class="grid-2">
+    <div class="card"><div class="card-title">Warhammer</div><div class="card-sub">Arma principal. 1d8 contundente. Proficiencia racial de enano.</div></div>
+    <div class="card amber"><div class="card-title">Scale Mail + Escudo ⚠</div><div class="card-sub">CA actual: 15. Con Chain Mail sería 18. Tienes proficiencia en armadura pesada.</div></div>
+    <div class="card"><div class="card-title">Quarterstaff</div><div class="card-sub">1d6/1d8 contundente. Versátil.</div></div>
+    <div class="card"><div class="card-title">Handaxe</div><div class="card-sub">Arrojadiza. Le prestaste una a Dorbulgruf en el combate con Auril.</div></div>
+    <div class="card"><div class="card-title">Cuerda 50 pies</div><div class="card-sub">La usaste para salvar a Teska del lago helado.</div></div>
+    <div class="card"><div class="card-title">Rations x11</div><div class="card-sub">Necesarias para descanso largo. Bien abastecido.</div></div>
+    <div class="card"><div class="card-title">Hunting Trap</div><div class="card-sub">Útil para comida en campo abierto.</div></div>
+    <div class="card"><div class="card-title">Collar de colmillo</div><div class="card-sub">Loot de troglodita. Origen desconocido.</div></div>
+  </div>
+</div>
+
+<!-- TAB: MAPA -->
+<div id="tab-mapa" class="tab-panel">
+  
+  <div class="section-label teal">Mapa de relaciones</div>
+  <div class="map-container">
+    <svg viewBox="0 0 900 520" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="arr" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L6,3 z" fill="rgba(201,150,58,0.4)"/>
+        </marker>
+      </defs>
+      <line x1="450" y1="250" x2="180" y2="100" stroke="rgba(201,150,58,0.25)" stroke-width="1.5" marker-end="url(#arr)"/>
+      <line x1="450" y1="250" x2="165" y2="200" stroke="rgba(201,150,58,0.25)" stroke-width="1.5" marker-end="url(#arr)"/>
+      <line x1="450" y1="250" x2="160" y2="390" stroke="rgba(123,99,204,0.35)" stroke-width="1.5" stroke-dasharray="5,4" marker-end="url(#arr)"/>
+      <line x1="450" y1="250" x2="310" y2="430" stroke="rgba(42,157,127,0.35)" stroke-width="1.5" marker-end="url(#arr)"/>
+      <line x1="450" y1="250" x2="650" y2="430" stroke="rgba(74,138,222,0.35)" stroke-width="1.5" marker-end="url(#arr)"/>
+      <line x1="450" y1="250" x2="710" y2="130" stroke="rgba(201,150,58,0.3)" stroke-width="1.5" marker-end="url(#arr)"/>
+      <line x1="450" y1="250" x2="750" y2="250" stroke="rgba(204,51,51,0.5)" stroke-width="2" marker-end="url(#arr)"/>
+      <line x1="450" y1="250" x2="450" y2="430" stroke="rgba(204,51,51,0.3)" stroke-width="1.5" stroke-dasharray="5,4" marker-end="url(#arr)"/>
+      <line x1="750" y1="250" x2="450" y2="100" stroke="rgba(204,80,48,0.3)" stroke-width="1.5" marker-end="url(#arr)"/>
+      <line x1="750" y1="250" x2="830" y2="390" stroke="rgba(204,80,48,0.25)" stroke-width="1.5" marker-end="url(#arr)"/>
+      <line x1="710" y1="130" x2="830" y2="390" stroke="rgba(201,150,58,0.3)" stroke-width="1.5" marker-end="url(#arr)"/>
+      <line x1="180" y1="100" x2="310" y2="430" stroke="rgba(201,150,58,0.2)" stroke-width="1" stroke-dasharray="4,4"/>
+      <line x1="165" y1="200" x2="180" y2="100" stroke="rgba(201,150,58,0.2)" stroke-width="1"/>
+      <text x="295" y="158" font-size="10" fill="rgba(201,150,58,0.6)" font-family="Source Sans 3, sans-serif" text-anchor="middle">enviado por</text>
+      <text x="285" y="225" font-size="10" fill="rgba(201,150,58,0.6)" font-family="Source Sans 3, sans-serif" text-anchor="middle">origen</text>
+      <text x="270" y="340" font-size="10" fill="rgba(123,99,204,0.7)" font-family="Source Sans 3, sans-serif" text-anchor="middle">fe cuestionada</text>
+      <text x="368" y="365" font-size="10" fill="rgba(42,157,127,0.7)" font-family="Source Sans 3, sans-serif" text-anchor="middle">familiar / rescató</text>
+      <text x="560" y="370" font-size="10" fill="rgba(74,138,222,0.7)" font-family="Source Sans 3, sans-serif" text-anchor="middle">compañeros</text>
+      <text x="600" y="175" font-size="10" fill="rgba(201,150,58,0.6)" font-family="Source Sans 3, sans-serif" text-anchor="middle">contratado por</text>
+      <text x="610" y="242" font-size="10" fill="rgba(204,51,51,0.8)" font-family="Source Sans 3, sans-serif" text-anchor="middle">enfrentamiento</text>
+      <text x="465" y="355" font-size="10" fill="rgba(204,51,51,0.6)" font-family="Source Sans 3, sans-serif" text-anchor="middle">acusación</text>
+      <rect x="390" y="218" width="120" height="64" rx="8" fill="rgba(201,150,58,0.15)" stroke="#C9963A" stroke-width="2"/>
+      <text x="450" y="244" font-size="15" font-weight="600" fill="#E8B84B" font-family="Cinzel, serif" text-anchor="middle">Adrik</text>
+      <text x="450" y="260" font-size="11" fill="rgba(201,150,58,0.8)" font-family="Source Sans 3, sans-serif" text-anchor="middle">Frostbeard</text>
+      <text x="450" y="275" font-size="10" fill="rgba(201,150,58,0.6)" font-family="Source Sans 3, sans-serif" text-anchor="middle">Clérigo · Niv. 2</text>
+      <rect x="108" y="74" width="144" height="48" rx="7" fill="rgba(22,29,52,0.9)" stroke="rgba(201,150,58,0.3)" stroke-width="1"/>
+      <text x="180" y="97" font-size="13" font-weight="500" fill="#EDE6D6" font-family="Cinzel, serif" text-anchor="middle">Padre</text>
+      <text x="180" y="113" font-size="10" fill="#9A9080" font-family="Source Sans 3, sans-serif" text-anchor="middle">Clan Frostbeard · Sur</text>
+      <rect x="90" y="170" width="150" height="50" rx="7" fill="rgba(22,29,52,0.9)" stroke="rgba(201,150,58,0.3)" stroke-width="1"/>
+      <text x="165" y="193" font-size="13" font-weight="500" fill="#EDE6D6" font-family="Cinzel, serif" text-anchor="middle">Clan Frostbeard</text>
+      <text x="165" y="210" font-size="10" fill="#9A9080" font-family="Source Sans 3, sans-serif" text-anchor="middle">3 generaciones · Sur</text>
+      <rect x="82" y="363" width="156" height="54" rx="7" fill="rgba(123,99,204,0.1)" stroke="rgba(123,99,204,0.4)" stroke-width="1" stroke-dasharray="4,3"/>
+      <text x="160" y="386" font-size="13" font-weight="500" fill="#9B80EE" font-family="Cinzel, serif" text-anchor="middle">Selûne</text>
+      <text x="160" y="402" font-size="10" fill="rgba(123,99,204,0.7)" font-family="Source Sans 3, sans-serif" text-anchor="middle">Diosa · fe cuestionada</text>
+      <text x="160" y="415" font-size="10" fill="rgba(123,99,204,0.6)" font-family="Source Sans 3, sans-serif" text-anchor="middle">¿por qué yo?</text>
+      <rect x="224" y="406" width="172" height="50" rx="7" fill="rgba(42,157,127,0.1)" stroke="rgba(42,157,127,0.35)" stroke-width="1"/>
+      <text x="310" y="429" font-size="13" font-weight="500" fill="#2A9D7F" font-family="Cinzel, serif" text-anchor="middle">Dorbulgruf Shalescar</text>
+      <text x="310" y="446" font-size="10" fill="rgba(42,157,127,0.7)" font-family="Source Sans 3, sans-serif" text-anchor="middle">Alcalde Bremen · Primo lejano · Rescatado</text>
+      <rect x="350" y="72" width="200" height="48" rx="7" fill="rgba(123,99,204,0.1)" stroke="rgba(123,99,204,0.3)" stroke-width="1"/>
+      <text x="450" y="95" font-size="13" font-weight="500" fill="#9B80EE" font-family="Cinzel, serif" text-anchor="middle">Invierno Eterno</text>
+      <text x="450" y="111" font-size="10" fill="rgba(123,99,204,0.7)" font-family="Source Sans 3, sans-serif" text-anchor="middle">2 años sin sol · Causado por Auril</text>
+      <rect x="680" y="216" width="140" height="68" rx="7" fill="rgba(204,51,51,0.1)" stroke="rgba(204,51,51,0.5)" stroke-width="1.5"/>
+      <text x="750" y="241" font-size="14" font-weight="600" fill="#EE6060" font-family="Cinzel, serif" text-anchor="middle">Auril</text>
+      <text x="750" y="257" font-size="10" fill="rgba(204,51,51,0.8)" font-family="Source Sans 3, sans-serif" text-anchor="middle">La Doncella del Hielo</text>
+      <text x="750" y="272" font-size="10" fill="rgba(204,51,51,0.7)" font-family="Source Sans 3, sans-serif" text-anchor="middle">Antagonista principal</text>
+      <rect x="344" y="402" width="212" height="54" rx="7" fill="rgba(204,51,51,0.08)" stroke="rgba(204,51,51,0.3)" stroke-width="1" stroke-dasharray="4,3"/>
+      <text x="450" y="424" font-size="12" font-weight="500" fill="#EE8888" font-family="Cinzel, serif" text-anchor="middle">¿A quiénes dejé morir?</text>
+      <text x="450" y="440" font-size="10" fill="rgba(204,51,51,0.7)" font-family="Source Sans 3, sans-serif" text-anchor="middle">Auril lo sabe · Hace 10 años</text>
+      <text x="450" y="452" font-size="10" fill="rgba(204,51,51,0.6)" font-family="Source Sans 3, sans-serif" text-anchor="middle">Núcleo del arco personal</text>
+      <rect x="622" y="100" width="176" height="52" rx="7" fill="rgba(201,150,58,0.1)" stroke="rgba(201,150,58,0.35)" stroke-width="1"/>
+      <text x="710" y="123" font-size="13" font-weight="500" fill="#C9963A" font-family="Cinzel, serif" text-anchor="middle">Gillin Trollbane</text>
+      <text x="710" y="140" font-size="10" fill="rgba(201,150,58,0.7)" font-family="Source Sans 3, sans-serif" text-anchor="middle">Salvadora · Empleadora · 100gp</text>
+      <rect x="762" y="363" width="136" height="52" rx="7" fill="rgba(204,80,48,0.1)" stroke="rgba(204,80,48,0.35)" stroke-width="1"/>
+      <text x="830" y="386" font-size="13" font-weight="500" fill="#CC5030" font-family="Cinzel, serif" text-anchor="middle">Sefek Caltro</text>
+      <text x="830" y="402" font-size="10" fill="rgba(204,80,48,0.7)" font-family="Source Sans 3, sans-serif" text-anchor="middle">Objetivo · Piel azul</text>
+      <text x="830" y="414" font-size="10" fill="rgba(204,80,48,0.6)" font-family="Source Sans 3, sans-serif" text-anchor="middle">No siente el frío</text>
+      <rect x="564" y="400" width="180" height="62" rx="7" fill="rgba(74,138,222,0.1)" stroke="rgba(74,138,222,0.35)" stroke-width="1"/>
+      <text x="654" y="422" font-size="13" font-weight="500" fill="#4A8ADE" font-family="Cinzel, serif" text-anchor="middle">La Party</text>
+      <text x="654" y="438" font-size="10" fill="rgba(74,138,222,0.7)" font-family="Source Sans 3, sans-serif" text-anchor="middle">Sven · Draxus · Teska</text>
+      <text x="654" y="452" font-size="10" fill="rgba(74,138,222,0.6)" font-family="Source Sans 3, sans-serif" text-anchor="middle">Elian · Yankavic</text>
+    </svg>
+  </div>
+  <div class="grid-2">
+    <div class="mystery-card">
+      <div class="mystery-title">⚠ El misterio de Adrik</div>
+      <div class="mystery-text">Auril le dijo directamente: "asesino, los dejaste morir, y lo sabes." Hace 10 años, Adrik sobrevivió una tormenta que mató a dos compañeros. ¿Fue solo eso? ¿O hay algo más? Este misterio es el núcleo del arco personal del personaje.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-name" style="margin-bottom:8px">Arco de fe con Selûne</div>
+      <div class="feature-desc">Adrik tiene poderes que vienen de una diosa que no eligió activamente. Cada uso de sus poderes en momentos críticos es una oportunidad para que algo cambie. No hay que forzarlo: basta con ese segundo de silencio después de que algo funciona.</div>
+    </div>
+  </div>
+</div>
+
+<!-- TAB: SESION -->
+<div id="tab-sesion" class="tab-panel">
+  <div style="margin-bottom:16px;font-size:12px;color:var(--text3)">Último sync: 16 de May, 05:26 · 5 sesión(es)</div>
+<div class="card" style="margin-bottom:12px"><div class="card-title">Sesión 4 —  El regreso a Bremen</div><div class="card-sub" style="margin-top:8px;line-height:1.7"><p style='margin-bottom:6px'>La sesión comenzó exactamente donde la anterior había terminado: en el camino hacia Bremen, con el alcalde Dorbulgruf Shalescar a cuestas y la figura de Aliana disolviéndose en nieve. Lo que quedó en su lugar no era una mujer ni una manifestación inofensiva. Era un llamado. Desde el cielo, como respuesta a la transformación, cuatro entidades de luz fría emergieron de la nieve, una por cada miembro de la party. El DM los nombró Frostwalkers, caminantes de hielo, figuras sin cuerpo sólido que irradiaban un frío antinatural y se movían con propósito directo hacia sus objetivos.</p><p style='margin-bottom:6px'>Adrik actuó primero. Sin dudar, lanzó Bless sobre sus tres compañeros más cercanos — "Baraz az amar" — y se reposicionó. El combate fue rápido y eficiente. Sven eliminó al primero con una flecha de booming blade y sneak attack. Elian lanzó Burning Hands en cono, dañando a dos simultáneamente — sus compañeros quedaron fuera del área gracias a la mecánica del hechizo. Teska eliminó otro con su rapier. Adrik intentó el warhammer con un resultado frustrante, pero encontró su momento con Command: miró directamente al caminante que tenía enfrente y le ordenó, en voz firme, "Karak Dum" — huye. La criatura superó el save, y en lugar de obedecer, desenvainó cuatro dagas rústicas y cargó hacia Adrik. Dos de las dagas impactaron antes de que el resto de la party lo rodeara. Un segundo intento con Command más tarde en el combate sí funcionó: el frostwalker salió corriendo hacia la tundra y no volvió. El último fue eliminado por Teska con un corte limpio que partió la figura en dos, dejando caer las ropas vacías al hielo.</p><p style='margin-bottom:6px'>Al examinar los restos, Sven tiró Historia con un dieciséis y obtuvo algo perturbador: las vestimentas que quedaban en el suelo eran ropa de invierno del norte. Personas reales. Habitantes de la región convertidos en no-muertos, reanimados por algo o alguien. El group recogió los abrigos — material útil en un lugar donde el frío es arma — y revisó la cabaña donde Aliana fingía estar atrapada. Dentro: raciones para dos días y dos pociones de curación. Las pociones quedaron en manos de Teska y Elian, por ser los que más habían caído en sesiones anteriores. Adrik intentó usar Cure Wounds sobre Dorbulgruf y descubrió en ese momento que no lo tenía preparado. Usó en cambio Healing Word — mínimo, pero suficiente. El alcalde quedó en diez puntos de vida.</p><p style='margin-bottom:6px'>Retomaron el camino hacia Bremen.</p><p style='margin-bottom:6px'>________________</p><p style='margin-bottom:6px'>El siguiente obstáculo no fue un combate sino una decisión. Entre las rocas del camino, la party avistó tres chitines: criaturas humanoides con cuatro brazos cada una, pelaje negro, garras largas y dagas rústicas de hueso, devorando en silencio un cadáver élfico. Adrik tiró Historia con diecisiete y recuperó lo que sabía de ellas: originarias del Underdark, creadas mediante magia aberrante, modificadas por los drow que les agregaron dos brazos adicionales para usarlas como soldados en guerras subterráneas. No pertenecían a la superficie. Que estuvieran aquí, en Icewind Dale, era una señal de que la oscuridad permanente del norte estaba atrayendo criaturas de los planos más profundos.</p><p style='margin-bottom:6px'>La decisión fue evitarlas. Teska propuso usar Thaumaturgy para imitar una orden en élfico drow, como si un amo las llamara de vuelta. Elian advirtió que el élfico estándar y el de los drow no son idénticos, pero igual le proporcionó la pronunciación. El resultado fue parcial: dos chitines obedecieron y salieron corriendo, pero la tercera no respondió. Adrik intentó Command sobre la restante — falló el save — y la criatura se giró hacia él con sus cuatro dagas. El combate fue breve: Sven con Booming Blade, Teska con un tajo definitivo en la cabeza. La criatura cayó de cara en la nieve.</p><p style='margin-bottom:6px'>Del cadáver élfico que estaba siendo devorado, Elian recuperó un pequeño objeto envuelto en seda, guardado sin abrirlo para inspeccionar más tarde. De la chitine muerta extrajeron tres fragmentos de caparazón endurecido — valor estimado de dos a cinco monedas de oro cada uno — y quince metros de hilo de seda resistente que salía de la parte trasera del cuerpo, suficientemente fuerte para funcionar como cuerda. Adrik se lo quedó.</p><p style='margin-bottom:6px'>________________</p><p style='margin-bottom:6px'>La marcha de la última hora hacia Bremen fue la más difícil en términos psicológicos. El viento, que había soplado constante durante días, comenzó a cambiar de naturaleza. Primero se detuvo. Luego regresó en pulsos irregulares, como si respirara. Y luego, entre esos pulsos, empezó a susurrar nombres.</p><p style='margin-bottom:6px'>Uno por uno.</p><p style='margin-bottom:6px'>A Adrik le llegó una voz íntima y perturbadora que habló directamente sobre la tormenta de hace diez años: "Tu padre no vino por edad o por su cuerpo. Prefiere verte fracasar a él antes que fracasar él mismo. Tus compañeros van a morir como murieron tus dos compañeros en aquella tormenta. Tú vas a sobrevivir y ellos no. Solo fue suerte. Y esa suerte está a punto de terminar." Adrik no contestó al viento. En cambio, tomó el emblema de Selûne de su escudo y habló en voz baja, directamente a la diosa: "¿Por qué nunca contestas? ¿Por qué nunca te he sentido? Dame algo." Desde el cielo, sin explicación meteorológica posible, un rayo de luz tenue impactó directamente en el emblema del escudo. Adrik tiró Wisdom con ventaja gracias a ese momento — diecinueve — y los susurros se apagaron. Volvió a respirar.</p><p style='margin-bottom:6px'>A Elian le llegó la voz de su abuelo, corrompida y podrida: "El ritual falló. Elegí morir por ti porque verte aprender, crecer, fracasar me dolería demasiado. Eres un inútil. Siempre tienes miedo de todo. Podrías haberlo salvado." Elian, asustado, murmuró "abuelito, perdóname" mientras intentaba racionalizar lo que ocurría. Con una tirada de Inteligencia con ventaja y un veintiuno, logró bloquear los susurros: decidió que esto era obra del mismo ser que mató a su abuelo, y en voz baja prometió, con el bastón clavado en la nieve: "te encontraré, bastardo."</p><p style='margin-bottom:6px'>A Sven le llegó la voz más dolorosa. Una voz vieja y falsamente arrepentida lo llamó por su nombre verdadero: Adran. El nombre que no había escuchado en cientos de años. "No maté a tus padres por dinero. Los maté con mis manos, mientras tú escuchabas desde el armario pequeño. ¿Por qué no abriste la puerta? Podrías haberlos salvado." Y luego, las voces de sus padres: "¿Por qué no abriste la puerta?" Sven cayó de rodillas en la nieve, en pánico total. Los demás lo vieron. Lo que lo sacó no fue que alguien le dijera algo — fue un recuerdo: el momento en que su maestro de esgrima, Segismundo Palo Alto, le puso la mano en el hombro en medio de una mansión caótica y le dijo "todo va a estar bien. A partir de ahora serás Sven de Thermaline." Con ese anclaje, Sven tiró Carisma. Doble veinte natural. El master confirmó que nadie había visto ese resultado antes en la campaña. Como consecuencia, Sven obtuvo un bono permanente para el resto de la campaña: una vez puede repetir con ventaja cualquier tirada de Wisdom fallida.</p><p style='margin-bottom:6px'>A Teska le llegó una multitud de voces simultáneas: "Los Arpistas no te adoptaron, Teska. Te compraron. Porque los monstruos como tú son útiles. Este mundo te odia por lo que eres. A nadie le importas. Tu misión no es ayudar a Bremen — es asegurarte de que nadie quede con vida." Teska, con su violín en mano y el arco prendido en llamas gracias a un truco de su padre adoptivo, tocó una melodía y superó el save de Carisma.</p><p style='margin-bottom:6px'>Dorbulgruf, demasiado agotado para continuar, le pidió a Adrik que lo cargara. Adrik lo hizo sin comentario — "no es la primera vez que cargo enanos" — y la party forzó el paso final hacia Bremen. Teska ganó un nivel de agotamiento durante la marcha, pero una tirada de Constitución dificultad doce salvó al resto. Y luego Adrik sacó otro veinte.</p><p style='margin-bottom:6px'>________________</p><p style='margin-bottom:6px'>Bremen apareció sin dramatismo. No emergió en el horizonte — simplemente se reveló, como si siempre hubiera estado ahí, oculto entre los pliegues de la nieve. Los aldeanos que estaban afuera los vieron llegar y la noticia se propagó de inmediato: el alcalde estaba vivo. Adrik lo llevaba cargado en la espalda.</p><p style='margin-bottom:6px'>La taberna El Alce Gruñón, la misma del primer día, recibió a la party con una multitud de preguntas y un Harlon más cínico que nunca. Ofreció una ronda gratuita — solo para ellos, no para el pueblo entero — y declaró que se la apuntaba a la cuenta de Adrik. Dorbulgruf se acercó al fuego, recuperó algo de fuerza, y antes de retirarse a su casa pronunció un discurso breve y sincero: agradeció a la party, prometió no volver a abandonar a Bremen, anunció que retornaría a las negociaciones con los otros pueblos, y amplió la recompensa original de dos días de cama y comida a una semana completa para todos.</p><p style='margin-bottom:6px'>Adrik fue directo a la barra: "cerveza, ¿dónde está la cerveza?"</p><p style='margin-bottom:6px'>Teska subió a una mesa y comenzó a relatar la aventura con el entusiasmo de un bardo que finalmente tiene material. Exageró libremente — mencionó cucarachas por miles y criaturas bajo el lago que se devoraban entre sí — y cuando rozó el nombre de Auril, Adrik lo miró desde la barra y le dijo sin levantar la voz: "allá tú, pero hay cosas que no deberíamos divulgar tan abiertamente." Y volvió a su cerveza.</p><p style='margin-bottom:6px'>Una granjera de piel oscura se acercó a Teska y contó que semanas atrás había visto a su última vaca elevarse en un rayo de luz y desaparecer. No llegó ningún cargamento de Torga tampoco. Harlon confirmó que hacía un mes no había truchas, y que sin trucha no había proteína suficiente para el pueblo.</p><p style='margin-bottom:6px'>Una mujer llamada Iriana, al escuchar que Teska quería enviar una carta al sur, ofreció su última paloma mensajera sin costo, por lo que la party había hecho. También reveló que la compañía Torga — la misma para la que trabaja Sefek Caltro, objetivo activo de la misión de Gillin Trollbane — tiene la capacidad de salir del norte cuando nadie más puede: una barrera de hielo parece impedir que los habitantes abandonen la región, pero Torga se mueve con libertad. Su última ubicación conocida: East Haven, a tres días de viaje de Bremen.</p><p style='margin-bottom:6px'>Sven, al retirarse a su habitación, alcanzó a escuchar a un goblin hablar con una mujer en el pasillo: "Ya no están llegando truchas al lago de Bremen, y me temo que ese maldito de Greens tiene algo que ver." Un nombre nuevo. Una pista nueva.</p><p style='margin-bottom:6px'>Adrik se despertó temprano, desayunó sopa de agua caliente y cerveza, y convenció a Harlon — con una tirada de Persuasión ajustada — de prestarle el único mapa de la región que existía en la taberna. Lo extendió sobre la mesa y comenzó a hacer una copia a mano, con paciencia de enano, para tener orientación de todos los Diez Pueblos.</p><p style='margin-bottom:6px'>El master cerró la sesión con un anuncio: el tutorial había terminado. Con el alcalde de vuelta en Bremen, la campaña entraba en modo sandbox. La próxima sesión comenzaría con la reunión que Dorbulgruf prometió por la mañana, y desde ese punto, las decisiones serían completamente de la party.</p></div></div>
+<div class="card" style="margin-bottom:12px"><div class="card-title">Sesión 3 — La Doncella del Hielo</div><div class="card-sub" style="margin-top:8px;line-height:1.7"><p style='margin-bottom:6px'>La sesión retomó en el interior de la cueva, donde la party continuaba explorando. Adrik investigó el pico de Bremen encontrado la sesión anterior, y el equipo termina descubriendo que había sido usado para picar la pared de piedra. A diferencia del resto de la cueva, esa sección estaba hecha de roca común, no de hielo negro. Alguien también usó su Divine Sense sin encontrar nada, ni no-muertos, ni fiends ni celestiales. Tanto Adrik como Teska encontraron nuevos trozos de tela idénticos a los que habían estado siguiendo, confirmando que el alcalde había estado en ese cuarto. La party decidió explorar el sector más al sur de la cueva, encontrando cajas vacías y señales de que alguien había pasado por ahí, aunque no recientemente. La decisión fue mantenerse juntos y seguir descendiendo.</p><p style='margin-bottom:6px'>Fue Draxus quien encontró al alcalde, enterrado bajo un montículo de nieve, con apenas un hilo de vida. Yankavic le aplicó Lay on Hands para estabilizarlo mientras Teska, con una tirada de percepción de diecinueve, notó algo inquietante: bajo el hielo que pisaban había formas moviéndose lentamente, como cuerpos desplazándose bajo la superficie. El hielo comenzó a vibrar. Adrik usó Vigilant Blessing sobre Teska para darle ventaja en iniciativa. Draxus, con un veinte natural en atletismo, desenterró al alcalde por completo. Dorbulgruf Shalescar estaba al borde de la muerte, temblando, los dientes castañeando, pero vivo.</p><p style='margin-bottom:6px'>Cuando Adrik intentó acercarse a lo que parecía un altar al fondo del cuarto, el alcalde cobró vida de golpe, lo tomó del peto de la armadura y le dijo sin palabras que no se acercara, antes de caer de nuevo al suelo. La party intentó retirarse, pero una pared de hielo negro surgió bloqueando la salida. Adrik tiró su antorcha al suelo, tomó su hacha con ambas manos y desafió en voz alta a lo que fuera que habitaba ese lugar.</p><p style='margin-bottom:6px'>La nieve y el hielo comenzaron a elevarse y tomar forma. Ante ellos apareció Auril, la Doncella del Hielo, una figura pequeña y encorvada, cubierta de plumaje blanco denso, con rasgos de ave, un pico corto y afilado, y ojos amarillos de una consciencia perturbadora. Sobre sus hombros caía un manto azul profundo que parecía absorber la poca luz existente. No reflejaba en el hielo negro, como si no existiera para él.</p><p style='margin-bottom:6px'>Auril habló a cada uno de los miembros de la party. A Teska le dijo que habían caminado cuando otros se detuvieron, y que la pregunta no era quién era ella, sino por qué seguían avanzando sin entender nada. Teska respondió que su propósito era salvar a quienes lo necesitaban. Auril asintió levemente. A Yankavic le respondió que las dos cosas no podían hacerse al mismo tiempo, y le advirtió que por su culpa atraería a los no-muertos al norte. A Adrik, al escucharlo mencionar a Selûne, se giró y le dijo directamente: asesino, dejaste morir a los tuyos y lo sabes. Que no se llevarían su reliquia, y que el alcalde estaba destinado a ser su instrumento. A Draxus le dijo que había escuchado y venido, y que eso lo hacía útil.</p><p style='margin-bottom:6px'>La situación escaló cuando Yankavic le preguntó su nombre y ella reveló ser Auril. Se irguió a más de dos metros frente a Draxus y le dijo que lo dejaría vivir únicamente a él, para que difundiera su nombre como nueva diosa. Yankavic no retrocedió. Teska le otorgó Heroísmo a Adrik. Dorbulgruf, con el hacha de mano que Adrik le había dado, se lanzó contra Auril y le clavó el filo en la espalda. En lugar de sangre, brotaron hielo y nieve.</p><p style='margin-bottom:6px'>El combate fue breve y devastador. Nadie superó la salvación de destreza ante el ataque en área de Auril. Draxus, con resistencia al frío, fue el único que se mantuvo en pie. Intentó arrastrar a Adrik y a Yankavic hacia la salida mientras el alcalde gritaba que él los detendría. Auril alcanzó a Draxus con un toque helado y también lo derribó. Uno a uno, todos cayeron al hielo. Todo se fue a negro, y la party quedó inmóvil, incapaz de hacer algo sobre lo que estaba ocurriendo. No se sabe cuánto tiempo pasó, no se sabe realmente qué pasó.</p><p style='margin-bottom:6px'>El grupo despertó en una cabaña, con un punto de vida cada uno, sobre camas de madera. El olor era a tela húmeda y humo. Al abrir la puerta encontraron a Dorbulgruf Shalescar sentado en una mesa, mordisqueando un pan duro, acompañado de una enana de edad avanzada llamada Hlin Trollbane, experimentada aventurera que los había encontrado en la nieve. Según ella, el viento parecía haberlos arrastrado deliberadamente, depositándolos a unos diez metros de donde cayeron. Los montó en su trineo y los llevó a su cabaña. Ofreció té tibio, poco apetecible pero reconfortante, y pan duro como piedra. Les dijo que alguien no los quería muertos todavía.</p><p style='margin-bottom:6px'>Hlin les contó que tres de sus amigos habían sido asesinados en menos de un mes. El primero, un halfling trampero en East Haven, encontrado muerto dentro de su cabaña cerrada, sin señales de lucha, con una daga de hielo negro clavada en el pecho. El segundo, un constructor de barcos en Targos, hallado de rodillas frente al lago congelado, misma herida. El tercero, un enano soplador de vidrio en Bryn Shander, mismo método. Y la que más dolía: su propia nieta, encontrada en la habitación contigua con una daga de hielo negro en el pecho, una daga que desapareció aproximadamente una hora después. Las autoridades no hicieron nada. Quería que la party encontrara y diera muerte a Sefek Caltro, guardaespaldas de una compañía mercante llamada Torga. Lo describió como encantador, siempre sonriente, y notablemente anómalo: no usaba abrigo, no temblaba, no exhalaba vapor en el frío extremo. La recompensa ofrecida fue cien monedas de oro por persona más un objeto mágico a elección de cada uno, a cambio de traerle la cabeza del culpable.</p><p style='margin-bottom:6px'>Esa noche, todos compartieron el mismo sueño. Vieron los diez pueblos del norte completamente congelados, cada ciudadano incrustado en el hielo, sin vida. Una sombra se acercó a cada uno con un mensaje personalizado. A Adrik le mostró a los suyos, su clan del sur, también congelados, y le preguntó si había venido por deber o porque algo lo esperaba, algo que no era su padre. A Teska le dijo que los Arpistas no lo enviaron para ayudar a Bremen, sino para deshacerse de él porque estorbaba. A Yankavic le advirtió que todo lo que veía sería su culpa, que su juramento se rompería porque no estaba ahí para ayudar sino por sí mismo. A Draxus le recordó a una niña que no se escondió bien y fue masacrada, diciéndole que no intervenir era lo mismo que participar, y que lo mismo le pasaría a los diez pueblos.</p><p style='margin-bottom:6px'>Al despertar, la party subió a nivel dos.</p><p style='margin-bottom:6px'>En el viaje de regreso a Bremen junto a Dorbulgruf, el grupo encontró una estructura parcialmente enterrada en la nieve. Desde adentro se escuchaba una voz de mujer pidiendo ayuda. Draxus arrancó la puerta de un tirón. Dentro encontraron a una mujer llamada Aliana, con la piel agrietada y los dedos ennegrecidos por necrosis. Dijo que su esposo y su hija habían salido hacia Bremen dos días atrás y que un hombre de piel azul había intentado asesinarla antes de que una ventisca lo ahuyentara. Adrik la curó con Healing Word y notó algo extraño al usar Insight: su voz temblaba al mencionar a su familia. La confrontó directamente, con un tono de intimidación que hizo que sus defensas cedieran, pero ella insistió en no saber nada más.</p><p style='margin-bottom:6px'>Fue entonces cuando, al apoyar las manos en la nieve sin guantes, la piel de Aliana se tornó azul. Su cuerpo entero cambió de color y su voz adoptó el mismo tono que Auril en la cueva. Le dijo a la party que no se entrometieran en lo que no les incumbe, y su cuerpo se disolvió en nieve y hielo, desapareciendo completamente.</p><p style='margin-bottom:6px'>La sesión cerró en ese punto, con la confrontación pendiente para la siguiente semana.</p></div></div>
+<div class="card" style="margin-bottom:12px"><div class="card-title">Sesión 2 — La Cueva del Hielo Negro</div><div class="card-sub" style="margin-top:8px;line-height:1.7"><p style='margin-bottom:6px'>El grupo llevaba horas en la tundra cuando una figura enana emergió de entre la nieve a sus espaldas. Barba blanca trenzada, armadura oscura, un escudo con luna grabada. Se presentó sin rodeos: Adrik Frostbeard, venido del sur por encargo de su padre. El alcalde desaparecido, Dorbulgruf Shalescar, era sangre lejana del clan. Eso bastó como explicación.</p><p style='margin-bottom:6px'>El frío ya cobraba su precio. Draxus y Teska fallaron sus salvaciones de constitución y ganaron un nivel de agotamiento — sus ropas aún húmedas del incidente con el hielo de la sesión anterior. La party encontró un refugio entre árboles para montar campamento. Adrik tomó la primera guardia y dejó una trampa tendida antes de descansar.</p><p style='margin-bottom:6px'>La segunda guardia fue de Elian. Treinta minutos adentro, tres siluetas reptilianas emergieron desde el perímetro — trogloditas, hambrientos, atraídos por el olor. Elian los alertó silenciosamente. El combate fue corto pero brutal: Sven eliminó al primero con un virote encendido directamente en la cuenca ocular. Elian cayó a 0 HP con una daga en la espalda. Adrik lanzó Healing Word — "Kharak azamar" — y lo devolvió a la pelea desde el suelo. Draxus decapitó al segundo. El tercero fue desintegrado por tres misiles mágicos de Elian, que le reventaron un pie, una mano y finalmente la cabeza.</p><p style='margin-bottom:6px'>Adrik trozó los cadáveres sobre un tronco, recuperó cuatro porciones de carne de troglodita y encontró en uno de ellos un collar rudimentario con un colmillo de criatura desconocida. La trampa, revisada al amanecer, tenía una liebre flaca atrapada — muerte rápida y guardada como ración.</p><p style='margin-bottom:6px'>La tercera guardia la hizo Sven. Un zombie emergió de entre los cadáveres cubiertos por la nieve — la sangre del combate anterior había atraído a un muerto viviente. Segundo combate, más breve. La party terminó el descanso largo, Adrik activó Eyes of Night para Elian y Draxus, y retomaron el rastro.</p><p style='margin-bottom:6px'>Las huellas seguían hacia el norte hasta un montículo de hielo frágil. Adrik detectó las zonas más débiles y organizó a la party en fila para cruzar de a uno. Teska pisó mal, cayó al agua helada y recibió ocho puntos de daño de frío. Adrik le lanzó una cuerda de cincuenta pies mientras Elian la amarraba con Mano Mágica. Sven ofreció licor de marinero — todos bebieron, con mayor o menor disgusto. La tirada de constitución fue superada por toda la party gracias a eso.</p><p style='margin-bottom:6px'>Las huellas viraron al este sobre roca oscura y húmeda, hasta terminar frente a la entrada de una cueva irregular. Dentro: silencio anormal. Las armaduras de Adrik y Draxus sonaban, pero los pasos no. Las paredes estaban cubiertas de hielo negro con una propiedad inquietante: algunos objetos sin vida se reflejaban en él — el violín de Teska, las armaduras — pero nada vivo. Sin embargo, la party no logró determinar con claridad qué objetos sí se reflejaban y cuáles no. La regla exacta del fenómeno quedó sin resolver. Adrik ganó un nivel de agotamiento por una ráfaga de frío que lo golpeó de lleno mientras avanzaban.</p><p style='margin-bottom:6px'>Siguiendo un leve olor a sangre hacia el norte, la party encontró un refugio improvisado dentro de la cueva. Dos cuerpos congelados: un humano varón y una elfa. Adrik los examinó — no murieron con dolor, fueron posicionados deliberadamente, congelados mientras aún vivían. La sangre del suelo no pertenecía a ellos. Unas velas se consumieron y se apagaron justo al ser notadas por Elian.</p><p style='margin-bottom:6px'>Al fondo, sostenido en una roca, un pico de minero. En su parte metálica, grabado: el símbolo del pueblo de Bremen.</p><p style='margin-bottom:6px'>La sesión cerró ahí.</p></div></div>
+<div class="card" style="margin-bottom:12px"><div class="card-title">Sesión 1 - Diario de Elian</div><div class="card-sub" style="margin-top:8px;line-height:1.7"><p style='margin-bottom:6px'>En Icewind Dale, la luz del sol apenas merece ese nombre. Si aparece, lo hace débil, tenue, como si incluso el día hubiera perdido la voluntad de imponerse al invierno. Las noches, en cambio, son largas. Demasiado largas. En medio de este desierto helado sobreviven los Diez Pueblos, conectados por caminos peligrosos y por una necesidad común: resistir un día más. No son como las ciudades de la Costa de la Espada. Aquí no hay grandeza, ni comodidad.Solo refugios. La vida es dura, y por lo que he visto, también es corta.</p><p style='margin-bottom:6px'>Comenzamos en Bremen, uno de los pueblos más pequeños y olvidados de la región. Sus casas son bajas, pero resistentes, agrupadas junto a un lago cubierto por una capa de hielo gruesa. Durante generaciones, sus habitantes han vivido de lo que pueden sacar de esas aguas. Pero últimamente incluso eso se ha vuelto incierto. Los pescadores ya no saben si tendrán suerte. Los peces escasean. El hielo cruje con sonidos inquietantes. Algunos aseguran haber visto cosas moviéndose sobre la superficie o debajo de ella. Los rumores han hecho su trabajo: aquí la moral es baja y el miedo alto.</p><p style='margin-bottom:6px'>En medio de ese temor, el alcalde de Bremen, Dorbulgruf Shalescar, un enano de edad avanzada, decidió partir hacia la tundra abierta. Según cuentan, estaba convencido de que este invierno no es natural. Habló de buscar respuestas. De hallar una forma de terminar con el frío eterno que azota Icewind Dale. Han pasado semanas desde que se marchó y no ha regresado.</p><p style='margin-bottom:6px'>Nos encontrábamos en la taberna El Alce Gruñón. Dentro olía a grasa quemada, alcohol fuerte y ropa húmeda secándose demasiado cerca del fuego. Las mesas estaban llenas de aldeanos de rostro cansado y manos agrietadas. La tensión se sentía en el aire. Harlond, el tabernero, parecía resignado a escuchar una y otra vez la misma conversación. Un enano anciano con capucha de oso, llamado Grins, hablaba también sobre la desaparición del alcalde. Una medio elfa de cabello castaño, Tali, dijo sin rodeos que esta vez no volvería. Otra mujer añadió que el alcalde había hablado de un sueño, algo relacionado con viajar al norte.</p><p style='margin-bottom:6px'>La discusión fue subiendo de tono hasta que varios aventureros aceptamos ir en su búsqueda.</p><p style='margin-bottom:6px'>Fue allí donde conocí a quienes ahora viajan conmigo.</p><p style='margin-bottom:6px'>Sven fue el primero que me llamó la atención. Un elfo de piel azulada, claramente acostumbrado al invierno. Viejo, endurecido, marcado por el frío de una forma que parecía ir más allá de lo natural. El hielo parecía recorrerle el cuerpo, y su barba grisácea y blanca, igual que su cabello, estaba rígida por la escarcha. Tiene el porte de un hombre que ha sobrevivido demasiadas tormentas. Por cómo viste y por cómo huele, diría que fue marinero. Lleva una cicatriz cruzándole uno de los ojos, y su mirada parece perdida, como si una parte de él se hubiera quedado atrás hace mucho tiempo. En la frente sobresalen témpanos que casi parecen cuernos.</p><p style='margin-bottom:6px'>Draxxus impone desde el primer momento. Un dragonante plateado enorme, de casi dos metros, con un cuerno roto y varias cicatrices en el rostro. Lleva una cota de malla y un tabardo amarillo y negro con el dibujo de un yunque, todo bastante desgastado. Se ve rudo, y sin embargo trata bien a la gente. Hay algo distante en él, una especie de cansancio o reserva, pero no crueldad. Admito que me sorprendió verlo comer sopa en un tazón diminuto con toda la seriedad del mundo. Resultó una imagen extrañamente humana.</p><p style='margin-bottom:6px'>Iankavic parece hecho de acero y convicción. Un semielfo con armadura pesada, muy serio, con el aire de un guerrero consagrado a algo superior. Da la impresión de ser una especie de campeón divino o caballero sagrado. Orgulloso, firme y de pocas palabras. Todavía no sé qué clase de hombre es en realidad, pero no parece alguien que retroceda fácilmente.</p><p style='margin-bottom:6px'>Tezca fue el más difícil de situar. Un tiefling bien vestido. Se nota enseguida que no es de aquí, o al menos que no pertenece a Bremen ni a sus gentes. Lleva en el pecho un símbolo de arpa, y eso bastó para dejar claro que viaja con algún propósito. No sé cuál pero de seguro tendrá una historia.</p><p style='margin-bottom:6px'>También supimos algo más inquietante sobre el alcalde. Al parecer, no era la primera vez que desaparecía o actuaba de forma extraña. Un aldeano nos contó que los guardias lo habían encontrado una vez a la orilla del río, de rodillas, mirando fijamente el hielo como si hablara con su propio reflejo. Dijeron que balbuceaba. Que no estaba solo, aunque no hubiera nadie visible con él. Hablaba de algo que habitaba bajo el hielo. No exactamente una voz, según él, pero algo que podía entender. Llegó a decir que no era el frío lo que estaba matando el sol… sino algo que lo estaba mirando.</p><p style='margin-bottom:6px'>No me gustó escuchar eso.</p><p style='margin-bottom:6px'>Taly nos ofreció una poción para cerrar heridas, y de algún modo terminó en mis manos. No sé si fue prudencia ajena o una forma silenciosa de decir que me veía demasiado frágil para este lugar. Tal vez ambas.</p><p style='margin-bottom:6px'>Partimos hacia el norte.</p><p style='margin-bottom:6px'>El frío fuera del pueblo parecía capaz de congelar la sangre dentro del cuerpo. El río Shaengarne estaba completamente helado. Y a medida que avanzábamos tuve la incómoda certeza de que algo, en algún lugar, nos observaba. No sabría explicar por qué. A veces no hace falta ver algo para sentirlo.</p><p style='margin-bottom:6px'>Encontramos trozos de tela manchados de sangre. Más adelante, nos topamos con unas criaturas extrañas. Tras derrotarlas, sus cuerpos dejaron ver escamas negras, sorprendentemente cálidas al tacto. Había algo profundamente incorrecto en eso. Recogimos varios fragmentos; calculamos que, si alguien quisiera comprarlos, apenas valdrían unas pocas monedas de cobre.(x6) También hallamos restos orgánicos en su interior, vísceras que podrían ser comestibles en el sentido más cruel de la palabra, aunque su aspecto era repulsivo. Aun así, terminamos recogiendo algunas(x4). En un lugar como este, uno aprende rápido que el hambre obliga a negociar con el asco.</p><p style='margin-bottom:6px'>Seguimos los rastros.</p><p style='margin-bottom:6px'>La nieve me habló más de lo que habría querido contarme. Pude distinguir que la persona que pasó por allí —muy probablemente el alcalde— había intentado cubrirse con la propia nieve. En un punto cayó de rodillas. Todas las marcas convergían en un único lugar: directamente sobre el hielo. Como si hubiese intentado alcanzar algo que estaba debajo de la superficie.</p><p style='margin-bottom:6px'>Limpié el hielo.</p><p style='margin-bottom:6px'>Y entonces lo vi.</p><p style='margin-bottom:6px'>Arañazos. Marcas. No superficiales ni accidentales, sino surcos claros, insistentes, como si alguien hubiera intentado abrir el hielo desde un mismo punto. Como si hubiera querido entrar… o sacar algo.</p><p style='margin-bottom:6px'>No me gustó en absoluto.</p><p style='margin-bottom:6px'>Finalmente derribamos un árbol con la intención de usarlo para quebrar la zona marcada y abrirnos paso.</p><p style='margin-bottom:6px'>No sé qué encontraremos debajo.</p><p style='margin-bottom:6px'>Pero algo en este lugar se siente mal. No solo peligroso, sino mal, como si la naturaleza misma hubiera sido torcida por algo que no debería estar aquí. Y cada vez entiendo mejor por qué un hombre desesperado podría escuchar cosas bajo el hielo… o creer que algo lo observa desde las profundidades.</p></div></div>
+<div class="card" style="margin-bottom:12px"><div class="card-title">Sesión 0 - Configuración de la campaña</div><div class="card-sub" style="margin-top:8px;line-height:1.7"><p style='margin-bottom:6px'>- Campaña: Icewind Dale: Rime of the Frostmaiden</p><p style='margin-bottom:6px'>- Inicio nivel 1, progresión por milestones hasta nivel 11-12</p><p style='margin-bottom:6px'>- Sistema: D&D 5e con compra de puntos (27 puntos)</p><p style='margin-bottom:6px'>- Plataforma: Foundry VTT con módulo Actor Studio</p><p style='margin-bottom:6px'>- Horario: Viernes semanales, nunca se cancela</p><p style='margin-bottom:6px'>### Participantes y Personajes</p><p style='margin-bottom:6px'>- Luis (Artángelo): Clérigo enano - Adrik</p><p style='margin-bottom:6px'>- Paco: Pícaro elfo lunar, marinero - Sven</p><p style='margin-bottom:6px'>- Darik: Fighter humano variante, battle master - Draxus</p><p style='margin-bottom:6px'>- Gangsta (Eduardo): Bardo tiefling - Teska</p><p style='margin-bottom:6px'>- Sat: Mago humano - Elian</p><p style='margin-bottom:6px'>- Lanka (Juan): Paladín semielfo de tormenta</p><p style='margin-bottom:6px'>### Reglas de Casa y Mecánicas</p><p style='margin-bottom:6px'>- Inspiración acumulativa hasta 15 puntos</p><p style='margin-bottom:6px'>- Diferentes efectos según puntos gastados</p><p style='margin-bottom:6px'>- Ventaja, retiradas, bonificadores de iniciativa</p><p style='margin-bottom:6px'>- Flanqueo activado</p><p style='margin-bottom:6px'>- Pociones como acción completa (no bonus)</p><p style='margin-bottom:6px'>- Munición y raciones se cuentan</p><p style='margin-bottom:6px'>- Descanso largo requiere 1 ración</p><p style='margin-bottom:6px'>### Configuración del Mundo</p><p style='margin-bottom:6px'>- El sol no ha salido en 2 años</p><p style='margin-bottom:6px'>- Solo 2 horas de luz tenue diaria</p><p style='margin-bottom:6px'>- Norte aislado de la Costa Espada</p><p style='margin-bottom:6px'>- Escasez de comida y suministros</p><p style='margin-bottom:6px'>- Ambiente de supervivencia y desgaste constante</p><p style='margin-bottom:6px'>### Gancho de Aventura</p><p style='margin-bottom:6px'>- Inicio en pueblo de Bremen</p><p style='margin-bottom:6px'>- Alcalde desapareció buscando al causante del invierno eterno</p><p style='margin-bottom:6px'>- Grupo se forma para rescatar al alcalde</p><p style='margin-bottom:6px'>- Campaña sandbox después de misión inicial</p><p style='margin-bottom:6px'>### Trasfondos de Personajes</p><p style='margin-bottom:6px'>- Adrik: Clérigo de la luna, motivaciones religiosas</p><p style='margin-bottom:6px'>- Sven: Pescador de Thermaline, relaciones comerciales con Bremen</p><p style='margin-bottom:6px'>- Draxus: Ex-mercenario del “Yunque Rojo”, viene del sur</p><p style='margin-bottom:6px'>- Teska: Bardo diplomático</p><p style='margin-bottom:6px'>- Elian: Mago estudiante, promesa incumplida al abuelo fallecido</p><p style='margin-bottom:6px'>### Normas de Mesa</p><p style='margin-bottom:6px'>- Juego cooperativo, no PvP</p><p style='margin-bottom:6px'>- Resolución de conflictos por roleplay o dados consensuados</p><p style='margin-bottom:6px'>- Sin temas prohibidos para ningún participante</p><p style='margin-bottom:6px'>- Personajes neutrales/buenos, no malvados</p><p style='margin-bottom:6px'>- Nadie es protagonista individual</p></div></div>
+</div>
+
+<!-- TAB: PERSONAJES -->
+<div id="tab-personajes" class="tab-panel">
+  <div class="section-label teal">La Party · Arcos y Trasfondos</div>
+<div class="card" style="margin-bottom:20px;border-color:rgba(42,157,127,0.2);background:rgba(42,157,127,0.05)"><div class="card-sub" style="font-size:13px">Los arcos de cada personaje se van entrelazando con la historia de Icewind Dale. Las amenazas de Auril tocaron algo personal en cada miembro de la party — no fue al azar.</div></div>
+
+<div class="party-char-card" style="border-left:3px solid #C9963A">
+  <div class="party-char-portrait" style="background:rgba(201,150,58,0.12);color:#C9963A;border-color:rgba(201,150,58,0.55)">A</div>
+  <div class="party-char-body">
+    <div class="party-char-name">Adrik Frostbeard <span style="font-size:11px;color:var(--gold);font-family:'Source Sans 3',sans-serif;font-weight:normal">· tú</span></div>
+    <div class="party-char-class">Clérigo · Dominio Crepúsculo · Enano de Colina</div>
+    <div class="party-char-bg">Outlander. Sobrevivió una tormenta hace 10 años que mató a dos compañeros. Tiene poderes que vienen de Selûne sin haberla elegido activamente.</div>
+    <div class="party-char-arc">Arco: Redención y fe cuestionada. Auril conoce su culpa — ¿cobardía o destino? Cada spell que funciona es un segundo de silencio ante una pregunta sin respuesta.</div>
+    <div class="party-char-moments"><span class="moment-tag">Detectó con Insight que Aliana mentía</span><span class="moment-tag">Levantó a Elian dos veces en sesión 2</span><span class="moment-tag">Le prestó el hacha a Dorbulgruf contra Auril</span></div>
+  </div>
+</div>
+
+<div class="party-char-card">
+  <div class="party-char-portrait" style="background:rgba(148,163,184,0.1);color:#94A3B8;border-color:rgba(148,163,184,0.5)">D</div>
+  <div class="party-char-body">
+    <div class="party-char-name">Draxus</div>
+    <div class="party-char-class">Fighter · Dragonborn Plateado</div>
+    <div class="party-char-bg">Dragonborn plateado del sur. Tabardo con yunque. Resistencia innata al frío — inusual incluso para su raza.</div>
+    <div class="party-char-arc">Arco: Busca a alguien. Auril le dijo que lo preservaría solo a él. El nombre de quien busca podría estar ligado a la historia de la región.</div>
+    <div class="party-char-moments"><span class="moment-tag">Fue el último en caer ante Auril</span><span class="moment-tag">Auril lo llamó por su nombre antes de que él la nombrara</span></div>
+    <a href="../draxus/index.html" class="party-char-link">Ver página de Draxus →</a>
+  </div>
+</div>
+
+<div class="party-char-card">
+  <div class="party-char-portrait" style="background:rgba(56,189,248,0.1);color:#38BDF8;border-color:rgba(56,189,248,0.5)">S</div>
+  <div class="party-char-body">
+    <div class="party-char-name">Sven</div>
+    <div class="party-char-class">Rogue · Elfo</div>
+    <div class="party-char-bg">Marinero del norte originario de Thermaline. Piel azulada, escarcha en la barba, cicatriz en un ojo. Muy conectado con el norte y el mar helado.</div>
+    <div class="party-char-arc">Arco: ¿Por qué alguien del norte está tan cómodo con este frío? Hay algo en su conexión con Icewind Dale que aún no ha revelado.</div>
+    <div class="party-char-moments"><span class="moment-tag">Sneak Attack con flecha de fuego en la primera batalla</span></div>
+    <a href="../sven/index.html" class="party-char-link">Ver página de Sven →</a>
+  </div>
+</div>
+
+<div class="party-char-card">
+  <div class="party-char-portrait" style="background:rgba(167,139,250,0.1);color:#A78BFA;border-color:rgba(167,139,250,0.5)">T</div>
+  <div class="party-char-body">
+    <div class="party-char-name">Teska</div>
+    <div class="party-char-class">Bardo · Tiefling</div>
+    <div class="party-char-bg">Tiefling bardo, agente de los Arpistas enviado a investigar Bremen.</div>
+    <div class="party-char-arc">Arco: La lealtad de los Arpistas puesta en duda: Auril le dijo que sus propios empleadores lo enviaron para deshacerse de él. ¿Misión o trampa?</div>
+    <div class="party-char-moments"><span class="moment-tag">Diplomático en negociaciones tensas</span><span class="moment-tag">Heroísmo activo en el combate con Auril</span></div>
+    <a href="../teska/index.html" class="party-char-link">Ver página de Teska →</a>
+  </div>
+</div>
+
+<div class="party-char-card">
+  <div class="party-char-portrait" style="background:rgba(96,165,250,0.1);color:#60A5FA;border-color:rgba(96,165,250,0.5)">E</div>
+  <div class="party-char-body">
+    <div class="party-char-name">Elian</div>
+    <div class="party-char-class">Mago · Humano</div>
+    <div class="party-char-bg">Mago humano joven, lleva un diario. Promesa incumplida a su abuelo. Habla en élfico al castear hechizos.</div>
+    <div class="party-char-arc">Arco: El más frágil del grupo pero con el mayor potencial. Cayó dos veces en la misma sesión — algo en él sigue eligiendo levantarse.</div>
+    <div class="party-char-moments"><span class="moment-tag">Cayó inconsciente 2 veces en sesión 2</span><span class="moment-tag">Adrik lo levantó ambas veces</span><span class="moment-tag">Habla en élfico — origen o formación inusuales</span></div>
+    <a href="../elian/index.html" class="party-char-link">Ver página de Elian →</a>
+  </div>
+</div>
+
+<div class="party-char-card">
+  <div class="party-char-portrait" style="background:rgba(52,211,153,0.1);color:#34D399;border-color:rgba(52,211,153,0.5)">Y</div>
+  <div class="party-char-body">
+    <div class="party-char-name">Yankavic</div>
+    <div class="party-char-class">Paladín · Semielfo</div>
+    <div class="party-char-bg">Paladín semielfo de Dungask Hold. Busca a su maestro desaparecido. Subclase de tormenta.</div>
+    <div class="party-char-arc">Arco: Auril lo amenazó directamente — dijo que su juramento se rompería y que él atraería a los no-muertos. El peso de esa amenaza aún no ha materializado.</div>
+    <div class="party-char-moments"><span class="moment-tag">Auril lo nombró directamente entre los presentes</span><span class="moment-tag">Su maestro desaparecido podría estar relacionado con los eventos del módulo</span></div>
+    <a href="../yankavic/index.html" class="party-char-link">Ver página de Yankavic →</a>
+  </div>
+</div>
+</div>
+
+<!-- TAB: MISIONES -->
+<div id="tab-misiones" class="tab-panel">
+  <div class="section-label teal">Misiones Activas</div>
+<div class="quest-card">
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
+    <div class="quest-title">Encontrar y eliminar a Sefek Caltro</div>
+    <span class="badge amber">Activa</span>
+  </div>
+  <div class="quest-reward"><strong>Recompensa:</strong> 100 gp + objeto mágico por persona</div>
+  <div class="quest-note"><strong>Contratante:</strong> Gillin Trollbane<br><strong>Objetivo:</strong> Sefek Caltro — guardaespaldas de la compañía Torga<br>Piel azul, no siente el frío. 3 asesinatos con daga de hielo negro. Instrucciones: traer su cabeza.<br><em>Posible conexión con Auril. La mujer Aliana que encontramos era una manifestación.</em></div>
+</div>
+<div class="section-label teal" style="margin-top:24px">Misterios y Hilos Abiertos</div>
+<div class="mystery-card">
+  <div class="mystery-title">🔴 ¿A quiénes dejó morir Adrik?</div>
+  <div class="mystery-text">Auril le dijo directamente: 'asesino, los dejaste morir, y lo sabes.' Hace 10 años, Adrik sobrevivió una tormenta que mató a dos compañeros. ¿Fue solo eso? Este misterio es el núcleo del arco personal del personaje.</div>
+</div>
+<div class="section-label teal" style="margin-top:24px">Preguntas Sin Respuesta</div>
+<div class="card" style="border-left:3px solid rgba(204,51,51,0.4);background:rgba(204,51,51,0.04)">
+  <div class="card-title" style="color:#EE8888;font-size:14px">¿Qué le pasó al maestro de Yankavic?</div>
+  <div class="card-sub">Yankavic busca a su maestro desaparecido. Auril lo amenazó directamente, lo que sugiere una conexión con los eventos del módulo.</div>
+</div>
+<div class="card" style="border-left:3px solid rgba(204,51,51,0.4);background:rgba(204,51,51,0.04)">
+  <div class="card-title" style="color:#EE8888;font-size:14px">¿A quién busca Draxus?</div>
+  <div class="card-sub">El dragonborn plateado viajó desde el sur buscando a alguien. Auril dijo que lo preservaría "solo a él" — como si conociera su historia.</div>
+</div>
+<div class="card" style="border-left:3px solid rgba(204,51,51,0.4);background:rgba(204,51,51,0.04)">
+  <div class="card-title" style="color:#EE8888;font-size:14px">¿Los Arpistas traicionaron a Teska?</div>
+  <div class="card-sub">Auril le dijo que sus propios empleadores lo enviaron para deshacerse de él. ¿Misión encubierta o trampa?</div>
+</div>
+</div>
+
+<!-- TAB: MUNDO -->
+<div id="tab-mundo" class="tab-panel">
+  <div class="section-label teal">Antagonistas</div>
+<div class="persona-card" style="border-left:3px solid var(--red);background:linear-gradient(90deg,rgba(204,51,51,0.08),var(--surface))">
+  <div class="persona-header">
+    <div class="persona-name" style="color:var(--red)">Auril — La Doncella del Hielo</div>
+    <span class="badge red">Antagonista Principal</span>
+  </div>
+  <div class="persona-rel">Causante del invierno eterno</div>
+  <div class="persona-note">Figura de ave, plumaje blanco, manto azul profundo. Tiene acciones legendarias. Le dijo a Adrik: 'asesino, los dejaste morir'. A Draxus le dijo que lo preservaría solo a él. Le irrita que mencionen a otros dioses.</div>
+</div>
+<div class="persona-card" style="border-left:3px solid var(--coral);background:linear-gradient(90deg,rgba(204,80,48,0.08),var(--surface))">
+  <div class="persona-header">
+    <div class="persona-name" style="color:var(--coral)">Sefek Caltro</div>
+    <span class="badge coral">Objetivo Activo</span>
+  </div>
+  <div class="persona-rel">Guardaespaldas de la compañía Torga</div>
+  <div class="persona-note">Piel azul, no usa abrigo, no tiembla. Sospechoso de 3 asesinatos con daga de hielo negro. Posible conexión con Auril.</div>
+</div>
+<div class="persona-card" style="border-left:3px solid var(--coral);background:linear-gradient(90deg,rgba(204,80,48,0.08),var(--surface))">
+  <div class="persona-header">
+    <div class="persona-name" style="color:var(--coral)">Aliana</div>
+    <span class="badge coral">Manifestación de Auril</span>
+  </div>
+  <div class="persona-rel">Trampa — era una proyección</div>
+  <div class="persona-note">Mujer encontrada enterrada. Adrik detectó que mentía (Insight). Se transformó en nieve al ser confrontada.</div>
+</div>
+<div class="section-label teal" style="margin-top:24px">Aliados</div>
+<div class="persona-card" style="border-left:3px solid var(--amber)">
+  <div class="persona-header">
+    <div class="persona-name">Gillin Trollbane</div>
+    <span class="badge amber">Empleadora · Salvadora</span>
+  </div>
+  <div class="persona-rel">Nos rescató en la nieve</div>
+  <div class="persona-note">Enana veterana. Cabaña 1 día al norte de Bremen. Su nieta fue asesinada. Recompensa: 100 gp + objeto mágico por persona.</div>
+</div>
+<div class="persona-card" style="border-left:3px solid var(--teal)">
+  <div class="persona-header">
+    <div class="persona-name">Dorbulgruf Shalescar</div>
+    <span class="badge teal">Alcalde de Bremen</span>
+  </div>
+  <div class="persona-rel">Primo lejano del padre de Adrik</div>
+  <div class="persona-note">Rescatado de la cueva. No recuerda nada. Peleó contra Auril con hacha de mano de Adrik.</div>
+</div>
+<hr class="divider"><div class="section-label teal">Lugares</div>
+<div class="card "><div class="card-title">Bremen</div><div class="card-sub">Punto de inicio. El Alce Gruñón. Sin sol 2 años. Dorbulgruf era el nexo diplomático.</div></div>
+<div class="card coral"><div class="card-title">La Cueva del Hielo Negro</div><div class="card-sub">Al norte de Bremen. Hielo negro que no refleja seres vivos. Frío proviene de adentro. Enfrentamos a Auril aquí.</div></div>
+<div class="card "><div class="card-title">Cabaña de Gillin</div><div class="card-sub">1 día al norte de Bremen. Lugar seguro. Aquí despertamos y subimos a nivel 2.</div></div>
+<div class="card coral"><div class="card-title">East Haven</div><div class="card-sub">Primera víctima: halfling trampero. Daga de hielo negro en el pecho. Puerta cerrada.</div></div>
+<div class="card coral"><div class="card-title">Targos</div><div class="card-sub">Segunda víctima: constructor de barcos. Muelle congelado. Misma daga.</div></div>
+<div class="card coral"><div class="card-title">Bryn Shander</div><div class="card-sub">Ciudad más grande. Tercera víctima: enano soplador de vidrio. Mismo patrón.</div></div>
+</div>
+
+</div><!-- end content -->
+
+<script>
+const CHAR_SLUG = 'adrik';
+const SLOTS_TOTAL = 3;
+let slotsUsed = 0;
+let cdUsed = false;
+
+function switchTab(id, btn) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  const panel = document.getElementById('tab-' + id);
+  if (panel) panel.classList.add('active');
+  if (btn) btn.classList.add('active');
+  localStorage.setItem('tab_' + CHAR_SLUG, id);
+}
+
+function toggleSlot(i) {
+  slotsUsed = (i < slotsUsed) ? i : i + 1;
+  updateSlots();
+  localStorage.setItem('slots_' + CHAR_SLUG, slotsUsed);
+}
+
+function resetSlots() {
+  slotsUsed = 0;
+  updateSlots();
+  localStorage.setItem('slots_' + CHAR_SLUG, 0);
+}
+
+function updateSlots() {
+  const pips = document.querySelectorAll('.slot-pip');
+  pips.forEach((p, i) => {
+    if (i < slotsUsed) { p.classList.add('used'); p.textContent = '✕'; }
+    else { p.classList.remove('used'); p.textContent = '●'; }
+  });
+  const avail = SLOTS_TOTAL - slotsUsed;
+  const cnt = document.getElementById('slotsCount');
+  if (cnt) {
+    cnt.textContent = avail + ' / ' + SLOTS_TOTAL + ' disponibles';
+    cnt.style.color = avail === 0 ? '#CC5030' : avail === 1 ? '#C9963A' : 'rgba(238,230,214,0.6)';
+  }
+}
+
+function toggleCD() {
+  cdUsed = !cdUsed;
+  const btn = document.getElementById('cdBtn');
+  if (!btn) return;
+  if (cdUsed) {
+    btn.textContent = '0 usos (gastado)';
+    btn.style.background = 'var(--red-bg)';
+    btn.style.color = 'var(--red)';
+    btn.style.borderColor = 'rgba(204,51,51,0.3)';
+  } else {
+    btn.textContent = '1 uso disponible';
+    btn.style.background = 'var(--teal-bg)';
+    btn.style.color = 'var(--teal)';
+    btn.style.borderColor = 'rgba(42,157,127,0.3)';
+  }
+  localStorage.setItem('cd_' + CHAR_SLUG, cdUsed ? '1' : '0');
+}
+
+// ── FVTT JSON Upload (for non-pre-rendered pages) ──
+function loadCharJSON(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const raw = JSON.parse(e.target.result);
+      const char = parseFoundry(raw);
+      localStorage.setItem('char_' + CHAR_SLUG, JSON.stringify(char));
+      renderDynamicChar(char);
+    } catch(err) {
+      alert('Error al leer el archivo JSON: ' + err.message);
+    }
+  };
+  reader.readAsText(file);
+}
+
+function fmt(n) { return n >= 0 ? '+' + n : String(n); }
+
+function parseFoundry(data) {
+  const sys = data.system || data.data || {};
+  const attr = sys.attributes || {};
+  const abils = sys.abilities || {};
+  const lvl = sys.details?.level?.value || sys.details?.level || 1;
+  const prof = Math.ceil(1 + lvl / 4);
+  const abilities = {};
+  ['str','dex','con','int','wis','cha'].forEach(k => {
+    const a = abils[k] || {};
+    const val = a.value || 10;
+    const mod = Math.floor((val - 10) / 2);
+    abilities[k] = { value: val, mod, modStr: fmt(mod) };
+  });
+  const hp = attr.hp || {};
+  const ac = attr.ac || {};
+  const wisMod = abilities.wis?.mod || 0;
+  const spellSaveDC = 8 + prof + wisMod;
+  const spellAttackBonus = prof + wisMod;
+  return {
+    name: data.name || 'Personaje',
+    level: lvl,
+    class: sys.details?.class || sys.details?.classes ? Object.keys(sys.details?.classes || {})[0] || '' : '',
+    abilities,
+    hp: { value: hp.value || 0, max: hp.max || 0 },
+    ac: ac.value || 10,
+    proficiencyBonus: prof,
+    spellSaveDC,
+    spellAttackBonus,
+  };
+}
+
+function renderDynamicChar(char) {
+  const zone = document.querySelector('.upload-zone');
+  const dyn = document.getElementById('dynamic-stats');
+  if (!dyn) return;
+  const order = [['str','FUE'],['dex','DES'],['con','CON'],['int','INT'],['wis','SAB'],['cha','CAR']];
+  let boxes = order.map(([k, label]) => {
+    const ab = char.abilities[k] || {};
+    return `<div class="stat-box"><span class="stat-val">${ab.modStr||'+0'}</span><span class="stat-label">${label} ${ab.value||10}</span></div>`;
+  }).join('');
+  boxes += `<div class="stat-box wide"><span class="stat-val">${char.ac}</span><span class="stat-label">Clase Armadura</span></div>`;
+  boxes += `<div class="stat-box wide"><span class="stat-val">${char.hp.value}/${char.hp.max}</span><span class="stat-label">HP</span></div>`;
+  boxes += `<div class="stat-box wide"><span class="stat-val">${fmt(char.proficiencyBonus)}</span><span class="stat-label">Proficiencia</span></div>`;
+  boxes += `<div class="stat-box wide"><span class="stat-val">${char.spellSaveDC}</span><span class="stat-label">Spell Save DC</span></div>`;
+  boxes += `<div class="stat-box wide"><span class="stat-val">${fmt(char.spellAttackBonus)}</span><span class="stat-label">Ataque Hechizo</span></div>`;
+  dyn.innerHTML = `
+    <div class="section-label" style="margin-top:0">Stats de ${char.name} · Nivel ${char.level}</div>
+    <div class="stat-grid" style="margin-bottom:16px">${boxes}</div>
+    <div class="card" style="margin-bottom:0">
+      <div class="card-sub" style="font-size:13px;color:var(--text3)">
+        Datos cargados desde archivo local. Para ver hechizos y equipo detallado, usa la hoja de personaje de Foundry.
+      </div>
+    </div>`;
+  dyn.classList.add('visible');
+  if (zone) zone.style.display = 'none';
+}
+
+// ── Init ──
+window.addEventListener('DOMContentLoaded', function() {
+  // Restore slots
+  const saved = localStorage.getItem('slots_' + CHAR_SLUG);
+  if (saved) { slotsUsed = parseInt(saved) || 0; updateSlots(); }
+  // Restore CD
+  const cdSaved = localStorage.getItem('cd_' + CHAR_SLUG);
+  if (cdSaved === '1') toggleCD();
+  // Restore tab
+  const savedTab = localStorage.getItem('tab_' + CHAR_SLUG);
+  if (savedTab) {
+    const btn = document.querySelector(`[onclick="switchTab('${savedTab}',this)"]`);
+    if (btn) switchTab(savedTab, btn);
+  }
+  // Try loading char from localStorage (for non-Adrik pages)
+  const stored = localStorage.getItem('char_' + CHAR_SLUG);
+  if (stored) {
+    try { renderDynamicChar(JSON.parse(stored)); } catch(e) {}
+  }
+});
+</script>
+</body>
+</html>

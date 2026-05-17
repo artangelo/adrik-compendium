@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Icewind Dale · Party Hub</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=Source+Sans+3:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#080b16;--surface:#0f1425;--surface2:#161e34;--surface3:#1d2640;
+  --gold:#C9963A;--gold2:#E8B84B;--gold-border:rgba(201,150,58,0.3);--gold-border2:rgba(201,150,58,0.55);
+  --text:#F8F3E8;--text2:#C8BEA8;--text3:#8A8070;
+  --teal:#2A9D7F;--teal2:#4ABFA0;--teal-bg:rgba(42,157,127,0.12);
+  --radius:10px;--radius-sm:6px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Source Sans 3',sans-serif;font-size:16px;line-height:1.65;min-height:100vh}
+h1,h2,h3{font-family:'Cinzel',serif}
+.header{background:linear-gradient(180deg,#040710 0%,#080c1a 50%,#0b1020 100%);border-bottom:1px solid var(--gold-border);padding:48px 36px 36px;text-align:center;position:relative;overflow:hidden}
+.header::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
+.campaign-label{font-family:'Cinzel',serif;font-size:12px;color:var(--gold);text-transform:uppercase;letter-spacing:3px;margin-bottom:10px}
+.hub-title{font-family:'Cinzel',serif;font-size:40px;font-weight:600;color:var(--gold2);letter-spacing:1px;line-height:1.1;margin-bottom:8px}
+.hub-sub{font-size:14px;color:var(--text3);font-style:italic;margin-bottom:28px}
+.hub-stats{display:flex;justify-content:center;gap:32px;flex-wrap:wrap;font-size:13px;color:var(--text2)}
+.hub-stat strong{color:var(--gold);font-family:'Cinzel',serif}
+.content{max-width:1200px;margin:0 auto;padding:40px 28px}
+.section-label{font-family:'Cinzel',serif;font-size:11px;font-weight:500;color:var(--gold);text-transform:uppercase;letter-spacing:1.2px;margin:0 0 20px;display:flex;align-items:center;gap:10px}
+.section-label::before,.section-label::after{content:'';flex:1;height:1px;background:var(--gold-border)}
+.party-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:14px;margin-bottom:40px}
+.char-card{display:flex;gap:16px;align-items:center;background:var(--surface);border:1px solid var(--surface3);border-radius:var(--radius);padding:18px;text-decoration:none;color:inherit;transition:all 0.25s;position:relative;overflow:hidden}
+.char-card:hover{border-color:var(--gold-border);background:var(--surface2);transform:translateY(-2px)}
+.char-card.is-player{border-color:var(--gold-border);background:linear-gradient(135deg,rgba(201,150,58,0.06),var(--surface))}
+.char-card.is-player:hover{border-color:var(--gold-border2)}
+.portrait-wrap{position:relative;flex-shrink:0}
+.portrait-img{width:68px;height:68px;border-radius:50%;object-fit:cover;border:2px solid var(--gold-border);display:block}
+.portrait-fallback{width:68px;height:68px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Cinzel',serif;font-size:24px;font-weight:600;border:2px solid}
+.char-info{flex:1;min-width:0}
+.char-card-name{font-family:'Cinzel',serif;font-size:16px;font-weight:500;color:var(--text);margin-bottom:3px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.char-card-class{font-size:13px;color:var(--text2);margin-bottom:2px}
+.char-card-race{font-size:12px;color:var(--text3)}
+.char-card-arrow{font-size:16px;flex-shrink:0;transition:all 0.2s}
+.char-card:hover .char-card-arrow{transform:translateX(3px)}
+.player-you{font-size:10px;color:var(--gold);font-family:'Cinzel',serif;text-transform:uppercase;letter-spacing:0.8px;background:rgba(201,150,58,0.1);border:1px solid rgba(201,150,58,0.3);border-radius:20px;padding:1px 7px;font-style:normal}
+.player-name{font-size:11px;color:var(--text3);font-family:'Source Sans 3',sans-serif}
+.quest-banner{background:linear-gradient(135deg,rgba(201,150,58,0.1),var(--surface));border:1px solid var(--gold-border);border-radius:var(--radius);padding:18px 20px;display:flex;gap:16px;align-items:flex-start;margin-bottom:14px}
+.quest-icon{font-size:20px;flex-shrink:0}
+.quest-body{flex:1}
+.quest-label{font-size:10px;color:var(--gold);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;font-family:'Cinzel',serif}
+.quest-title{font-family:'Cinzel',serif;font-size:15px;color:var(--text);margin-bottom:4px}
+.quest-detail{font-size:13px;color:var(--text2)}
+.footer{text-align:center;padding:24px;font-size:12px;color:var(--text3);border-top:1px solid var(--surface3)}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--surface3);border-radius:3px}
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="campaign-label">Icewind Dale</div>
+  <div class="hub-title">Rime of the Frostmaiden</div>
+  <div class="hub-sub">El invierno eterno de Auril · Los Diez Pueblos</div>
+  <div class="hub-stats">
+    <div class="hub-stat"><strong>5</strong> sesiones</div>
+    <div class="hub-stat"><strong>6</strong> aventureros</div>
+    <div class="hub-stat">actualizado <strong>16 May 2026</strong></div>
+  </div>
+</div>
+<div class="content">
+  <div class="section-label">La Party</div>
+  <div class="party-grid">
+<a href="adrik/index.html" class="char-card is-player" style="border-color:rgba(201,150,58,0.55)">
+  <div class="portrait-wrap"><div class="portrait-fallback" style="background:rgba(201,150,58,0.12);color:#C9963A;border-color:rgba(201,150,58,0.55)">A</div></div>
+  <div class="char-info">
+    <div class="char-card-name">Adrik Frostbeard <span class="player-you">tú</span></div>
+    <div class="char-card-class">Clérigo</div>
+    <div class="char-card-race"><span style="color:#C9963A;font-family:Cinzel,serif;font-size:12px">Nivel 2</span> · Enano de Colina</div>
+  </div>
+  <div class="char-card-arrow" style="color:#C9963A">→</div>
+</a>
+<a href="draxus/index.html" class="char-card" style="border-color:var(--surface3)">
+  <div class="portrait-wrap"><div class="portrait-fallback" style="background:rgba(148,163,184,0.1);color:#94A3B8;border-color:rgba(148,163,184,0.5)">D</div></div>
+  <div class="char-info">
+    <div class="char-card-name">Draxus</div>
+    <div class="char-card-class">Fighter</div>
+    <div class="char-card-race">Dragonborn Plateado</div>
+  </div>
+  <div class="char-card-arrow" style="color:#94A3B8">→</div>
+</a>
+<a href="sven/index.html" class="char-card" style="border-color:var(--surface3)">
+  <div class="portrait-wrap"><div class="portrait-fallback" style="background:rgba(56,189,248,0.1);color:#38BDF8;border-color:rgba(56,189,248,0.5)">S</div></div>
+  <div class="char-info">
+    <div class="char-card-name">Sven</div>
+    <div class="char-card-class">Rogue</div>
+    <div class="char-card-race">Elfo</div>
+  </div>
+  <div class="char-card-arrow" style="color:#38BDF8">→</div>
+</a>
+<a href="teska/index.html" class="char-card" style="border-color:var(--surface3)">
+  <div class="portrait-wrap"><div class="portrait-fallback" style="background:rgba(167,139,250,0.1);color:#A78BFA;border-color:rgba(167,139,250,0.5)">T</div></div>
+  <div class="char-info">
+    <div class="char-card-name">Teska</div>
+    <div class="char-card-class">Bardo</div>
+    <div class="char-card-race">Tiefling</div>
+  </div>
+  <div class="char-card-arrow" style="color:#A78BFA">→</div>
+</a>
+<a href="elian/index.html" class="char-card" style="border-color:var(--surface3)">
+  <div class="portrait-wrap"><div class="portrait-fallback" style="background:rgba(96,165,250,0.1);color:#60A5FA;border-color:rgba(96,165,250,0.5)">E</div></div>
+  <div class="char-info">
+    <div class="char-card-name">Elian</div>
+    <div class="char-card-class">Mago</div>
+    <div class="char-card-race">Humano</div>
+  </div>
+  <div class="char-card-arrow" style="color:#60A5FA">→</div>
+</a>
+<a href="yankavic/index.html" class="char-card" style="border-color:var(--surface3)">
+  <div class="portrait-wrap"><div class="portrait-fallback" style="background:rgba(52,211,153,0.1);color:#34D399;border-color:rgba(52,211,153,0.5)">Y</div></div>
+  <div class="char-info">
+    <div class="char-card-name">Yankavic</div>
+    <div class="char-card-class">Paladín</div>
+    <div class="char-card-race">Semielfo</div>
+  </div>
+  <div class="char-card-arrow" style="color:#34D399">→</div>
+</a>
+  </div>
+  <div class="section-label">Quest Activa</div>
+<div class="quest-banner">
+  <div class="quest-icon">⚔</div>
+  <div class="quest-body">
+    <div class="quest-label">Quest Activa</div>
+    <div class="quest-title">Encontrar y eliminar a Sefek Caltro</div>
+    <div class="quest-detail">Piel azul, no siente el frío. 3 asesinatos con daga de hielo negro. Instrucciones: traer su cabeza.</div>
+  </div>
+</div>
+</div>
+<div class="footer">Adrik Compendium · Generado 16 May 2026</div>
+</body>
+</html>

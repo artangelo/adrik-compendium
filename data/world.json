@@ -1,0 +1,73 @@
+{
+  "campaign": "La Maldición de Strahd — Icewind Dale: Rime of the Frostmaiden",
+  "lastUpdated": "2026-05-08",
+  "npcs": [
+    {
+      "name": "Auril — La Doncella del Hielo",
+      "role": "Antagonista Principal",
+      "relation": "Causante del invierno eterno",
+      "category": "antagonist",
+      "note": "Figura de ave, plumaje blanco, manto azul profundo. Tiene acciones legendarias. Le dijo a Adrik: 'asesino, los dejaste morir'. A Draxus le dijo que lo preservaría solo a él. Le irrita que mencionen a otros dioses."
+    },
+    {
+      "name": "Sefek Caltro",
+      "role": "Objetivo Activo",
+      "relation": "Guardaespaldas de la compañía Torga",
+      "category": "antagonist",
+      "note": "Piel azul, no usa abrigo, no tiembla. Sospechoso de 3 asesinatos con daga de hielo negro. Posible conexión con Auril."
+    },
+    {
+      "name": "Aliana",
+      "role": "Manifestación de Auril",
+      "relation": "Trampa — era una proyección",
+      "category": "antagonist",
+      "note": "Mujer encontrada enterrada. Adrik detectó que mentía (Insight). Se transformó en nieve al ser confrontada."
+    },
+    {
+      "name": "Gillin Trollbane",
+      "role": "Empleadora · Salvadora",
+      "relation": "Nos rescató en la nieve",
+      "category": "ally",
+      "note": "Enana veterana. Cabaña 1 día al norte de Bremen. Su nieta fue asesinada. Recompensa: 100 gp + objeto mágico por persona."
+    },
+    {
+      "name": "Dorbulgruf Shalescar",
+      "role": "Alcalde de Bremen",
+      "relation": "Primo lejano del padre de Adrik",
+      "category": "ally",
+      "note": "Rescatado de la cueva. No recuerda nada. Peleó contra Auril con hacha de mano de Adrik."
+    }
+  ],
+  "party": [
+    { "name": "Sven", "class": "Rogue · Elfo", "origin": "Thermaline", "note": "Piel azulada, marinero. Flecha de fuego. Muy conectado con el norte." },
+    { "name": "Draxus", "class": "Fighter · Dragonborn Plateado", "origin": "Sur", "note": "Resistencia al frío. Busca a alguien. Tabardo con yunque." },
+    { "name": "Teska", "class": "Bardo · Tiefling", "origin": "Widedeep", "note": "Agente Arpistas. Le dijo Auril que los Arpistas lo enviaron para deshacerse de él." },
+    { "name": "Elian", "class": "Mago · Humano", "origin": "Sur", "note": "Joven. Lleva diario. Adrik lo levantó 2 veces en sesión 2. Habla en élfico." },
+    { "name": "Yankavic", "class": "Paladín · Semielfo", "origin": "Dungask Hold", "note": "Busca a su maestro. Auril lo amenazó directamente." }
+  ],
+  "places": [
+    { "name": "Bremen", "desc": "Punto de inicio. El Alce Gruñón. Sin sol 2 años. Dorbulgruf era el nexo diplomático." },
+    { "name": "La Cueva del Hielo Negro", "desc": "Al norte de Bremen. Hielo negro que no refleja seres vivos. Frío proviene de adentro. Enfrentamos a Auril aquí." },
+    { "name": "Cabaña de Gillin", "desc": "1 día al norte de Bremen. Lugar seguro. Aquí despertamos y subimos a nivel 2." },
+    { "name": "East Haven", "desc": "Primera víctima: halfling trampero. Daga de hielo negro en el pecho. Puerta cerrada." },
+    { "name": "Targos", "desc": "Segunda víctima: constructor de barcos. Muelle congelado. Misma daga." },
+    { "name": "Bryn Shander", "desc": "Ciudad más grande. Tercera víctima: enano soplador de vidrio. Mismo patrón." }
+  ],
+  "quests": [
+    {
+      "title": "Encontrar y eliminar a Sefek Caltro",
+      "status": "active",
+      "client": "Gillin Trollbane",
+      "reward": "100 gp + objeto mágico por persona",
+      "target": "Sefek Caltro — guardaespaldas de la compañía Torga",
+      "description": "Piel azul, no siente el frío. 3 asesinatos con daga de hielo negro. Instrucciones: traer su cabeza.",
+      "notes": "Posible conexión con Auril. La mujer Aliana que encontramos era una manifestación."
+    }
+  ],
+  "mysteries": [
+    {
+      "title": "¿A quiénes dejó morir Adrik?",
+      "description": "Auril le dijo directamente: 'asesino, los dejaste morir, y lo sabes.' Hace 10 años, Adrik sobrevivió una tormenta que mató a dos compañeros. ¿Fue solo eso? Este misterio es el núcleo del arco personal del personaje."
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "name": "adrik-compendium",
+  "version": "1.0.0",
+  "description": "Adrik Frostbeard D&D character reference site — auto-generated from Foundry VTT + Google Docs",
+  "scripts": {
+    "update-char": "node scripts/parse-foundry.js",
+    "sync-docs": "node scripts/sync-gdocs.js",
+    "build": "node scripts/build.js",
+    "update": "node scripts/parse-foundry.js $FOUNDRY_JSON && node scripts/build.js",
+    "full-sync": "node scripts/sync-gdocs.js && node scripts/build.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.0.0",
+    "googleapis": "^128.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

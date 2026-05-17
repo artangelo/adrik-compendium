@@ -1,0 +1,416 @@
+{
+  "name": "Adrik Frostbeard",
+  "class": "Cleric",
+  "subclass": "Twilight Domain",
+  "level": 2,
+  "background": "Outlander",
+  "race": "Dwarf (Hill)",
+  "deity": "Selûne",
+  "proficiencyBonus": 2,
+  "abilities": {
+    "str": {
+      "value": 13,
+      "mod": 1,
+      "modStr": "+1",
+      "label": "FUE",
+      "proficient": 0
+    },
+    "dex": {
+      "value": 8,
+      "mod": -1,
+      "modStr": "-1",
+      "label": "DES",
+      "proficient": 0
+    },
+    "con": {
+      "value": 17,
+      "mod": 3,
+      "modStr": "+3",
+      "label": "CON",
+      "proficient": 0
+    },
+    "int": {
+      "value": 8,
+      "mod": -1,
+      "modStr": "-1",
+      "label": "INT",
+      "proficient": 0
+    },
+    "wis": {
+      "value": 16,
+      "mod": 3,
+      "modStr": "+3",
+      "label": "SAB",
+      "proficient": 1
+    },
+    "cha": {
+      "value": 12,
+      "mod": 1,
+      "modStr": "+1",
+      "label": "CAR",
+      "proficient": 1
+    }
+  },
+  "savingThrows": {
+    "str": {
+      "bonus": 1,
+      "bonusStr": "+1",
+      "proficient": false
+    },
+    "dex": {
+      "bonus": -1,
+      "bonusStr": "-1",
+      "proficient": false
+    },
+    "con": {
+      "bonus": 3,
+      "bonusStr": "+3",
+      "proficient": false
+    },
+    "int": {
+      "bonus": -1,
+      "bonusStr": "-1",
+      "proficient": false
+    },
+    "wis": {
+      "bonus": 5,
+      "bonusStr": "+5",
+      "proficient": true
+    },
+    "cha": {
+      "bonus": 3,
+      "bonusStr": "+3",
+      "proficient": true
+    }
+  },
+  "skills": {
+    "acr": {
+      "name": "Acrobatics",
+      "ability": "dex",
+      "proficient": false,
+      "expertise": false,
+      "bonus": -1,
+      "bonusStr": "-1"
+    },
+    "ani": {
+      "name": "Animal Handling",
+      "ability": "wis",
+      "proficient": false,
+      "expertise": false,
+      "bonus": 3,
+      "bonusStr": "+3"
+    },
+    "arc": {
+      "name": "Arcana",
+      "ability": "int",
+      "proficient": false,
+      "expertise": false,
+      "bonus": -1,
+      "bonusStr": "-1"
+    },
+    "ath": {
+      "name": "Athletics",
+      "ability": "str",
+      "proficient": true,
+      "expertise": false,
+      "bonus": 3,
+      "bonusStr": "+3"
+    },
+    "dec": {
+      "name": "Deception",
+      "ability": "cha",
+      "proficient": false,
+      "expertise": false,
+      "bonus": 1,
+      "bonusStr": "+1"
+    },
+    "his": {
+      "name": "History",
+      "ability": "int",
+      "proficient": false,
+      "expertise": false,
+      "bonus": -1,
+      "bonusStr": "-1"
+    },
+    "ins": {
+      "name": "Insight",
+      "ability": "wis",
+      "proficient": true,
+      "expertise": false,
+      "bonus": 5,
+      "bonusStr": "+5"
+    },
+    "itm": {
+      "name": "Intimidation",
+      "ability": "cha",
+      "proficient": false,
+      "expertise": false,
+      "bonus": 1,
+      "bonusStr": "+1"
+    },
+    "inv": {
+      "name": "Investigation",
+      "ability": "int",
+      "proficient": false,
+      "expertise": false,
+      "bonus": -1,
+      "bonusStr": "-1"
+    },
+    "med": {
+      "name": "Medicine",
+      "ability": "wis",
+      "proficient": false,
+      "expertise": false,
+      "bonus": 3,
+      "bonusStr": "+3"
+    },
+    "nat": {
+      "name": "Nature",
+      "ability": "int",
+      "proficient": false,
+      "expertise": false,
+      "bonus": -1,
+      "bonusStr": "-1"
+    },
+    "prc": {
+      "name": "Perception",
+      "ability": "wis",
+      "proficient": false,
+      "expertise": false,
+      "bonus": 3,
+      "bonusStr": "+3"
+    },
+    "prf": {
+      "name": "Performance",
+      "ability": "cha",
+      "proficient": false,
+      "expertise": false,
+      "bonus": 1,
+      "bonusStr": "+1"
+    },
+    "per": {
+      "name": "Persuasion",
+      "ability": "cha",
+      "proficient": false,
+      "expertise": false,
+      "bonus": 1,
+      "bonusStr": "+1"
+    },
+    "rel": {
+      "name": "Religion",
+      "ability": "int",
+      "proficient": true,
+      "expertise": false,
+      "bonus": 1,
+      "bonusStr": "+1"
+    },
+    "slt": {
+      "name": "Sleight of Hand",
+      "ability": "dex",
+      "proficient": false,
+      "expertise": false,
+      "bonus": -1,
+      "bonusStr": "-1"
+    },
+    "ste": {
+      "name": "Stealth",
+      "ability": "dex",
+      "proficient": false,
+      "expertise": false,
+      "bonus": -1,
+      "bonusStr": "-1"
+    },
+    "sur": {
+      "name": "Survival",
+      "ability": "wis",
+      "proficient": true,
+      "expertise": false,
+      "bonus": 5,
+      "bonusStr": "+5"
+    }
+  },
+  "hp": {
+    "value": 11,
+    "max": null,
+    "temp": 0,
+    "tempmax": 0,
+    "bonuses": {}
+  },
+  "spellSaveDC": 13,
+  "spellAttackBonus": 5,
+  "inspiration": true,
+  "exhaustion": 0,
+  "currency": {
+    "pp": 0,
+    "gp": 10,
+    "ep": 0,
+    "sp": 0,
+    "cp": 0
+  },
+  "spells": [
+    {
+      "name": "Guidance",
+      "level": 0,
+      "prepMode": "always",
+      "school": "div"
+    },
+    {
+      "name": "Sacred Flame",
+      "level": 0,
+      "prepMode": "always",
+      "school": "evo"
+    },
+    {
+      "name": "Toll the Dead",
+      "level": 0,
+      "prepMode": "always",
+      "school": "nec"
+    },
+    {
+      "name": "Bless",
+      "level": 1,
+      "prepMode": "prepared",
+      "school": "enc"
+    },
+    {
+      "name": "Healing Word",
+      "level": 1,
+      "prepMode": "prepared",
+      "school": "evo"
+    },
+    {
+      "name": "Guiding Bolt",
+      "level": 1,
+      "prepMode": "prepared",
+      "school": "evo"
+    },
+    {
+      "name": "Shield of Faith",
+      "level": 1,
+      "prepMode": "prepared",
+      "school": "abj"
+    },
+    {
+      "name": "Command",
+      "level": 1,
+      "prepMode": "prepared",
+      "school": "enc"
+    }
+  ],
+  "spellSlots": {},
+  "equipment": [
+    {
+      "name": "Quarterstaff",
+      "type": "weapon",
+      "quantity": 1,
+      "equipped": true
+    },
+    {
+      "name": "Hunting Trap",
+      "type": "consumable",
+      "quantity": 1,
+      "equipped": false
+    },
+    {
+      "name": "Trophy from an animal",
+      "type": "loot",
+      "quantity": 1,
+      "equipped": false
+    },
+    {
+      "name": "Shield",
+      "type": "equipment",
+      "quantity": 1,
+      "equipped": true
+    },
+    {
+      "name": "Warhammer",
+      "type": "weapon",
+      "quantity": 1,
+      "equipped": true
+    },
+    {
+      "name": "Scale Mail",
+      "type": "equipment",
+      "quantity": 1,
+      "equipped": true
+    },
+    {
+      "name": "Handaxe",
+      "type": "weapon",
+      "quantity": 1,
+      "equipped": true
+    },
+    {
+      "name": "Emblem",
+      "type": "equipment",
+      "quantity": 1,
+      "equipped": true
+    },
+    {
+      "name": "Bedroll",
+      "type": "loot",
+      "quantity": 1,
+      "equipped": false
+    },
+    {
+      "name": "Mess Kit",
+      "type": "loot",
+      "quantity": 1,
+      "equipped": false
+    },
+    {
+      "name": "Torch",
+      "type": "consumable",
+      "quantity": 1,
+      "equipped": false
+    },
+    {
+      "name": "Hempen Rope (50 ft.)",
+      "type": "consumable",
+      "quantity": 1,
+      "equipped": false
+    },
+    {
+      "name": "Tinderbox",
+      "type": "loot",
+      "quantity": 1,
+      "equipped": false
+    },
+    {
+      "name": "Rations",
+      "type": "consumable",
+      "quantity": 11,
+      "equipped": false
+    },
+    {
+      "name": "Waterskin",
+      "type": "consumable",
+      "quantity": 1,
+      "equipped": false
+    }
+  ],
+  "activeConditions": [
+    "Torch",
+    "Concentrating: Bless"
+  ],
+  "warnings": [
+    {
+      "type": "error",
+      "msg": "HP máximo no configurado en Foundry — configúralo manualmente en la hoja de personaje."
+    },
+    {
+      "type": "error",
+      "msg": "Spell slots no configurados en Foundry — revisa la pestaña de hechizos."
+    },
+    {
+      "type": "warn",
+      "msg": "Los hechizos de dominio (Sleep, Faerie Fire) no están agregados en Foundry."
+    },
+    {
+      "type": "warn",
+      "msg": "Tienes Scale Mail (CA 15). Considera cambiar a Chain Mail (CA 18) — tienes proficiencia en armadura pesada por Twilight Domain."
+    }
+  ],
+  "lastUpdated": "2026-05-16T05:22:01.459752"
+}

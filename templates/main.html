@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Adrik Frostbeard · Compendium</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=Source+Sans+3:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #080b16;
+  --surface: #0f1425;
+  --surface2: #161e34;
+  --surface3: #1d2640;
+  --gold: #C9963A;
+  --gold2: #E8B84B;
+  --gold-dim: rgba(201,150,58,0.15);
+  --gold-border: rgba(201,150,58,0.3);
+  --gold-border2: rgba(201,150,58,0.55);
+  --text: #F8F3E8;
+  --text2: #C8BEA8;
+  --text3: #8A8070;
+  --amber: #C9963A;
+  --amber-bg: rgba(201,150,58,0.12);
+  --purple: #7B63CC;
+  --purple-bg: rgba(123,99,204,0.12);
+  --teal: #2A9D7F;
+  --teal-bg: rgba(42,157,127,0.12);
+  --coral: #CC5030;
+  --coral-bg: rgba(204,80,48,0.12);
+  --blue: #4A8ADE;
+  --blue-bg: rgba(74,138,222,0.12);
+  --red: #CC3333;
+  --red-bg: rgba(204,51,51,0.12);
+  --radius: 10px;
+  --radius-sm: 6px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Source Sans 3', sans-serif;
+  font-size: 16px;
+  line-height: 1.65;
+  min-height: 100vh;
+}
+h1, h2, h3, h4 { font-family: 'Cinzel', serif; }
+
+/* HEADER */
+.header {
+  background: linear-gradient(180deg, #060910 0%, #0b1020 100%);
+  border-bottom: 1px solid var(--gold-border);
+  padding: 24px 28px 20px;
+  position: relative;
+  overflow: hidden;
+}
+.header::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+}
+.header-top { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 16px; }
+.char-name { font-family: 'Cinzel', serif; font-size: 30px; font-weight: 600; color: var(--gold2); letter-spacing: 0.5px; line-height: 1.1; }
+.char-sub { font-size: 13px; color: var(--text2); margin-top: 5px; font-style: italic; letter-spacing: 0.2px; }
+.char-sub span { color: var(--gold); font-style: normal; }
+
+.stat-grid { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 18px; }
+.stat-box {
+  background: var(--surface2);
+  border: 1px solid var(--gold-border);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  text-align: center;
+  min-width: 70px;
+}
+.stat-box.wide { min-width: 90px; }
+.stat-val { font-family: 'Cinzel', serif; font-size: 22px; font-weight: 500; color: var(--gold2); display: block; }
+.stat-label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.8px; margin-top: 2px; display: block; }
+.stat-mod { font-size: 12px; color: var(--text2); display: block; }
+
+/* SLOTS TRACKER */
+.slots-area { margin-top: 18px; display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.slots-label { font-family: 'Cinzel', serif; font-size: 12px; color: var(--gold); text-transform: uppercase; letter-spacing: 0.8px; }
+.slots-pips { display: flex; gap: 8px; align-items: center; }
+.slot-pip {
+  width: 34px; height: 34px; border-radius: 50%;
+  border: 1.5px solid var(--gold-border2);
+  background: transparent;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; color: var(--gold-border2);
+  transition: all 0.2s;
+}
+.slot-pip.used {
+  background: var(--coral-bg);
+  border-color: var(--coral);
+  color: var(--coral);
+}
+.slot-pip:hover { border-color: var(--gold); color: var(--gold); }
+.slots-reset {
+  font-size: 12px; color: var(--text2); background: transparent;
+  border: 1px solid var(--surface3); border-radius: 20px;
+  padding: 4px 12px; cursor: pointer; font-family: 'Source Sans 3', sans-serif;
+  transition: all 0.2s;
+}
+.slots-reset:hover { border-color: var(--gold-border); color: var(--text); }
+
+/* TABS */
+.tab-bar {
+  background: #060910;
+  border-bottom: 1px solid var(--gold-border);
+  padding: 0 24px;
+  display: flex; gap: 2px;
+  overflow-x: auto;
+}
+.tab-btn {
+  font-family: 'Cinzel', serif;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text3);
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  padding: 14px 18px 12px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+  letter-spacing: 0.3px;
+}
+.tab-btn:hover { color: var(--text2); }
+.tab-btn.active { color: var(--gold2); border-bottom-color: var(--gold); }
+
+/* CONTENT */
+.content { padding: 24px 28px; max-width: 1100px; }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* SECTION LABELS */
+.section-label {
+  font-family: 'Cinzel', serif;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--gold);
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  margin: 24px 0 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.section-label::before, .section-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--gold-border);
+}
+.section-label:first-child { margin-top: 0; }
+
+/* CARDS */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--surface3);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  margin-bottom: 10px;
+  transition: border-color 0.2s;
+}
+.card:hover { border-color: var(--gold-border); }
+.card-title { font-family: 'Cinzel', serif; font-size: 15px; font-weight: 500; color: var(--text); margin-bottom: 4px; }
+.card-sub { font-size: 14px; color: var(--text2); line-height: 1.55; }
+.card-note { font-size: 13px; color: var(--text3); margin-top: 6px; font-style: italic; }
+
+.card.amber { border-left: 3px solid var(--amber); background: linear-gradient(90deg, var(--amber-bg), var(--surface)); }
+.card.purple { border-left: 3px solid var(--purple); background: linear-gradient(90deg, var(--purple-bg), var(--surface)); }
+.card.teal { border-left: 3px solid var(--teal); background: linear-gradient(90deg, var(--teal-bg), var(--surface)); }
+.card.coral { border-left: 3px solid var(--coral); background: linear-gradient(90deg, var(--coral-bg), var(--surface)); }
+.card.blue { border-left: 3px solid var(--blue); background: linear-gradient(90deg, var(--blue-bg), var(--surface)); }
+.card.red { border-left: 3px solid var(--red); background: linear-gradient(90deg, var(--red-bg), var(--surface)); }
+.card.gold { border: 1px solid var(--gold-border2); background: linear-gradient(135deg, rgba(201,150,58,0.08), var(--surface)); }
+
+/* GRID LAYOUTS */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+@media (max-width: 700px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
+
+/* PRIORITY ITEMS */
+.priority-list { list-style: none; }
+.priority-item {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  padding: 14px 18px;
+  margin-bottom: 8px;
+  background: var(--surface);
+  border: 1px solid var(--surface3);
+  border-radius: var(--radius);
+  transition: border-color 0.2s;
+}
+.priority-item:hover { border-color: var(--gold-border); }
+.priority-num {
+  width: 36px; height: 36px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Cinzel', serif; font-size: 16px; font-weight: 600;
+  flex-shrink: 0;
+}
+.priority-num.amber { background: var(--amber-bg); color: var(--amber); border: 1.5px solid var(--amber); }
+.priority-num.purple { background: var(--purple-bg); color: var(--purple); border: 1.5px solid var(--purple); }
+.priority-num.teal { background: var(--teal-bg); color: var(--teal); border: 1.5px solid var(--teal); }
+.priority-num.coral { background: var(--coral-bg); color: var(--coral); border: 1.5px solid var(--coral); }
+.priority-num.gray { background: var(--surface2); color: var(--text2); border: 1.5px solid var(--surface3); }
+.priority-body { flex: 1; }
+.priority-title { font-family: 'Cinzel', serif; font-size: 15px; font-weight: 500; color: var(--text); }
+.priority-dw { font-size: 13px; color: var(--gold); font-style: italic; margin: 3px 0 5px; }
+.priority-note { font-size: 14px; color: var(--text2); line-height: 1.5; }
+
+/* BADGES */
+.badge {
+  display: inline-block;
+  font-size: 11px;
+  padding: 3px 9px;
+  border-radius: 20px;
+  font-weight: 500;
+  font-family: 'Cinzel', serif;
+  letter-spacing: 0.2px;
+}
+.badge.amber { background: var(--amber-bg); color: var(--amber); border: 1px solid rgba(201,150,58,0.3); }
+.badge.purple { background: var(--purple-bg); color: var(--purple); border: 1px solid rgba(123,99,204,0.3); }
+.badge.teal { background: var(--teal-bg); color: var(--teal); border: 1px solid rgba(42,157,127,0.3); }
+.badge.coral { background: var(--coral-bg); color: var(--coral); border: 1px solid rgba(204,80,48,0.3); }
+.badge.blue { background: var(--blue-bg); color: var(--blue); border: 1px solid rgba(74,138,222,0.3); }
+.badge.red { background: var(--red-bg); color: var(--red); border: 1px solid rgba(204,51,51,0.3); }
+.badge.gray { background: var(--surface2); color: var(--text2); border: 1px solid var(--surface3); }
+
+/* SPELL GRID */
+.spell-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; }
+.spell-card {
+  background: var(--surface);
+  border: 1px solid var(--surface3);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  transition: border-color 0.2s;
+}
+.spell-card:hover { border-color: var(--gold-border); }
+.spell-card.cantrip { border-top: 2px solid var(--teal); }
+.spell-card.domain { border-top: 2px solid var(--purple); }
+.spell-card.prepared { border-top: 2px solid var(--amber); }
+.spell-name { font-family: 'Cinzel', serif; font-size: 14px; font-weight: 500; color: var(--text); margin-bottom: 4px; }
+.spell-dw { font-size: 12px; color: var(--gold); font-style: italic; margin-bottom: 6px; }
+.spell-tag { font-size: 11px; margin-bottom: 8px; }
+.spell-desc { font-size: 13px; color: var(--text2); line-height: 1.5; }
+
+/* SKILL BARS */
+.skill-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.skill-item {
+  display: flex; justify-content: space-between; align-items: center;
+  background: var(--surface); border: 1px solid var(--surface3);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+}
+.skill-name { font-family: 'Cinzel', serif; font-size: 13px; color: var(--text2); }
+.skill-val { font-family: 'Cinzel', serif; font-size: 18px; font-weight: 600; color: var(--gold2); }
+
+/* PERSONA CARDS */
+.persona-card {
+  background: var(--surface);
+  border: 1px solid var(--surface3);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  margin-bottom: 10px;
+}
+.persona-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; flex-wrap: wrap; }
+.persona-name { font-family: 'Cinzel', serif; font-size: 16px; font-weight: 500; }
+.persona-rel { font-size: 13px; color: var(--text3); font-style: italic; margin: 4px 0 6px; }
+.persona-note { font-size: 14px; color: var(--text2); line-height: 1.5; }
+
+/* MAP SVG */
+.map-container {
+  background: var(--surface);
+  border: 1px solid var(--gold-border);
+  border-radius: var(--radius);
+  padding: 8px;
+  margin-bottom: 16px;
+  overflow: hidden;
+}
+.map-container svg { width: 100%; height: auto; display: block; }
+
+/* QUEST CARD */
+.quest-card {
+  background: linear-gradient(135deg, rgba(201,150,58,0.1), var(--surface));
+  border: 1px solid var(--gold-border2);
+  border-radius: var(--radius);
+  padding: 20px 22px;
+}
+.quest-title { font-family: 'Cinzel', serif; font-size: 17px; color: var(--gold2); margin-bottom: 8px; }
+.quest-reward { font-size: 14px; color: var(--text); margin-bottom: 6px; }
+.quest-note { font-size: 13px; color: var(--text2); }
+
+/* MYSTERY CARD */
+.mystery-card {
+  background: var(--red-bg);
+  border: 1px solid rgba(204,51,51,0.4);
+  border-radius: var(--radius);
+  padding: 18px 20px;
+  margin-bottom: 10px;
+}
+.mystery-title { font-family: 'Cinzel', serif; font-size: 15px; color: #EE6060; margin-bottom: 8px; }
+.mystery-text { font-size: 14px; color: #CC9090; line-height: 1.55; }
+
+.divider { border: none; border-top: 1px solid var(--surface3); margin: 20px 0; }
+
+/* FEATURE CARD */
+.feature-card {
+  background: var(--surface);
+  border: 1px solid var(--surface3);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  margin-bottom: 10px;
+}
+.feature-card:hover { border-color: var(--gold-border); }
+.feature-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; flex-wrap: wrap; margin-bottom: 8px; }
+.feature-name { font-family: 'Cinzel', serif; font-size: 15px; font-weight: 500; color: var(--text); }
+.feature-desc { font-size: 14px; color: var(--text2); line-height: 1.55; }
+
+/* SCROLLBAR */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--surface3); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--gold-border); }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-top">
+    <div>
+      <div class="char-name">{{CHAR_NAME}}</div>
+      <div class="char-sub">{{CHAR_SUBTITLE}}</div>
+    </div>
+    <div style="font-size:11px;color:var(--text3);font-style:italic;align-self:flex-end">actualizado {{LAST_UPDATED}}</div>
+  </div>
+
+  {{WARNINGS}}
+
+  <div class="stat-grid">
+    {{STAT_BOXES}}
+  </div>
+
+  <div class="slots-area">
+    <span class="slots-label">Spell Slots Niv. 1</span>
+    <div class="slots-pips" id="slotPips">
+      {{SLOT_PIPS}}
+    </div>
+    <button class="slots-reset" onclick="resetSlots()">↺ Resetear</button>
+    <span id="slotsCount" style="font-size:13px; color:var(--text2)">{{SLOTS_TOTAL}} / {{SLOTS_TOTAL}} disponibles</span>
+    <span style="font-size:13px; color:var(--text2)">·</span>
+    <span style="font-size:13px; color:var(--text2)">Channel Divinity: <button onclick="toggleCD()" id="cdBtn" style="background:var(--teal-bg);color:var(--teal);border:1px solid rgba(42,157,127,0.3);border-radius:20px;padding:3px 10px;cursor:pointer;font-size:12px;font-family:'Source Sans 3',sans-serif">1 uso disponible</button></span>
+  </div>
+</div>
+
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="switchTab('combate', this)">⚔ Combate</button>
+  <button class="tab-btn" onclick="switchTab('hechizos', this)">✦ Hechizos</button>
+  <button class="tab-btn" onclick="switchTab('habilidades', this)">◈ Habilidades</button>
+  <button class="tab-btn" onclick="switchTab('mapa', this)">◉ Mapa</button>
+  <button class="tab-btn" onclick="switchTab('personas', this)">◎ Personas</button>
+  <button class="tab-btn" onclick="switchTab('lugares', this)">⬡ Lugares</button>
+  <button class="tab-btn" onclick="switchTab('sesion', this)">📖 Sesión</button>
+</div>
+
+<div class="content">
+
+<!-- TAB: COMBATE -->
+<div id="tab-combate" class="tab-panel active">
+  <div class="section-label">Prioridades de combate</div>
+  <ul class="priority-list">
+    <li class="priority-item">
+      <div class="priority-num amber">1</div>
+      <div class="priority-body">
+        <div class="priority-title">Bless — siempre el primer turno</div>
+        <div class="priority-dw">"Baraz azamar" · Slot nivel 1 · Concentración</div>
+        <div class="priority-note">Cubre a los 3 aliados que más atacan (Draxus, Sven, Yankavic). +1d4 a ataques y saving throws. Dura 1 minuto. Prioridad absoluta antes de cualquier otra acción.</div>
+      </div>
+    </li>
+    <li class="priority-item">
+      <div class="priority-num purple">2</div>
+      <div class="priority-body">
+        <div class="priority-title">Twilight Sanctuary — combate prolongado o daño en área</div>
+        <div class="priority-dw">"Sel kharak dur" · Channel Divinity · Sin spell slot</div>
+        <div class="priority-note">Esfera de 30 pies centrada en ti, se mueve contigo. Al final de cada turno dentro: 1d6+2 HP temporales O elimina miedo/encantamiento. No gasta slot.</div>
+      </div>
+    </li>
+    <li class="priority-item">
+      <div class="priority-num teal">3</div>
+      <div class="priority-body">
+        <div class="priority-title">Healing Word — si alguien cae a 0 HP</div>
+        <div class="priority-dw">"Kharak azamar" · Slot nivel 1 · Acción bonus</div>
+        <div class="priority-note">Acción bonus. Rango 60 pies. Levantas a un aliado inconsciente sin sacrificar tu acción principal. Siempre superior a Cure Wounds en economía de acción.</div>
+      </div>
+    </li>
+    <li class="priority-item">
+      <div class="priority-num gray">4</div>
+      <div class="priority-body">
+        <div class="priority-title">Command — control sin concentración</div>
+        <div class="priority-dw">"Karak dûm" · Slot nivel 1 · Sin concentración</div>
+        <div class="priority-note">Fuerza a un enemigo a perder su acción (huye, cae, detente). No compite con Bless en concentración. Úsalo cuando el combate lo requiera.</div>
+      </div>
+    </li>
+    <li class="priority-item">
+      <div class="priority-num coral">5</div>
+      <div class="priority-body">
+        <div class="priority-title">Guiding Bolt — daño ofensivo fuerte</div>
+        <div class="priority-dw">"Nar khalad sel" · Slot nivel 1</div>
+        <div class="priority-note">4d6 radiante + ventaja al siguiente ataque contra ese objetivo. Úsalo cuando Bless ya está activo y todos están en pie.</div>
+      </div>
+    </li>
+    <li class="priority-item">
+      <div class="priority-num gray">6</div>
+      <div class="priority-body">
+        <div class="priority-title">Warhammer / Toll the Dead — ataque básico</div>
+        <div class="priority-dw">"Kharak dûm" para Toll the Dead · Cantrip, sin slot</div>
+        <div class="priority-note">Toll the Dead NO usa spell slot — es cantrip. D8 normal, d12 si el objetivo ya está herido (SAB save). Warhammer en melee si hay flanqueo activo.</div>
+      </div>
+    </li>
+  </ul>
+
+  <div class="section-label">Antes del combate</div>
+  <div class="grid-2">
+    <div class="card purple">
+      <div class="card-title">Vigilant Blessing</div>
+      <div class="card-sub">Como acción, da ventaja en la próxima iniciativa a un aliado. Úsalo en el Fighter o el Rogue antes de combates que anticipas. Se consume al tirar iniciativa.</div>
+    </div>
+    <div class="card teal">
+      <div class="card-title">Eyes of Night (compartido)</div>
+      <div class="card-sub">Como acción, comparte darkvision 300 pies con 3 aliados por 1 hora. Actívalo antes de entrar a zonas oscuras. 1 uso por descanso largo.</div>
+    </div>
+  </div>
+
+  <div class="section-label">Skills de exploración</div>
+  <div class="skill-grid">
+    <div class="skill-item"><span class="skill-name">Survival</span><span class="skill-val">+5</span></div>
+    <div class="skill-item"><span class="skill-name">Insight</span><span class="skill-val">+5</span></div>
+    <div class="skill-item"><span class="skill-name">Athletics</span><span class="skill-val">+3</span></div>
+    <div class="skill-item"><span class="skill-name">Religion</span><span class="skill-val">+2</span></div>
+  </div>
+  <div class="card" style="margin-top:10px">
+    <div class="card-sub"><strong style="color:var(--text)">Saving throws con proficiencia:</strong> Sabiduría +5, Carisma +3. Concentración: CON save DC 10 o mitad del daño. Sin proficiencia en CON — posicionate detrás del frontline para no romper Bless.</div>
+  </div>
+</div>
+
+<!-- TAB: HECHIZOS -->
+<div id="tab-hechizos" class="tab-panel">
+  <div class="section-label">Cantrips — nunca usan spell slot</div>
+  <div class="spell-grid">
+    <div class="spell-card cantrip">
+      <div class="spell-name">Toll the Dead</div>
+      <div class="spell-dw">"Kharak dûm"</div>
+      <span class="badge teal spell-tag">Daño · Cantrip</span>
+      <div class="spell-desc">SAB save. 1d8 (1d12 si el objetivo ya está herido). Tu daño a distancia principal. Sin costo.</div>
+    </div>
+    <div class="spell-card cantrip">
+      <div class="spell-name">Guidance</div>
+      <div class="spell-dw">"Sel'ur"</div>
+      <span class="badge teal spell-tag">Utilidad · Cantrip</span>
+      <div class="spell-desc">Acción bonus. +1d4 al próximo check de un aliado. Úsalo siempre que puedas antes de checks importantes.</div>
+    </div>
+    <div class="spell-card cantrip">
+      <div class="spell-name">Sacred Flame</div>
+      <div class="spell-dw">"Nar sel"</div>
+      <span class="badge teal spell-tag">Daño · Cantrip</span>
+      <div class="spell-desc">DEX save. Radiante. Ignora cobertura. Backup cuando Toll the Dead no aplica.</div>
+    </div>
+  </div>
+
+  <div class="section-label">Dominio Crepúsculo — siempre preparados, no cuentan contra el límite</div>
+  <div class="spell-grid">
+    <div class="spell-card domain">
+      <div class="spell-name">Sleep</div>
+      <div class="spell-dw">"Khadûm"</div>
+      <span class="badge purple spell-tag">Control · 1 slot</span>
+      <div class="spell-desc">Afecta criaturas empezando por las de menos HP. Muy útil vs múltiples enemigos débiles. Pierde efectividad con los niveles.</div>
+    </div>
+    <div class="spell-card domain">
+      <div class="spell-name">Faerie Fire</div>
+      <div class="spell-dw">"Sel nar"</div>
+      <span class="badge purple spell-tag">Control · 1 slot · Concentración</span>
+      <div class="spell-desc">Ventaja en todos los ataques vs criaturas afectadas. No puedes tenerlo activo junto a Bless — elige uno.</div>
+    </div>
+  </div>
+
+  <div class="section-label">Hechizos preparados — usan spell slot de nivel 1</div>
+  <div class="spell-grid">
+    <div class="spell-card prepared">
+      <div class="spell-name">Bless ⭐</div>
+      <div class="spell-dw">"Baraz azamar"</div>
+      <span class="badge amber spell-tag">Soporte · 1 slot · Concentración</span>
+      <div class="spell-desc">PRIORIDAD 1. +1d4 ataques y saves a 3 aliados. 1 minuto. Cambia el combate completo.</div>
+    </div>
+    <div class="spell-card prepared">
+      <div class="spell-name">Healing Word</div>
+      <div class="spell-dw">"Kharak azamar"</div>
+      <span class="badge amber spell-tag">Curación · 1 slot · Acción bonus</span>
+      <div class="spell-desc">Rango 60 pies. Levanta inconscientes a distancia. Económicamente superior a Cure Wounds.</div>
+    </div>
+    <div class="spell-card prepared">
+      <div class="spell-name">Guiding Bolt</div>
+      <div class="spell-dw">"Nar khalad sel"</div>
+      <span class="badge amber spell-tag">Daño · 1 slot</span>
+      <div class="spell-desc">4d6 radiante + ventaja al siguiente ataque vs ese objetivo. Tu opción ofensiva fuerte.</div>
+    </div>
+    <div class="spell-card prepared">
+      <div class="spell-name">Shield of Faith</div>
+      <div class="spell-dw">"Sel'dur"</div>
+      <span class="badge amber spell-tag">Defensa · 1 slot · Concentración</span>
+      <div class="spell-desc">+2 AC a un aliado. Útil en Fighter o Rogue en combates difíciles.</div>
+    </div>
+    <div class="spell-card prepared">
+      <div class="spell-name">Command</div>
+      <div class="spell-dw">"Karak dûm"</div>
+      <span class="badge amber spell-tag">Control · 1 slot</span>
+      <div class="spell-desc">Sin concentración. Un enemigo pierde su acción. No compite con Bless.</div>
+    </div>
+  </div>
+
+  <div class="card gold" style="margin-top:16px">
+    <div class="card-title" style="color:var(--gold2); margin-bottom:6px">Gestión de slots</div>
+    <div class="card-sub">Tienes 3 slots de nivel 1. Bless ocupa 1. Guarda al menos 1 para Healing Word de emergencia. Con 3 slots tienes margen para Bless + Command o Guiding Bolt + emergencia. En nivel 3 obtendrás slots de nivel 2.</div>
+  </div>
+</div>
+
+<!-- TAB: HABILIDADES -->
+<div id="tab-habilidades" class="tab-panel">
+  <div class="section-label">Features de clase — Twilight Domain</div>
+  <div class="feature-card">
+    <div class="feature-top">
+      <div class="feature-name">Eyes of Night</div>
+      <span class="badge purple">Nivel 1 · 1 uso/descanso largo</span>
+    </div>
+    <div class="feature-desc">Darkvision permanente de 300 pies para ti. Como acción: comparte esta visión con hasta 3 criaturas visibles durante 1 hora. En Icewind Dale, con 2 horas de luz al día, esta feature es crítica cada sesión. Actívala antes de entrar a zonas oscuras.</div>
+  </div>
+  <div class="feature-card">
+    <div class="feature-top">
+      <div class="feature-name">Vigilant Blessing</div>
+      <span class="badge purple">Nivel 1 · Gasto de acción</span>
+    </div>
+    <div class="feature-desc">Como acción, tocas a una criatura (o a ti) y le das ventaja en su próxima tirada de iniciativa. Se consume al tirar. Ideal para el Fighter o el Rogue antes de combates anticipados. No gasta slot ni Channel Divinity.</div>
+  </div>
+  <div class="feature-card">
+    <div class="feature-top">
+      <div class="feature-name">Twilight Sanctuary</div>
+      <span class="badge purple">Nivel 2 · Channel Divinity</span>
+    </div>
+    <div class="feature-desc">Como acción, emana una esfera de penumbra de 30 pies centrada en ti. Se mueve contigo. Dura 1 minuto. Al final de cada turno dentro de la esfera, puedes darle a una criatura: 1d6+2 HP temporales, o eliminar un efecto de miedo o encantamiento. Sin spell slot.</div>
+  </div>
+  <div class="feature-card">
+    <div class="feature-top">
+      <div class="feature-name">Turn Undead</div>
+      <span class="badge gray">Nivel 2 · Channel Divinity</span>
+    </div>
+    <div class="feature-desc">Presenta tu símbolo sagrado. Cada no-muerto que te vea a 30 pies y falle SAB save es ahuyentado durante 1 minuto. Relevante en este módulo — ya hemos encontrado no-muertos.</div>
+  </div>
+  <div class="feature-card">
+    <div class="feature-top">
+      <div class="feature-name">Dwarven Toughness</div>
+      <span class="badge gray">Pasivo · Enano de Colina</span>
+    </div>
+    <div class="feature-desc">+1 HP máximo por nivel. Ya incluido en tus HP. A nivel 2: +2 HP sobre la base normal. Aumenta cada nivel.</div>
+  </div>
+  <div class="feature-card">
+    <div class="feature-top">
+      <div class="feature-name">Stonecunning</div>
+      <span class="badge gray">Pasivo · Enano</span>
+    </div>
+    <div class="feature-desc">Ventaja en Intelligence (History) relacionados con estructuras de piedra. Ya lo usaste en la cueva.</div>
+  </div>
+
+  <div class="section-label">Equipo importante</div>
+  <div class="grid-2">
+    <div class="card"><div class="card-title">Warhammer</div><div class="card-sub">Arma principal. 1d8 contundente. Proficiencia racial de enano.</div></div>
+    <div class="card amber"><div class="card-title">Scale Mail + Escudo ⚠</div><div class="card-sub">CA actual: 15. Con Chain Mail sería 18. Tienes proficiencia en armadura pesada — considera el cambio.</div></div>
+    <div class="card"><div class="card-title">Quarterstaff</div><div class="card-sub">Arma secundaria. 1d6/1d8 contundente. Versátil.</div></div>
+    <div class="card"><div class="card-title">Handaxe</div><div class="card-sub">Arma de mano. Arrojadiza. Le prestaste una a Dorbulgruf en el combate con Auril.</div></div>
+    <div class="card"><div class="card-title">Cuerda 50 pies</div><div class="card-sub">Ya la usaste para salvar a Teska del lago helado. Mantenerla accesible.</div></div>
+    <div class="card"><div class="card-title">Hunting Trap</div><div class="card-sub">Trampa de caza. Ya atrapaste una liebre. Útil para comida en campo abierto.</div></div>
+    <div class="card"><div class="card-title">Rations x11</div><div class="card-sub">Necesarias para descanso largo. Tienes más de las iniciales — bien abastecido.</div></div>
+    <div class="card"><div class="card-title">Trophy from animal</div><div class="card-sub">La liebre que atrapaste. Posible ración adicional.</div></div>
+    <div class="card"><div class="card-title">Antorcha (activa)</div><div class="card-sub">Efecto activo en Foundry. Recuerda apagar si no la estás usando.</div></div>
+    <div class="card"><div class="card-title">Collar de colmillo</div><div class="card-sub">Loot de troglodita. Rudimentario. Valor y origen desconocidos.</div></div>
+  </div>
+</div>
+
+<!-- TAB: MAPA -->
+<div id="tab-mapa" class="tab-panel">
+  <div class="section-label">Mapa de relaciones</div>
+  <div class="map-container">
+    <svg viewBox="0 0 900 520" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="arr" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L6,3 z" fill="rgba(201,150,58,0.4)"/>
+        </marker>
+      </defs>
+
+      <!-- EDGES -->
+      <line x1="450" y1="250" x2="180" y2="100" stroke="rgba(201,150,58,0.25)" stroke-width="1.5" marker-end="url(#arr)"/>
+      <line x1="450" y1="250" x2="165" y2="200" stroke="rgba(201,150,58,0.25)" stroke-width="1.5" marker-end="url(#arr)"/>
+      <line x1="450" y1="250" x2="160" y2="390" stroke="rgba(123,99,204,0.35)" stroke-width="1.5" stroke-dasharray="5,4" marker-end="url(#arr)"/>
+      <line x1="450" y1="250" x2="310" y2="430" stroke="rgba(42,157,127,0.35)" stroke-width="1.5" marker-end="url(#arr)"/>
+      <line x1="450" y1="250" x2="650" y2="430" stroke="rgba(74,138,222,0.35)" stroke-width="1.5" marker-end="url(#arr)"/>
+      <line x1="450" y1="250" x2="710" y2="130" stroke="rgba(201,150,58,0.3)" stroke-width="1.5" marker-end="url(#arr)"/>
+      <line x1="450" y1="250" x2="750" y2="250" stroke="rgba(204,51,51,0.5)" stroke-width="2" marker-end="url(#arr)"/>
+      <line x1="450" y1="250" x2="450" y2="430" stroke="rgba(204,51,51,0.3)" stroke-width="1.5" stroke-dasharray="5,4" marker-end="url(#arr)"/>
+      <line x1="750" y1="250" x2="450" y2="100" stroke="rgba(204,80,48,0.3)" stroke-width="1.5" marker-end="url(#arr)"/>
+      <line x1="750" y1="250" x2="830" y2="390" stroke="rgba(204,80,48,0.25)" stroke-width="1.5" marker-end="url(#arr)"/>
+      <line x1="710" y1="130" x2="830" y2="390" stroke="rgba(201,150,58,0.3)" stroke-width="1.5" marker-end="url(#arr)"/>
+      <line x1="180" y1="100" x2="310" y2="430" stroke="rgba(201,150,58,0.2)" stroke-width="1" stroke-dasharray="4,4"/>
+      <line x1="165" y1="200" x2="180" y2="100" stroke="rgba(201,150,58,0.2)" stroke-width="1"/>
+
+      <!-- EDGE LABELS -->
+      <text x="295" y="158" font-size="10" fill="rgba(201,150,58,0.6)" font-family="Source Sans 3, sans-serif" text-anchor="middle">enviado por</text>
+      <text x="285" y="225" font-size="10" fill="rgba(201,150,58,0.6)" font-family="Source Sans 3, sans-serif" text-anchor="middle">origen</text>
+      <text x="270" y="340" font-size="10" fill="rgba(123,99,204,0.7)" font-family="Source Sans 3, sans-serif" text-anchor="middle">fe cuestionada</text>
+      <text x="368" y="365" font-size="10" fill="rgba(42,157,127,0.7)" font-family="Source Sans 3, sans-serif" text-anchor="middle">familiar / rescató</text>
+      <text x="560" y="370" font-size="10" fill="rgba(74,138,222,0.7)" font-family="Source Sans 3, sans-serif" text-anchor="middle">compañeros</text>
+      <text x="600" y="175" font-size="10" fill="rgba(201,150,58,0.6)" font-family="Source Sans 3, sans-serif" text-anchor="middle">contratado por</text>
+      <text x="610" y="242" font-size="10" fill="rgba(204,51,51,0.8)" font-family="Source Sans 3, sans-serif" text-anchor="middle">enfrentamiento</text>
+      <text x="465" y="355" font-size="10" fill="rgba(204,51,51,0.6)" font-family="Source Sans 3, sans-serif" text-anchor="middle">acusación</text>
+
+      <!-- NODE: Adrik (center, gold) -->
+      <rect x="390" y="218" width="120" height="64" rx="8" fill="rgba(201,150,58,0.15)" stroke="#C9963A" stroke-width="2"/>
+      <text x="450" y="244" font-size="15" font-weight="600" fill="#E8B84B" font-family="Cinzel, serif" text-anchor="middle">Adrik</text>
+      <text x="450" y="260" font-size="11" fill="rgba(201,150,58,0.8)" font-family="Source Sans 3, sans-serif" text-anchor="middle">Frostbeard</text>
+      <text x="450" y="275" font-size="10" fill="rgba(201,150,58,0.6)" font-family="Source Sans 3, sans-serif" text-anchor="middle">Clérigo · Niv. 2</text>
+
+      <!-- NODE: Padre -->
+      <rect x="108" y="74" width="144" height="48" rx="7" fill="rgba(22,29,52,0.9)" stroke="rgba(201,150,58,0.3)" stroke-width="1"/>
+      <text x="180" y="97" font-size="13" font-weight="500" fill="#EDE6D6" font-family="Cinzel, serif" text-anchor="middle">Padre</text>
+      <text x="180" y="113" font-size="10" fill="#9A9080" font-family="Source Sans 3, sans-serif" text-anchor="middle">Clan Frostbeard · Sur</text>
+
+      <!-- NODE: Clan -->
+      <rect x="90" y="170" width="150" height="50" rx="7" fill="rgba(22,29,52,0.9)" stroke="rgba(201,150,58,0.3)" stroke-width="1"/>
+      <text x="165" y="193" font-size="13" font-weight="500" fill="#EDE6D6" font-family="Cinzel, serif" text-anchor="middle">Clan Frostbeard</text>
+      <text x="165" y="210" font-size="10" fill="#9A9080" font-family="Source Sans 3, sans-serif" text-anchor="middle">3 generaciones · Sur</text>
+
+      <!-- NODE: Selûne -->
+      <rect x="82" y="363" width="156" height="54" rx="7" fill="rgba(123,99,204,0.1)" stroke="rgba(123,99,204,0.4)" stroke-width="1" stroke-dasharray="4,3"/>
+      <text x="160" y="386" font-size="13" font-weight="500" fill="#9B80EE" font-family="Cinzel, serif" text-anchor="middle">Selûne</text>
+      <text x="160" y="402" font-size="10" fill="rgba(123,99,204,0.7)" font-family="Source Sans 3, sans-serif" text-anchor="middle">Diosa · fe cuestionada</text>
+      <text x="160" y="415" font-size="10" fill="rgba(123,99,204,0.6)" font-family="Source Sans 3, sans-serif" text-anchor="middle">¿por qué yo?</text>
+
+      <!-- NODE: Dorbulgruf -->
+      <rect x="224" y="406" width="172" height="50" rx="7" fill="rgba(42,157,127,0.1)" stroke="rgba(42,157,127,0.35)" stroke-width="1"/>
+      <text x="310" y="429" font-size="13" font-weight="500" fill="#2A9D7F" font-family="Cinzel, serif" text-anchor="middle">Dorbulgruf Shalescar</text>
+      <text x="310" y="446" font-size="10" fill="rgba(42,157,127,0.7)" font-family="Source Sans 3, sans-serif" text-anchor="middle">Alcalde Bremen · Primo lejano · Rescatado</text>
+
+      <!-- NODE: Invierno -->
+      <rect x="350" y="72" width="200" height="48" rx="7" fill="rgba(123,99,204,0.1)" stroke="rgba(123,99,204,0.3)" stroke-width="1"/>
+      <text x="450" y="95" font-size="13" font-weight="500" fill="#9B80EE" font-family="Cinzel, serif" text-anchor="middle">Invierno Eterno</text>
+      <text x="450" y="111" font-size="10" fill="rgba(123,99,204,0.7)" font-family="Source Sans 3, sans-serif" text-anchor="middle">2 años sin sol · Causado por Auril</text>
+
+      <!-- NODE: Auril -->
+      <rect x="680" y="216" width="140" height="68" rx="7" fill="rgba(204,51,51,0.1)" stroke="rgba(204,51,51,0.5)" stroke-width="1.5"/>
+      <text x="750" y="241" font-size="14" font-weight="600" fill="#EE6060" font-family="Cinzel, serif" text-anchor="middle">Auril</text>
+      <text x="750" y="257" font-size="10" fill="rgba(204,51,51,0.8)" font-family="Source Sans 3, sans-serif" text-anchor="middle">La Doncella del Hielo</text>
+      <text x="750" y="272" font-size="10" fill="rgba(204,51,51,0.7)" font-family="Source Sans 3, sans-serif" text-anchor="middle">Antagonista principal</text>
+
+      <!-- NODE: Misterio -->
+      <rect x="344" y="402" width="212" height="54" rx="7" fill="rgba(204,51,51,0.08)" stroke="rgba(204,51,51,0.3)" stroke-width="1" stroke-dasharray="4,3"/>
+      <text x="450" y="424" font-size="12" font-weight="500" fill="#EE8888" font-family="Cinzel, serif" text-anchor="middle">¿A quiénes dejé morir?</text>
+      <text x="450" y="440" font-size="10" fill="rgba(204,51,51,0.7)" font-family="Source Sans 3, sans-serif" text-anchor="middle">Auril lo sabe · Hace 10 años</text>
+      <text x="450" y="452" font-size="10" fill="rgba(204,51,51,0.6)" font-family="Source Sans 3, sans-serif" text-anchor="middle">Núcleo del arco personal</text>
+
+      <!-- NODE: Gillin -->
+      <rect x="622" y="100" width="176" height="52" rx="7" fill="rgba(201,150,58,0.1)" stroke="rgba(201,150,58,0.35)" stroke-width="1"/>
+      <text x="710" y="123" font-size="13" font-weight="500" fill="#C9963A" font-family="Cinzel, serif" text-anchor="middle">Gillin Trollbane</text>
+      <text x="710" y="140" font-size="10" fill="rgba(201,150,58,0.7)" font-family="Source Sans 3, sans-serif" text-anchor="middle">Salvadora · Empleadora · 100gp</text>
+
+      <!-- NODE: Sefek -->
+      <rect x="762" y="363" width="136" height="52" rx="7" fill="rgba(204,80,48,0.1)" stroke="rgba(204,80,48,0.35)" stroke-width="1"/>
+      <text x="830" y="386" font-size="13" font-weight="500" fill="#CC5030" font-family="Cinzel, serif" text-anchor="middle">Sefek Caltro</text>
+      <text x="830" y="402" font-size="10" fill="rgba(204,80,48,0.7)" font-family="Source Sans 3, sans-serif" text-anchor="middle">Objetivo · Piel azul</text>
+      <text x="830" y="414" font-size="10" fill="rgba(204,80,48,0.6)" font-family="Source Sans 3, sans-serif" text-anchor="middle">No siente el frío</text>
+
+      <!-- NODE: Party -->
+      <rect x="564" y="400" width="180" height="62" rx="7" fill="rgba(74,138,222,0.1)" stroke="rgba(74,138,222,0.35)" stroke-width="1"/>
+      <text x="654" y="422" font-size="13" font-weight="500" fill="#4A8ADE" font-family="Cinzel, serif" text-anchor="middle">La Party</text>
+      <text x="654" y="438" font-size="10" fill="rgba(74,138,222,0.7)" font-family="Source Sans 3, sans-serif" text-anchor="middle">Sven · Draxus · Teska</text>
+      <text x="654" y="452" font-size="10" fill="rgba(74,138,222,0.6)" font-family="Source Sans 3, sans-serif" text-anchor="middle">Elian · Yankavic</text>
+    </svg>
+  </div>
+
+  <div class="grid-2">
+    <div class="mystery-card">
+      <div class="mystery-title">⚠ El misterio de Adrik</div>
+      <div class="mystery-text">Auril le dijo directamente: "asesino, los dejaste morir, y lo sabes." Hace 10 años, Adrik sobrevivió una tormenta que mató a dos compañeros. ¿Fue solo eso? ¿O hay algo más que no ha procesado? Este misterio es el núcleo del arco personal del personaje.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-name" style="margin-bottom:8px">Arco de fe con Selûne</div>
+      <div class="feature-desc">Adrik tiene poderes que vienen de una diosa que no eligió activamente. Cada uso de sus poderes en momentos críticos es una oportunidad para que algo cambie. El personaje no cree todavía — pero cada sesión lo acerca a una respuesta. No hay que forzarlo: basta con ese segundo de silencio después de que algo funciona.</div>
+    </div>
+  </div>
+</div>
+
+<!-- TAB: PERSONAS -->
+<div id="tab-personas" class="tab-panel">
+  <div class="section-label">Antagonistas</div>
+  <div class="persona-card" style="border-left:3px solid var(--red); background:linear-gradient(90deg, var(--red-bg), var(--surface))">
+    <div class="persona-header">
+      <div class="persona-name" style="color:#EE6060">Auril — La Doncella del Hielo</div>
+      <span class="badge red">Antagonista Principal</span>
+    </div>
+    <div class="persona-rel">Causante del invierno eterno · Nos congeló a todos</div>
+    <div class="persona-note">Figura de ave, plumaje blanco, manto azul profundo que absorbe la luz. Ojos amarillos con exceso de consciencia. Tiene acciones legendarias. Le dijo a Adrik "asesino, los dejaste morir". A Draxus le dijo que lo preservaría solo a él. A Yankavic lo amenazó directamente. Le irrita que mencionen a otros dioses.</div>
+  </div>
+  <div class="persona-card" style="border-left:3px solid var(--coral); background:linear-gradient(90deg, var(--coral-bg), var(--surface))">
+    <div class="persona-header">
+      <div class="persona-name" style="color:var(--coral)">Sefek Caltro</div>
+      <span class="badge coral">Objetivo Activo</span>
+    </div>
+    <div class="persona-rel">Guardaespaldas de la compañía mercante Torga</div>
+    <div class="persona-note">Piel azul, no usa abrigo, no tiembla, no exhala vapor en el frío. Siempre tiene una "sonrisa helada". Sospechoso de 3 muertes con dagá de hielo negro. Posible conexión con Auril. Última víctima conocida: nieta de Gillin Trollbane.</div>
+  </div>
+  <div class="persona-card" style="border-left:3px solid var(--coral); background:linear-gradient(90deg, var(--coral-bg), var(--surface))">
+    <div class="persona-header">
+      <div class="persona-name" style="color:var(--coral)">Aliana (manifestación)</div>
+      <span class="badge coral">Trampa / Auril</span>
+    </div>
+    <div class="persona-rel">Mujer encontrada enterrada · Era una proyección de Auril</div>
+    <div class="persona-note">Adrik detectó con Insight que mentía (voz temblorosa al mencionar familia). Se transformó en nieve y hielo al ser confrontada. Dijo "no se entrometan en lo que no les incumbe" con la voz de Auril.</div>
+  </div>
+
+  <div class="section-label">Aliados</div>
+  <div class="persona-card" style="border-left:3px solid var(--amber);">
+    <div class="persona-header">
+      <div class="persona-name">Gillin Trollbane</div>
+      <span class="badge amber">Empleadora · Salvadora</span>
+    </div>
+    <div class="persona-rel">Enana veterana · Cabaña 1 día al norte de Bremen</div>
+    <div class="persona-note">Nos rescató en la nieve. Experimentada, austera, económica en sus movimientos. Su nieta fue asesinada con una daga de hielo negro. Quiere la cabeza de Sefek Caltro. Recompensa: 100 gp + objeto mágico a elección por persona. Sabe más de lo que dice sobre Auril — sus ojos se entrecerraron cuando mencionamos el nombre.</div>
+  </div>
+  <div class="persona-card" style="border-left:3px solid var(--teal);">
+    <div class="persona-header">
+      <div class="persona-name">Dorbulgruf Shalescar</div>
+      <span class="badge teal">Familiar · Rescatado</span>
+    </div>
+    <div class="persona-rel">Alcalde de Bremen · Primo lejano del padre de Adrik</div>
+    <div class="persona-note">Enano anciano. Casi muerto cuando lo encontramos, enterrado bajo la nieve en la cueva. No recuerda nada de su captura. Peleó junto a nosotros contra Auril con el hacha de mano de Adrik. Sigue en condiciones para luchar. Le debemos el regreso a Bremen.</div>
+  </div>
+
+  <div class="section-label">La Party</div>
+  <div class="grid-2">
+    <div class="persona-card" style="border-left:3px solid var(--blue);">
+      <div class="persona-header"><div class="persona-name">Sven</div><span class="badge blue">Rogue · Elfo</span></div>
+      <div class="persona-rel">Originario de Thermaline</div>
+      <div class="persona-note">Piel azulada, escarcha en la barba, cicatriz en un ojo. Marinero. Muy conectado con el norte. Sneak Attack con flecha envuelta en fuego (primera batalla).</div>
+    </div>
+    <div class="persona-card" style="border-left:3px solid var(--blue);">
+      <div class="persona-header"><div class="persona-name">Draxus</div><span class="badge blue">Fighter · Dragonborn Plateado</span></div>
+      <div class="persona-rel">Del sur · Busca a alguien</div>
+      <div class="persona-note">Resistencia al frío. Tabardo amarillo/negro con yunque. Fue el último en caer ante Auril. El nombre de quien busca está pendiente — posible vínculo con la historia de Auril.</div>
+    </div>
+    <div class="persona-card" style="border-left:3px solid var(--blue);">
+      <div class="persona-header"><div class="persona-name">Teska</div><span class="badge blue">Bardo · Tiefling</span></div>
+      <div class="persona-rel">Agente de los Arpistas</div>
+      <div class="persona-note">Enviado a investigar Bremen. El sueño de Auril le dijo que los Arpistas lo enviaron para deshacerse de él. Diplomático. Heroísmo en el combate.</div>
+    </div>
+    <div class="persona-card" style="border-left:3px solid var(--blue);">
+      <div class="persona-header"><div class="persona-name">Elian</div><span class="badge blue">Mago · Humano</span></div>
+      <div class="persona-rel">Promesa incumplida al abuelo</div>
+      <div class="persona-note">Joven, flaco, lleva un diario. Missilmágico a distancia. Habla en élfico al castear. Cayó 2 veces en sesión 2 — Adrik lo levantó ambas.</div>
+    </div>
+    <div class="persona-card" style="border-left:3px solid var(--blue);">
+      <div class="persona-header"><div class="persona-name">Yankavic</div><span class="badge blue">Paladín · Semielfo</span></div>
+      <div class="persona-rel">Busca a su maestro desaparecido</div>
+      <div class="persona-note">De Dungask Hold. Subclase tormenta. Auril lo amenazó directamente — dijo que su juramento se rompería y que él atraería a los no-muertos.</div>
+    </div>
+  </div>
+</div>
+
+<!-- TAB: LUGARES -->
+<div id="tab-lugares" class="tab-panel">
+  <div class="section-label">Visitados</div>
+  <div class="card">
+    <div class="card-title">Bremen</div>
+    <div class="card-sub">Punto de inicio. El más pequeño de los Diez Pueblos. Taberna: El Alce Gruñón (Harlon, el tabernero). Sin sol hace 2 años. Escasez de alimentos. El alcalde era el nexo diplomático con los demás pueblos. Partimos desde aquí en búsqueda de Dorbulgruf.</div>
+  </div>
+  <div class="card">
+    <div class="card-title">La Cueva del Hielo Negro</div>
+    <div class="card-sub">Al norte de Bremen. Paredes de hielo negro que no refleja seres vivos — solo objetos sin vida (metal, madera). Sin sonido de pasos dentro. El frío proviene de adentro hacia afuera, no del exterior. Encontramos al alcalde aquí. Dos cuerpos congelados rituales (humano y elfa). Pico de Bremen. Altar con figura de ave de hielo. Aquí nos enfrentamos a Auril.</div>
+  </div>
+  <div class="card">
+    <div class="card-title">Cabaña de Gillin Trollbane</div>
+    <div class="card-sub">1 día al norte de Bremen. Marcada en el mapa que nos dio Gillin. Trampas alrededor — lugar seguro para descansar. Aquí despertamos después de caer ante Auril. Aquí subimos a nivel 2.</div>
+  </div>
+
+  <div class="section-label">Mencionados — relacionados con los asesinatos</div>
+  <div class="grid-2">
+    <div class="card coral">
+      <div class="card-title">East Haven</div>
+      <div class="card-sub">Primera víctima: halfling trampero. Encontrado en su cabaña cerrada desde dentro. Sin señales de lucha. Daga de hielo negro en el pecho.</div>
+    </div>
+    <div class="card coral">
+      <div class="card-title">Targos</div>
+      <div class="card-sub">Segunda víctima: constructor de barcos. Hallado de rodillas en el muelle congelado. Misma daga de hielo negro. Nadie vio ni oyó nada.</div>
+    </div>
+    <div class="card coral">
+      <div class="card-title">Bryn Shander</div>
+      <div class="card-sub">Ciudad más grande de los Diez Pueblos. Tercera víctima: enano soplador de vidrio. Taller cerrado desde dentro. Mismo patrón exacto.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Los Diez Pueblos</div>
+      <div class="card-sub">Las diez ciudades conectadas del norte: Bremen, Targos, East Haven, Bryn Shander, Caer-Dineval, Caer-Konig, Dougan's Hole, Good Mead, Lonelywood, Termalaine. En el sueño de Auril: todos congelados.</div>
+    </div>
+  </div>
+
+  <hr class="divider">
+  <div class="section-label">Quest activa</div>
+  <div class="quest-card">
+    <div class="quest-title">Encontrar y eliminar a Sefek Caltro</div>
+    <div class="quest-reward"><strong>Recompensa:</strong> 100 monedas de oro + objeto mágico a elección (por persona)</div>
+    <div class="quest-note"><strong>Contratante:</strong> Gillin Trollbane · Cabaña al norte de Bremen<br><strong>Objetivo:</strong> Sefek Caltro — guardaespaldas de la compañía mercante Torga<br><strong>Descripción:</strong> Piel azul, no siente el frío, no usa abrigo. Sospechoso de 3 asesinatos con dagas de hielo negro que desaparecen. Posible conexión con Auril.<br><strong>Instrucciones:</strong> Traer su cabeza. Gillin no pide que lo entreguen a autoridades.</div>
+  </div>
+</div>
+
+<!-- TAB: SESION -->
+<div id="tab-sesion" class="tab-panel">
+  {{SESSIONS}}
+</div>
+
+</div><!-- end content -->
+
+<script>
+function switchTab(id, btn) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  btn.classList.add('active');
+}
+
+let slotsUsed = 0;
+const totalSlots = 3;
+
+function toggleSlot(i) {
+  if (i < slotsUsed) {
+    slotsUsed = i;
+  } else {
+    slotsUsed = i + 1;
+  }
+  updateSlots();
+}
+
+function resetSlots() {
+  slotsUsed = 0;
+  updateSlots();
+}
+
+function updateSlots() {
+  const pips = document.querySelectorAll('.slot-pip');
+  pips.forEach((p, i) => {
+    if (i < slotsUsed) {
+      p.classList.add('used');
+      p.textContent = '✕';
+    } else {
+      p.classList.remove('used');
+      p.textContent = '●';
+    }
+  });
+  const avail = totalSlots - slotsUsed;
+  document.getElementById('slotsCount').textContent = avail + ' / 3 disponibles';
+  document.getElementById('slotsCount').style.color = avail === 0 ? '#CC5030' : avail === 1 ? '#C9963A' : 'rgba(238,230,214,0.6)';
+}
+
+let cdUsed = false;
+function toggleCD() {
+  cdUsed = !cdUsed;
+  const btn = document.getElementById('cdBtn');
+  if (cdUsed) {
+    btn.textContent = '0 usos (gastado)';
+    btn.style.background = 'var(--red-bg)';
+    btn.style.color = 'var(--red)';
+    btn.style.borderColor = 'rgba(204,51,51,0.3)';
+  } else {
+    btn.textContent = '1 uso disponible';
+    btn.style.background = 'var(--teal-bg)';
+    btn.style.color = 'var(--teal)';
+    btn.style.borderColor = 'rgba(42,157,127,0.3)';
+  }
+}
+</script>
+</body>
+</html>
