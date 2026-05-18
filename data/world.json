@@ -14,7 +14,7 @@
       "role": "Objetivo Activo",
       "relation": "Guardaespaldas de la compañía Torga",
       "category": "antagonist",
-      "note": "Piel azul, no usa abrigo, no tiembla. Sospechoso de 3 asesinatos con daga de hielo negro. Posible conexión con Auril."
+      "note": "Piel azul, no usa abrigo, no tiembla. Sospechoso de 3 asesinatos con daga de hielo negro. Posible conexión con Auril. Última ubicación conocida de su compañía (Torga): East Haven, a 3 días de Bremen."
     },
     {
       "name": "Aliana",
@@ -35,11 +35,25 @@
       "role": "Alcalde de Bremen",
       "relation": "Primo lejano del padre de Adrik",
       "category": "ally",
-      "note": "Rescatado de la cueva. No recuerda nada. Peleó contra Auril con hacha de mano de Adrik."
+      "note": "Rescatado de la cueva. No recuerda nada. Peleó contra Auril con hacha de mano de Adrik. En su sueño, Lathander le mostró una criatura mitad cabra, mitad ave que hundiría el norte en oscuridad total. Prometió no volver a abandonar Bremen."
+    },
+    {
+      "name": "Iriana",
+      "role": "Habitante de Bremen",
+      "relation": "Contacto postal — Bremen",
+      "category": "ally",
+      "note": "Mujer de Bremen con palomas mensajeras. Ofreció su última paloma (escuálida) a Teska sin costo, agradecida por lo que hicieron por el alcalde. Teska le enviará una carta al sur."
+    },
+    {
+      "name": "Harlon",
+      "role": "Tabernero del Alce Gruñón",
+      "relation": "Propietario de la taberna en Bremen",
+      "category": "neutral",
+      "note": "Gruñón pero honrado. Prometió una semana completa de cama y comida para la party. Confirma que hace un mes no llegan truchas al lago. Le preocupa quedarse sin leña y sin proteínas para el pueblo. Tenía el único mapa de la región; dejó a Adrik hacer una copia."
     }
   ],
   "party": [
-    { "name": "Sven", "class": "Rogue · Elfo", "origin": "Thermaline", "note": "Piel azulada, marinero. Flecha de fuego. Muy conectado con el norte." },
+    { "name": "Sven", "class": "Rogue · Elfo", "origin": "Thermaline", "note": "Piel azulada, marinero. Flecha de fuego. Muy conectado con el norte. Nombre real: Adran (revelado por el viento susurrador en sesión 4). Bono permanente: puede repetir con ventaja una tirada de Wisdom fallida (resultado de doble 20 natural)." },
     { "name": "Draxus", "class": "Fighter · Dragonborn Plateado", "origin": "Sur", "note": "Resistencia al frío. Busca a alguien. Tabardo con yunque." },
     { "name": "Teska", "class": "Bardo · Tiefling", "origin": "Widedeep", "note": "Agente Arpistas. Le dijo Auril que los Arpistas lo enviaron para deshacerse de él." },
     { "name": "Elian", "class": "Mago · Humano", "origin": "Sur", "note": "Joven. Lleva diario. Adrik lo levantó 2 veces en sesión 2. Habla en élfico." },
@@ -49,7 +63,7 @@
     { "name": "Bremen", "desc": "Punto de inicio. El Alce Gruñón. Sin sol 2 años. Dorbulgruf era el nexo diplomático." },
     { "name": "La Cueva del Hielo Negro", "desc": "Al norte de Bremen. Hielo negro que no refleja seres vivos. Frío proviene de adentro. Enfrentamos a Auril aquí." },
     { "name": "Cabaña de Gillin", "desc": "1 día al norte de Bremen. Lugar seguro. Aquí despertamos y subimos a nivel 2." },
-    { "name": "East Haven", "desc": "Primera víctima: halfling trampero. Daga de hielo negro en el pecho. Puerta cerrada." },
+    { "name": "East Haven", "desc": "Primera víctima: halfling trampero. Daga de hielo negro en el pecho. Puerta cerrada. Última ubicación conocida de la compañía Torga. A 3 días de viaje de Bremen." },
     { "name": "Targos", "desc": "Segunda víctima: constructor de barcos. Muelle congelado. Misma daga." },
     { "name": "Bryn Shander", "desc": "Ciudad más grande. Tercera víctima: enano soplador de vidrio. Mismo patrón." }
   ],
@@ -61,7 +75,15 @@
       "reward": "100 gp + objeto mágico por persona",
       "target": "Sefek Caltro — guardaespaldas de la compañía Torga",
       "description": "Piel azul, no siente el frío. 3 asesinatos con daga de hielo negro. Instrucciones: traer su cabeza.",
-      "notes": "Posible conexión con Auril. La mujer Aliana que encontramos era una manifestación."
+      "notes": "Posible conexión con Auril. La mujer Aliana que encontramos era una manifestación. Torga's last known location: East Haven (3 days from Bremen)."
+    },
+    {
+      "title": "Investigar la escasez de truchas en Bremen",
+      "status": "active",
+      "client": "Bremen (Harlon y el pueblo)",
+      "reward": "Por definir",
+      "description": "Hace un mes las truchas dejaron de llegar al lago de Bremen. Sin truchas no hay proteínas para el pueblo. Un goblin en la taberna insinuó que 'ese maldito de Greens tiene algo que ver'.",
+      "notes": "Nombre clave: Greens. Las truchas son fuente principal de proteínas en los Diez Pueblos. Puede conectar con Torga o con fuerzas más oscuras."
     },
     {
       "title": "Recuperar al alcalde de Bremen",
@@ -76,7 +98,15 @@
   "mysteries": [
     {
       "title": "¿A quiénes dejó morir Adrik?",
-      "description": "Auril le dijo directamente: 'asesino, los dejaste morir, y lo sabes.' Hace 10 años, Adrik sobrevivió una tormenta que mató a dos compañeros. ¿Fue solo eso? Este misterio es el núcleo del arco personal del personaje."
+      "description": "Auril le dijo directamente: 'asesino, los dejaste morir, y lo sabes.' Hace 10 años, Adrik sobrevivió una tormenta que mató a dos compañeros. El viento susurrador en sesión 4 reforzó esta acusación: 'Tus compañeros van a morir como murieron tus dos compañeros en aquella tormenta. Solo fue suerte.' Núcleo del arco personal del personaje."
+    },
+    {
+      "title": "¿Quién es 'Greens' y qué tiene que ver con las truchas?",
+      "description": "Sven escuchó a un goblin susurrar a una mujer que 'ese maldito de Greens tiene algo que ver' con que las truchas dejaron de llegar al lago de Bremen. Nombre desconocido. ¿Sabotador? ¿Acaparador? ¿Agente del caos o de fuerzas oscuras en la región?"
+    },
+    {
+      "title": "La visión de Dorbulgruf — criatura mitad cabra, mitad ave",
+      "description": "Dorbulgruf contó que en su sueño, Lathander le mostró una criatura mitad cabra, mitad ave que hundiría el norte en oscuridad total. ¿Es Auril en otra forma? ¿Otra entidad? ¿Son los sueños del alcalde visiones proféticas reales?"
     }
   ]
 }
