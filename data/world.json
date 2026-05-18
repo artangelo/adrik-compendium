@@ -1,6 +1,6 @@
 {
   "campaign": "La Maldición de Strahd — Icewind Dale: Rime of the Frostmaiden",
-  "lastUpdated": "2026-05-08",
+  "lastUpdated": "2026-05-18",
   "npcs": [
     {
       "name": "Auril — La Doncella del Hielo",
@@ -62,6 +62,15 @@
       "target": "Sefek Caltro — guardaespaldas de la compañía Torga",
       "description": "Piel azul, no siente el frío. 3 asesinatos con daga de hielo negro. Instrucciones: traer su cabeza.",
       "notes": "Posible conexión con Auril. La mujer Aliana que encontramos era una manifestación."
+    },
+    {
+      "title": "Recuperar al alcalde de Bremen",
+      "status": "completed",
+      "client": "Gillin Trollbane",
+      "reward": "Nivel 2 · Confianza de Dorbulgruf",
+      "resolution": "Dorbulgruf Shalescar encontrado inconsciente en la Cueva del Hielo Negro. Rescatado tras enfrentar a Auril. Peleó junto a la party usando el hacha de mano de Adrik. Regresamos a la cabaña de Gillin y subimos a nivel 2.",
+      "description": "Dorbulgruf Shalescar, alcalde de Bremen y primo lejano del padre de Adrik, había desaparecido misteriosamente. Gillin nos encargó encontrarlo.",
+      "notes": "No recuerda nada de lo sucedido en la cueva. Nexo diplomático de Bremen."
     }
   ],
   "mysteries": [
