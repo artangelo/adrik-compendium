@@ -474,7 +474,7 @@ h1, h2, h3, h4 { font-family: 'Cinzel', serif; }
 <body>
 
 <div class="header">
-  <a href="../index.html" class="hub-link">← Party Hub</a>
+  <a href="../hub/index.html" class="hub-link">← Party Hub</a>
   <div class="header-top">
     <div class="header-identity">
       <div class="portrait-wrap">
@@ -554,6 +554,7 @@ function switchTab(id, btn) {
   if (panel) panel.classList.add('active');
   if (btn) btn.classList.add('active');
   localStorage.setItem('tab_' + CHAR_SLUG, id);
+  if (typeof _track !== 'undefined') _track('tab', { slug: CHAR_SLUG, tab: id });
 }
 
 function toggleSlot(i) {
@@ -610,6 +611,7 @@ function loadCharJSON(input) {
       const raw = JSON.parse(e.target.result);
       const char = parseFoundry(raw);
       localStorage.setItem('char_' + CHAR_SLUG, JSON.stringify(char));
+      if (typeof _trackUpload !== 'undefined') _trackUpload(CHAR_SLUG);
       renderDynamicChar(char);
     } catch(err) {
       alert('Error al leer el archivo JSON: ' + err.message);
@@ -677,6 +679,23 @@ function renderDynamicChar(char) {
   if (zone) zone.style.display = 'none';
 }
 
+// ── Auth restrictions (called by auth script + DOMContentLoaded) ──
+function applyAuthRestrictions() {
+  if (typeof _getSession === 'undefined') return;
+  const sess = _getSession();
+  if (!sess) return;
+  if (!sess.admin && sess.slug !== CHAR_SLUG) {
+    document.querySelectorAll('.tab-btn.tab-personal').forEach(b => b.style.display = 'none');
+    const lbl = document.querySelector('.tab-group-label.personal-label');
+    if (lbl) lbl.style.display = 'none';
+    const activeBtn = document.querySelector('.tab-btn.active');
+    if (activeBtn && activeBtn.classList.contains('tab-personal')) {
+      const first = document.querySelector('.tab-btn.tab-party');
+      if (first) { const m = first.getAttribute('onclick').match(/'(\w+)'/); if (m) switchTab(m[1], first); }
+    }
+  }
+}
+
 // ── Init ──
 window.addEventListener('DOMContentLoaded', function() {
   // Restore slots
@@ -696,7 +715,11 @@ window.addEventListener('DOMContentLoaded', function() {
   if (stored) {
     try { renderDynamicChar(JSON.parse(stored)); } catch(e) {}
   }
+  // Apply auth restrictions after restoring state
+  applyAuthRestrictions();
 });
 </script>
+
+{{AUTH_SCRIPT}}
 </body>
 </html>

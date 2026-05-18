@@ -84,6 +84,75 @@ PARTY = [
 
 PARTY_BY_SLUG = {m["slug"]: m for m in PARTY}
 
+# ── Credentials ────────────────────────────────────────────────────────────────
+CREDENTIALS = {
+    "adrik":    {"password": "selune",   "admin": True},
+    "draxus":   {"password": "yunque",   "admin": False},
+    "sven":     {"password": "escarcha", "admin": False},
+    "teska":    {"password": "arpistas", "admin": False},
+    "elian":    {"password": "elfico",   "admin": False},
+    "yankavic": {"password": "tormenta", "admin": False},
+}
+
+# ── Auth script (injected in every character page) ────────────────────────────
+def auth_script(slug):
+    creds = json.dumps({k: {"p": v["password"], "a": v["admin"]} for k, v in CREDENTIALS.items()})
+    m = PARTY_BY_SLUG.get(slug, {})
+    char_color = m.get("color", "var(--gold)")
+    return f"""<script>
+// ── Session & Analytics ────────────────────────────────────────────────────
+const _SK = 'icewind_session';
+const _AK = 'icewind_analytics';
+const _CREDS = {creds};
+
+function _getSession() {{
+  try {{ return JSON.parse(localStorage.getItem(_SK)); }} catch {{ return null; }}
+}}
+function logout() {{
+  localStorage.removeItem(_SK);
+  location.href = '../index.html';
+}}
+function _track(type, data) {{
+  try {{
+    const ev = JSON.parse(localStorage.getItem(_AK) || '[]');
+    ev.push({{ t: type, d: data, ts: Date.now() }});
+    if (ev.length > 1000) ev.splice(0, 200);
+    localStorage.setItem(_AK, JSON.stringify(ev));
+  }} catch(e) {{}}
+}}
+function _trackUpload(slug) {{
+  _track('upload', {{ slug }});
+  localStorage.setItem('last_upload_' + slug, Date.now());
+  localStorage.setItem('upload_char_' + slug, '1');
+}}
+
+// ── Auth check ──────────────────────────────────────────────────────────────
+(function() {{
+  const sess = _getSession();
+  if (!sess) {{ location.replace('../index.html'); return; }}
+
+  // Track visit
+  _track('visit', {{ slug: '{slug}', ts: Date.now() }});
+  localStorage.setItem('last_visit_{slug}', Date.now());
+
+  // User indicator in header
+  const hubLink = document.querySelector('.hub-link');
+  if (hubLink) {{
+    hubLink.insertAdjacentHTML('afterend',
+      '<span id="session-indicator" style="font-size:11px;color:var(--text3);margin-left:14px">' +
+      '<span style="color:{char_color}">' + sess.slug + '</span>' +
+      (sess.admin ? ' <span style="color:var(--gold);opacity:0.7;font-size:10px">★ admin</span>' : '') +
+      ' &nbsp;·&nbsp; <a href="#" onclick="logout();return false" ' +
+      'style="color:var(--text3);text-decoration:none;border-bottom:1px solid var(--surface3)">salir</a>' +
+      '</span>'
+    );
+  }}
+
+  // Apply tab restrictions immediately
+  applyAuthRestrictions();
+}})();
+</script>"""
+
 # ── Helpers ────────────────────────────────────────────────────────────────────
 CLASS_ES = {
     "Cleric": "Clérigo", "Fighter": "Guerrero", "Rogue": "Pícaro",
@@ -595,11 +664,9 @@ def personajes_html(w):
     # Adrik first (the player character)
     adrik_info = PARTY_BY_SLUG["adrik"]
     bg, arc, moments = arcs["adrik"]
-    portrait_path = f"../assets/portraits/adrik.jpg"
-    portrait_exists = os.path.exists(os.path.join(BASE, "dist", "assets", "portraits", "adrik.jpg"))
     portrait_html = (
-        f'<img src="{portrait_path}" style="width:100%;height:100%;object-fit:cover">'
-        if portrait_exists else adrik_info["initial"]
+        f'<img src="../assets/portraits/adrik.jpg" style="width:100%;height:100%;object-fit:cover" '
+        f'onerror="this.style.display=\'none\';this.parentElement.innerHTML=\'A\'">'
     )
     moment_tags = "".join(f'<span class="moment-tag">{m}</span>' for m in moments)
     parts.append(f'''
@@ -621,11 +688,9 @@ def personajes_html(w):
         # Get info from world.json party array
         world_info = next((p for p in party_data if p.get("name","").lower().startswith(slug)), {})
         class_info = world_info.get("class", m["class_str"] + " · " + m["race_str"])
-        portrait_path = f"../assets/portraits/{slug}.jpg"
-        portrait_exists = os.path.exists(os.path.join(BASE, "dist", "assets", "portraits", f"{slug}.jpg"))
         portrait_html = (
-            f'<img src="{portrait_path}" style="width:100%;height:100%;object-fit:cover">'
-            if portrait_exists else m["initial"]
+            f'<img src="../assets/portraits/{slug}.jpg" style="width:100%;height:100%;object-fit:cover" '
+            f'onerror="this.style.display=\'none\';this.parentElement.innerHTML=\'{m["initial"]}\'">'
         )
         moment_tags = "".join(f'<span class="moment-tag">{mo}</span>' for mo in moment_list)
         note = world_info.get("note", "")
@@ -778,14 +843,11 @@ def hub_party_card(member, char_data, sessions_data):
         class_str = member["class_str"]
         race_str  = member["race_str"]
 
-    # Portrait
-    portrait_path = os.path.join(BASE, "dist", "assets", "portraits", f"{slug}.jpg")
+    # Portrait — always use <img> with onerror fallback (handles images added after build)
     portrait_html = (
         f'<img class="portrait-img" src="assets/portraits/{slug}.jpg" '
         f'alt="{name}" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'">'
         f'<div class="portrait-fallback" style="display:none;background:{bg};color:{color};border-color:{border}">{initial}</div>'
-        if os.path.exists(portrait_path) else
-        f'<div class="portrait-fallback" style="background:{bg};color:{color};border-color:{border}">{initial}</div>'
     )
 
     player_tag = f' <span class="player-you">tú</span>' if is_player else (f'<span class="player-name">{player}</span>' if player else "")
@@ -898,14 +960,36 @@ h1,h2,h3{{font-family:'Cinzel',serif}}
   <div class="section-label">Quest Activa</div>
 {quest_html}
 </div>
-<div class="footer">Adrik Compendium · Generado {build_date}</div>
+<div class="footer">Adrik Compendium · Generado {build_date} · <a href="#" onclick="logout();return false" style="color:var(--text3);text-decoration:none">Cerrar sesión</a></div>
 </body>
+<script>
+const _SK2='icewind_session';
+function _getSess(){{try{{return JSON.parse(localStorage.getItem(_SK2));}}catch{{return null;}}}}
+function logout(){{localStorage.removeItem(_SK2);location.href='../index.html';}}
+(function(){{
+  const s=_getSess();
+  if(!s){{location.replace('../index.html');return;}}
+  // Show admin link for admin users
+  if(s.admin){{
+    const footer=document.querySelector('.footer');
+    if(footer)footer.insertAdjacentHTML('afterbegin',
+      '<a href="../admin/index.html" style="color:var(--gold);text-decoration:none;font-family:Cinzel,serif;font-size:11px;text-transform:uppercase;letter-spacing:0.8px;margin-right:16px">★ Admin</a>');
+  }}
+  // Show session user
+  const header=document.querySelector('.hub-stats');
+  if(header)header.insertAdjacentHTML('beforeend',
+    '<div class="hub-stat" style="margin-left:8px;padding-left:16px;border-left:1px solid var(--surface3)">'+
+    'Sesión: <strong style="color:var(--gold)">'+s.slug+'</strong></div>');
+}})();
+</script>
 </html>'''
 
-    out = os.path.join(BASE, "dist", "index.html")
+    hub_dir = os.path.join(BASE, "dist", "hub")
+    os.makedirs(hub_dir, exist_ok=True)
+    out = os.path.join(hub_dir, "index.html")
     with open(out, "w", encoding="utf-8") as f:
         f.write(html)
-    print(f"✅ dist/index.html (hub)")
+    print(f"✅ dist/hub/index.html (hub)")
 
 # ── Character page builder ─────────────────────────────────────────────────────
 def build_character_page(member):
@@ -969,6 +1053,7 @@ def build_character_page(member):
         "{{PERSONAJES_HTML}}":     _pers,
         "{{MISIONES_HTML}}":       _mis,
         "{{MUNDO_HTML}}":          _mundo,
+        "{{AUTH_SCRIPT}}":         auth_script(slug),
     }
     for k, v in replacements.items():
         html = html.replace(k, v)
@@ -981,9 +1066,425 @@ def build_character_page(member):
     tag = "(pre-renderizado)" if is_adrik else "(stub + upload)"
     print(f"   dist/{slug}/index.html {tag}")
 
+# ── Login page ─────────────────────────────────────────────────────────────────
+def build_login():
+    creds_js = json.dumps({k: {"p": v["password"], "a": v["admin"]} for k, v in CREDENTIALS.items()})
+    cards = ""
+    for m in PARTY:
+        slug    = m["slug"]
+        name    = m["name"]
+        color   = m["color"]
+        border  = m["border"]
+        bg      = m["bg"]
+        initial = m["initial"]
+        cs      = m["class_str"]
+        rs      = m["race_str"]
+        cards += f'''
+    <div class="char-card" data-slug="{slug}" onclick="selectChar(this)"
+         style="--c:{color};--b:{border};--bg:{bg}">
+      <div class="card-portrait">
+        <img src="assets/portraits/{slug}.jpg" alt="{name}"
+             onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+        <div class="portrait-init" style="display:none;background:{bg};color:{color};border-color:{border}">{initial}</div>
+      </div>
+      <div class="card-info">
+        <div class="card-name">{name}</div>
+        <div class="card-class">{cs}</div>
+        <div class="card-race">{rs}</div>
+      </div>
+    </div>'''
+
+    html = f'''<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Icewind Dale · Compendium</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=Source+Sans+3:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+:root{{--bg:#080b16;--surface:#0f1425;--surface2:#161e34;--surface3:#1d2640;
+  --gold:#C9963A;--gold2:#E8B84B;--gold-border:rgba(201,150,58,0.3);
+  --text:#F8F3E8;--text2:#C8BEA8;--text3:#8A8070;--radius:10px}}
+*{{box-sizing:border-box;margin:0;padding:0}}
+body{{background:var(--bg);color:var(--text);font-family:'Source Sans 3',sans-serif;min-height:100vh;
+  display:flex;align-items:center;justify-content:center;padding:24px}}
+h1,h2{{font-family:'Cinzel',serif}}
+.container{{width:100%;max-width:680px}}
+.header{{text-align:center;margin-bottom:40px}}
+.campaign{{font-family:'Cinzel',serif;font-size:11px;color:var(--gold);text-transform:uppercase;
+  letter-spacing:3px;margin-bottom:8px}}
+.title{{font-family:'Cinzel',serif;font-size:34px;font-weight:600;color:var(--gold2);
+  line-height:1.1;margin-bottom:6px}}
+.sub{{font-size:14px;color:var(--text3);font-style:italic}}
+.chars-grid{{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:28px}}
+@media(max-width:520px){{.chars-grid{{grid-template-columns:repeat(2,1fr)}}}}
+.char-card{{background:var(--surface);border:2px solid var(--surface3);border-radius:var(--radius);
+  padding:14px;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;gap:10px}}
+.char-card:hover{{border-color:var(--b,var(--gold-border));background:var(--surface2)}}
+.char-card.selected{{border-color:var(--b);background:rgba(from var(--c) r g b / 0.08);
+  box-shadow:0 0 0 1px var(--b)}}
+.card-portrait{{position:relative;flex-shrink:0}}
+.card-portrait img{{width:44px;height:44px;border-radius:50%;object-fit:cover;display:block;
+  border:1.5px solid var(--gold-border)}}
+.portrait-init{{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;
+  justify-content:center;font-family:'Cinzel',serif;font-size:18px;font-weight:600;border:1.5px solid}}
+.card-info{{flex:1;min-width:0}}
+.card-name{{font-family:'Cinzel',serif;font-size:13px;font-weight:500;color:var(--text);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}}
+.card-class{{font-size:11px;color:var(--text2)}}
+.card-race{{font-size:11px;color:var(--text3)}}
+.login-form{{background:var(--surface);border:1px solid var(--gold-border);border-radius:var(--radius);
+  padding:24px;display:none}}
+.login-form.visible{{display:block}}
+.form-label{{font-family:'Cinzel',serif;font-size:11px;color:var(--gold);text-transform:uppercase;
+  letter-spacing:0.8px;margin-bottom:8px;display:block}}
+.form-row{{display:flex;gap:10px;align-items:stretch}}
+.pw-input{{flex:1;background:var(--surface2);border:1px solid var(--surface3);border-radius:6px;
+  padding:12px 14px;color:var(--text);font-size:15px;font-family:'Source Sans 3',sans-serif;
+  outline:none;transition:border-color 0.2s}}
+.pw-input:focus{{border-color:var(--gold-border)}}
+.login-btn{{background:var(--gold);color:#080b16;border:none;border-radius:6px;padding:12px 20px;
+  font-family:'Cinzel',serif;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;
+  transition:all 0.2s}}
+.login-btn:hover{{background:var(--gold2)}}
+.error-msg{{color:#EE6060;font-size:13px;margin-top:10px;display:none}}
+.who-label{{font-size:13px;color:var(--text2);margin-bottom:14px}}
+.who-name{{color:var(--gold2);font-family:'Cinzel',serif}}
+::-webkit-scrollbar{{width:6px}}::-webkit-scrollbar-track{{background:var(--bg)}}
+::-webkit-scrollbar-thumb{{background:var(--surface3);border-radius:3px}}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <div class="campaign">Icewind Dale</div>
+    <div class="title">Rime of the Frostmaiden</div>
+    <div class="sub">El invierno eterno de Auril · Los Diez Pueblos</div>
+  </div>
+
+  <div class="chars-grid">{cards}
+  </div>
+
+  <div class="login-form" id="loginForm">
+    <div class="who-label">Bienvenido, <span class="who-name" id="whoName">—</span></div>
+    <label class="form-label" for="pwInput">Contraseña</label>
+    <div class="form-row">
+      <input type="password" class="pw-input" id="pwInput"
+             placeholder="tu contraseña..." onkeydown="if(event.key==='Enter')doLogin()">
+      <button class="login-btn" onclick="doLogin()">Entrar →</button>
+    </div>
+    <div class="error-msg" id="errMsg">Contraseña incorrecta. Intenta de nuevo.</div>
+  </div>
+</div>
+<script>
+const CREDS = {creds_js};
+const _SK = 'icewind_session';
+let _sel = null;
+
+// Already logged in? Redirect
+(function() {{
+  try {{
+    const s = JSON.parse(localStorage.getItem(_SK));
+    if (s && s.slug) {{
+      location.replace(s.admin ? 'hub/index.html' : s.slug + '/index.html');
+    }}
+  }} catch(e) {{}}
+}})();
+
+function selectChar(el) {{
+  document.querySelectorAll('.char-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  _sel = el.dataset.slug;
+  document.getElementById('whoName').textContent = el.querySelector('.card-name').textContent;
+  const form = document.getElementById('loginForm');
+  form.classList.add('visible');
+  document.getElementById('pwInput').value = '';
+  document.getElementById('errMsg').style.display = 'none';
+  document.getElementById('pwInput').focus();
+}}
+
+function doLogin() {{
+  if (!_sel) return;
+  const pw = document.getElementById('pwInput').value.trim().toLowerCase();
+  const cred = CREDS[_sel];
+  if (!cred || pw !== cred.p) {{
+    const err = document.getElementById('errMsg');
+    err.style.display = 'block';
+    document.getElementById('pwInput').select();
+    return;
+  }}
+  const session = {{ slug: _sel, admin: cred.a, loginTime: Date.now() }};
+  localStorage.setItem(_SK, JSON.stringify(session));
+  // Track login
+  try {{
+    const ev = JSON.parse(localStorage.getItem('icewind_analytics') || '[]');
+    ev.push({{ t: 'login', d: {{ slug: _sel }}, ts: Date.now() }});
+    localStorage.setItem('icewind_analytics', JSON.stringify(ev));
+    localStorage.setItem('last_login_' + _sel, Date.now());
+  }} catch(e) {{}}
+  location.href = cred.a ? 'hub/index.html' : _sel + '/index.html';
+}}
+</script>
+</body>
+</html>'''
+
+    out = os.path.join(BASE, "dist", "index.html")
+    with open(out, "w", encoding="utf-8") as f:
+        f.write(html)
+    print(f"✅ dist/index.html (login)")
+
+
+# ── Admin dashboard ─────────────────────────────────────────────────────────────
+def build_admin():
+    party_rows = ""
+    for m in PARTY:
+        slug = m["slug"]
+        name = m["name"]
+        color = m["color"]
+        cs   = m["class_str"]
+        rs   = m["race_str"]
+        party_rows += f'''
+      {{ slug: "{slug}", name: "{name}", color: "{color}", class_str: "{cs}", race: "{rs}" }},'''
+
+    html = f'''<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Admin · Adrik Compendium</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=Source+Sans+3:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+:root{{--bg:#080b16;--surface:#0f1425;--surface2:#161e34;--surface3:#1d2640;
+  --gold:#C9963A;--gold2:#E8B84B;--gold-border:rgba(201,150,58,0.3);--gold-border2:rgba(201,150,58,0.55);
+  --text:#F8F3E8;--text2:#C8BEA8;--text3:#8A8070;--teal:#2A9D7F;--teal-bg:rgba(42,157,127,0.12);
+  --green:#4ADE80;--red:#EE6060;--amber:#C9963A;--radius:10px}}
+*{{box-sizing:border-box;margin:0;padding:0}}
+body{{background:var(--bg);color:var(--text);font-family:'Source Sans 3',sans-serif;font-size:15px;line-height:1.65;min-height:100vh}}
+h1,h2,h3{{font-family:'Cinzel',serif}}
+.header{{background:linear-gradient(180deg,#040710,#080c1a);border-bottom:1px solid var(--gold-border);
+  padding:28px 32px 24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}}
+.header::before{{content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,var(--gold),transparent)}}
+.header{{position:relative}}
+.header-left h1{{font-size:24px;color:var(--gold2)}}
+.header-left p{{font-size:12px;color:var(--text3);margin-top:4px}}
+.header-links a{{font-size:12px;color:var(--text2);text-decoration:none;margin-left:16px}}
+.header-links a:hover{{color:var(--gold)}}
+.content{{max-width:1100px;margin:0 auto;padding:32px 28px}}
+.section-label{{font-family:'Cinzel',serif;font-size:11px;font-weight:500;color:var(--gold);
+  text-transform:uppercase;letter-spacing:1.2px;margin:28px 0 16px;display:flex;align-items:center;gap:10px}}
+.section-label::before,.section-label::after{{content:'';flex:1;height:1px;background:var(--gold-border)}}
+.section-label:first-child{{margin-top:0}}
+.stats-grid{{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;margin-bottom:8px}}
+.stat-card{{background:var(--surface);border:1px solid var(--surface3);border-radius:var(--radius);
+  padding:18px 20px;text-align:center}}
+.stat-val{{font-family:'Cinzel',serif;font-size:30px;font-weight:600;color:var(--gold2);display:block}}
+.stat-lbl{{font-size:12px;color:var(--text3);text-transform:uppercase;letter-spacing:0.6px;margin-top:4px;display:block}}
+.char-table{{width:100%;border-collapse:collapse;margin-bottom:8px}}
+.char-table th{{text-align:left;font-family:'Cinzel',serif;font-size:11px;color:var(--text3);
+  text-transform:uppercase;letter-spacing:0.8px;padding:8px 12px;border-bottom:1px solid var(--surface3)}}
+.char-table td{{padding:12px;border-bottom:1px solid var(--surface2);vertical-align:middle}}
+.char-table tr:hover td{{background:var(--surface2)}}
+.char-name{{font-family:'Cinzel',serif;font-size:14px;font-weight:500}}
+.badge-yes{{background:rgba(74,222,128,0.1);color:var(--green);border:1px solid rgba(74,222,128,0.3);
+  border-radius:20px;padding:2px 10px;font-size:11px;font-family:'Cinzel',serif}}
+.badge-no{{background:rgba(238,96,96,0.1);color:var(--red);border:1px solid rgba(238,96,96,0.3);
+  border-radius:20px;padding:2px 10px;font-size:11px;font-family:'Cinzel',serif}}
+.badge-never{{background:var(--surface2);color:var(--text3);border:1px solid var(--surface3);
+  border-radius:20px;padding:2px 10px;font-size:11px;font-family:'Cinzel',serif}}
+.tab-bar-chart{{display:flex;flex-direction:column;gap:8px}}
+.bar-row{{display:flex;align-items:center;gap:12px}}
+.bar-label{{font-size:13px;color:var(--text2);width:100px;flex-shrink:0;text-align:right}}
+.bar-track{{flex:1;height:8px;background:var(--surface2);border-radius:4px;overflow:hidden}}
+.bar-fill{{height:100%;background:var(--teal);border-radius:4px;transition:width 0.4s}}
+.bar-count{{font-size:12px;color:var(--text3);width:36px;text-align:right}}
+.activity-list{{list-style:none}}
+.activity-item{{display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--surface2)}}
+.activity-dot{{width:8px;height:8px;border-radius:50%;background:var(--teal);flex-shrink:0;margin-top:5px}}
+.activity-text{{font-size:13px;color:var(--text2)}}
+.activity-ts{{font-size:11px;color:var(--text3);margin-top:2px}}
+.empty{{font-size:13px;color:var(--text3);font-style:italic;padding:16px 0}}
+.info-box{{background:var(--surface);border:1px solid var(--surface3);border-radius:var(--radius);
+  padding:14px 16px;font-size:13px;color:var(--text3);margin-top:16px;line-height:1.6}}
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="header-left">
+    <h1>★ Admin Dashboard</h1>
+    <p>Icewind Dale · Rime of the Frostmaiden · Solo visible para Adrik</p>
+  </div>
+  <div class="header-links">
+    <a href="../hub/index.html">← Party Hub</a>
+    <a href="#" onclick="logout();return false">Cerrar sesión</a>
+  </div>
+</div>
+
+<div class="content">
+  <div class="section-label">Resumen</div>
+  <div class="stats-grid" id="statsGrid"><!-- JS --></div>
+
+  <div class="section-label">Estado de la Party</div>
+  <table class="char-table">
+    <thead>
+      <tr>
+        <th>Personaje</th>
+        <th>Clase</th>
+        <th>JSON subido</th>
+        <th>Último login</th>
+        <th>Visitas</th>
+      </tr>
+    </thead>
+    <tbody id="charTableBody"><!-- JS --></tbody>
+  </table>
+
+  <div class="section-label">Tabs más visitadas</div>
+  <div class="tab-bar-chart" id="tabChart"><!-- JS --></div>
+
+  <div class="section-label">Actividad reciente</div>
+  <ul class="activity-list" id="activityList"><!-- JS --></ul>
+
+  <div class="info-box">
+    ⓘ Los datos de analytics se almacenan en el navegador de cada jugador (localStorage).
+    Esta pantalla muestra la actividad registrada en <strong>este dispositivo</strong>.
+    Para ver las estadísticas de todos los jugadores, cada uno debe visitar su página desde este dispositivo, o compartirte su actividad.
+  </div>
+</div>
+
+<script>
+const _SK = 'icewind_session';
+const _AK = 'icewind_analytics';
+const PARTY = [{party_rows}
+];
+
+function _getSess(){{try{{return JSON.parse(localStorage.getItem(_SK));}}catch{{return null;}}}}
+function logout(){{localStorage.removeItem(_SK);location.href='../index.html';}}
+
+// Auth check
+(function(){{
+  const s=_getSess();
+  if(!s||!s.admin){{location.replace('../index.html');}}
+}})();
+
+function relTime(ts){{
+  if(!ts) return '—';
+  const diff=Date.now()-ts;
+  const m=Math.floor(diff/60000);
+  if(m<1) return 'hace un momento';
+  if(m<60) return 'hace '+m+' min';
+  const h=Math.floor(m/60);
+  if(h<24) return 'hace '+h+'h';
+  const d=Math.floor(h/24);
+  return 'hace '+d+' día'+(d>1?'s':'');
+}}
+
+function fmtDate(ts){{
+  if(!ts) return '—';
+  return new Date(ts).toLocaleDateString('es-CL',{{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}});
+}}
+
+window.addEventListener('DOMContentLoaded', function(){{
+  const events = JSON.parse(localStorage.getItem(_AK)||'[]');
+
+  // ── Stats summary ──
+  const loginsToday = events.filter(e=>e.t==='login'&&Date.now()-e.ts<86400000).length;
+  const uploads     = PARTY.filter(p=>localStorage.getItem('upload_char_'+p.slug)==='1').length;
+  const totalVisits = events.filter(e=>e.t==='visit').length;
+  const grid = document.getElementById('statsGrid');
+  grid.innerHTML =
+    `<div class="stat-card"><span class="stat-val">${{loginsToday}}</span><span class="stat-lbl">Logins hoy</span></div>`+
+    `<div class="stat-card"><span class="stat-val">${{uploads}}/6</span><span class="stat-lbl">JSON subidos</span></div>`+
+    `<div class="stat-card"><span class="stat-val">${{totalVisits}}</span><span class="stat-lbl">Visitas totales</span></div>`+
+    `<div class="stat-card"><span class="stat-val">${{events.length}}</span><span class="stat-lbl">Eventos registrados</span></div>`;
+
+  // ── Character table ──
+  const visitsBySlug = {{}};
+  events.filter(e=>e.t==='visit').forEach(e=>{{
+    const s=e.d?.slug||'';
+    visitsBySlug[s]=(visitsBySlug[s]||0)+1;
+  }});
+  const tbody = document.getElementById('charTableBody');
+  tbody.innerHTML = PARTY.map(p=>{{
+    const hasUpload = localStorage.getItem('upload_char_'+p.slug)==='1';
+    const lastUp    = localStorage.getItem('last_upload_'+p.slug);
+    const lastLog   = localStorage.getItem('last_login_'+p.slug);
+    const visits    = visitsBySlug[p.slug]||0;
+    const upBadge   = hasUpload
+      ? `<span class="badge-yes">✓ Sí</span> <span style="font-size:11px;color:var(--text3)">${{fmtDate(parseInt(lastUp))}}</span>`
+      : '<span class="badge-no">✗ No</span>';
+    return `<tr>
+      <td><span class="char-name" style="color:${{p.color}}">${{p.name}}</span></td>
+      <td style="font-size:13px;color:var(--text2)">${{p.class_str}}</td>
+      <td>${{upBadge}}</td>
+      <td style="font-size:13px;color:var(--text2)">${{relTime(parseInt(lastLog))}}</td>
+      <td style="font-family:'Cinzel',serif;color:var(--gold2)">${{visits}}</td>
+    </tr>`;
+  }}).join('');
+
+  // ── Tab chart ──
+  const tabCounts = {{}};
+  const tabLabels = {{
+    'combate':'⚔ Combate','hechizos':'✦ Hechizos','habilidades':'◈ Habilidades',
+    'personaje':'📋 Personaje','mapa':'🗺 Mapa','sesion':'📖 Sesión',
+    'personajes':'👥 Personajes','misiones':'🔍 Misiones','mundo':'🌍 Mundo'
+  }};
+  events.filter(e=>e.t==='tab').forEach(e=>{{
+    const t=e.d?.tab||'';
+    tabCounts[t]=(tabCounts[t]||0)+1;
+  }});
+  const sortedTabs = Object.entries(tabCounts).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  const maxTab = sortedTabs[0]?.[1]||1;
+  const chartEl = document.getElementById('tabChart');
+  if(sortedTabs.length===0){{
+    chartEl.innerHTML='<div class="empty">Sin datos de tabs aún.</div>';
+  }} else {{
+    chartEl.innerHTML = sortedTabs.map(([tab,cnt])=>
+      `<div class="bar-row">
+        <span class="bar-label">${{tabLabels[tab]||tab}}</span>
+        <div class="bar-track"><div class="bar-fill" style="width:${{Math.round(cnt/maxTab*100)}}%"></div></div>
+        <span class="bar-count">${{cnt}}</span>
+      </div>`
+    ).join('');
+  }}
+
+  // ── Activity log ──
+  const recent = [...events].reverse().slice(0,20);
+  const listEl = document.getElementById('activityList');
+  const typeLabel = {{login:'Inició sesión',visit:'Visitó página',tab:'Cambió tab',upload:'Subió JSON'}};
+  if(recent.length===0){{
+    listEl.innerHTML='<li class="empty">Sin actividad registrada aún.</li>';
+  }} else {{
+    listEl.innerHTML = recent.map(e=>{{
+      const action=typeLabel[e.t]||e.t;
+      const who=e.d?.slug||'';
+      const tab=e.d?.tab?' ('+e.d.tab+')':'';
+      return `<li class="activity-item">
+        <div class="activity-dot"></div>
+        <div>
+          <div class="activity-text"><strong>${{who}}</strong> ${{action}}${{tab}}</div>
+          <div class="activity-ts">${{fmtDate(e.ts)}}</div>
+        </div>
+      </li>`;
+    }}).join('');
+  }}
+}});
+</script>
+</body>
+</html>'''
+
+    admin_dir = os.path.join(BASE, "dist", "admin")
+    os.makedirs(admin_dir, exist_ok=True)
+    out = os.path.join(admin_dir, "index.html")
+    with open(out, "w", encoding="utf-8") as f:
+        f.write(html)
+    print(f"✅ dist/admin/index.html (dashboard admin)")
+
+
 # ── Main ───────────────────────────────────────────────────────────────────────
 print("⟳ Generando compendium multi-jugador...")
+build_login()
 build_hub()
+build_admin()
 for member in PARTY:
     build_character_page(member)
 
@@ -995,3 +1496,5 @@ if char:
     print(f"   {char.get('name')} — Nivel {char.get('level')} {char.get('class')}")
 if warns:
     print(f"   ⚠  {len(warns)} advertencia(s) de Foundry en Adrik")
+print(f"   🔐 Login: dist/index.html")
+print(f"   ★  Admin: dist/admin/index.html (solo Adrik · contraseña: selune)")

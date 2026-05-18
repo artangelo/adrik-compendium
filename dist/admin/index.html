@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Admin · Adrik Compendium</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=Source+Sans+3:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#080b16;--surface:#0f1425;--surface2:#161e34;--surface3:#1d2640;
+  --gold:#C9963A;--gold2:#E8B84B;--gold-border:rgba(201,150,58,0.3);--gold-border2:rgba(201,150,58,0.55);
+  --text:#F8F3E8;--text2:#C8BEA8;--text3:#8A8070;--teal:#2A9D7F;--teal-bg:rgba(42,157,127,0.12);
+  --green:#4ADE80;--red:#EE6060;--amber:#C9963A;--radius:10px}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Source Sans 3',sans-serif;font-size:15px;line-height:1.65;min-height:100vh}
+h1,h2,h3{font-family:'Cinzel',serif}
+.header{background:linear-gradient(180deg,#040710,#080c1a);border-bottom:1px solid var(--gold-border);
+  padding:28px 32px 24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+.header::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,var(--gold),transparent)}
+.header{position:relative}
+.header-left h1{font-size:24px;color:var(--gold2)}
+.header-left p{font-size:12px;color:var(--text3);margin-top:4px}
+.header-links a{font-size:12px;color:var(--text2);text-decoration:none;margin-left:16px}
+.header-links a:hover{color:var(--gold)}
+.content{max-width:1100px;margin:0 auto;padding:32px 28px}
+.section-label{font-family:'Cinzel',serif;font-size:11px;font-weight:500;color:var(--gold);
+  text-transform:uppercase;letter-spacing:1.2px;margin:28px 0 16px;display:flex;align-items:center;gap:10px}
+.section-label::before,.section-label::after{content:'';flex:1;height:1px;background:var(--gold-border)}
+.section-label:first-child{margin-top:0}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;margin-bottom:8px}
+.stat-card{background:var(--surface);border:1px solid var(--surface3);border-radius:var(--radius);
+  padding:18px 20px;text-align:center}
+.stat-val{font-family:'Cinzel',serif;font-size:30px;font-weight:600;color:var(--gold2);display:block}
+.stat-lbl{font-size:12px;color:var(--text3);text-transform:uppercase;letter-spacing:0.6px;margin-top:4px;display:block}
+.char-table{width:100%;border-collapse:collapse;margin-bottom:8px}
+.char-table th{text-align:left;font-family:'Cinzel',serif;font-size:11px;color:var(--text3);
+  text-transform:uppercase;letter-spacing:0.8px;padding:8px 12px;border-bottom:1px solid var(--surface3)}
+.char-table td{padding:12px;border-bottom:1px solid var(--surface2);vertical-align:middle}
+.char-table tr:hover td{background:var(--surface2)}
+.char-name{font-family:'Cinzel',serif;font-size:14px;font-weight:500}
+.badge-yes{background:rgba(74,222,128,0.1);color:var(--green);border:1px solid rgba(74,222,128,0.3);
+  border-radius:20px;padding:2px 10px;font-size:11px;font-family:'Cinzel',serif}
+.badge-no{background:rgba(238,96,96,0.1);color:var(--red);border:1px solid rgba(238,96,96,0.3);
+  border-radius:20px;padding:2px 10px;font-size:11px;font-family:'Cinzel',serif}
+.badge-never{background:var(--surface2);color:var(--text3);border:1px solid var(--surface3);
+  border-radius:20px;padding:2px 10px;font-size:11px;font-family:'Cinzel',serif}
+.tab-bar-chart{display:flex;flex-direction:column;gap:8px}
+.bar-row{display:flex;align-items:center;gap:12px}
+.bar-label{font-size:13px;color:var(--text2);width:100px;flex-shrink:0;text-align:right}
+.bar-track{flex:1;height:8px;background:var(--surface2);border-radius:4px;overflow:hidden}
+.bar-fill{height:100%;background:var(--teal);border-radius:4px;transition:width 0.4s}
+.bar-count{font-size:12px;color:var(--text3);width:36px;text-align:right}
+.activity-list{list-style:none}
+.activity-item{display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--surface2)}
+.activity-dot{width:8px;height:8px;border-radius:50%;background:var(--teal);flex-shrink:0;margin-top:5px}
+.activity-text{font-size:13px;color:var(--text2)}
+.activity-ts{font-size:11px;color:var(--text3);margin-top:2px}
+.empty{font-size:13px;color:var(--text3);font-style:italic;padding:16px 0}
+.info-box{background:var(--surface);border:1px solid var(--surface3);border-radius:var(--radius);
+  padding:14px 16px;font-size:13px;color:var(--text3);margin-top:16px;line-height:1.6}
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="header-left">
+    <h1>★ Admin Dashboard</h1>
+    <p>Icewind Dale · Rime of the Frostmaiden · Solo visible para Adrik</p>
+  </div>
+  <div class="header-links">
+    <a href="../hub/index.html">← Party Hub</a>
+    <a href="#" onclick="logout();return false">Cerrar sesión</a>
+  </div>
+</div>
+
+<div class="content">
+  <div class="section-label">Resumen</div>
+  <div class="stats-grid" id="statsGrid"><!-- JS --></div>
+
+  <div class="section-label">Estado de la Party</div>
+  <table class="char-table">
+    <thead>
+      <tr>
+        <th>Personaje</th>
+        <th>Clase</th>
+        <th>JSON subido</th>
+        <th>Último login</th>
+        <th>Visitas</th>
+      </tr>
+    </thead>
+    <tbody id="charTableBody"><!-- JS --></tbody>
+  </table>
+
+  <div class="section-label">Tabs más visitadas</div>
+  <div class="tab-bar-chart" id="tabChart"><!-- JS --></div>
+
+  <div class="section-label">Actividad reciente</div>
+  <ul class="activity-list" id="activityList"><!-- JS --></ul>
+
+  <div class="info-box">
+    ⓘ Los datos de analytics se almacenan en el navegador de cada jugador (localStorage).
+    Esta pantalla muestra la actividad registrada en <strong>este dispositivo</strong>.
+    Para ver las estadísticas de todos los jugadores, cada uno debe visitar su página desde este dispositivo, o compartirte su actividad.
+  </div>
+</div>
+
+<script>
+const _SK = 'icewind_session';
+const _AK = 'icewind_analytics';
+const PARTY = [
+      { slug: "adrik", name: "Adrik Frostbeard", color: "#C9963A", class_str: "Clérigo · Dominio Crepúsculo", race: "Enano de Colina" },
+      { slug: "draxus", name: "Draxus", color: "#94A3B8", class_str: "Fighter", race: "Dragonborn Plateado" },
+      { slug: "sven", name: "Sven", color: "#38BDF8", class_str: "Rogue", race: "Elfo" },
+      { slug: "teska", name: "Teska", color: "#A78BFA", class_str: "Bardo", race: "Tiefling" },
+      { slug: "elian", name: "Elian", color: "#60A5FA", class_str: "Mago", race: "Humano" },
+      { slug: "yankavic", name: "Yankavic", color: "#34D399", class_str: "Paladín", race: "Semielfo" },
+];
+
+function _getSess(){try{return JSON.parse(localStorage.getItem(_SK));}catch{return null;}}
+function logout(){localStorage.removeItem(_SK);location.href='../index.html';}
+
+// Auth check
+(function(){
+  const s=_getSess();
+  if(!s||!s.admin){location.replace('../index.html');}
+})();
+
+function relTime(ts){
+  if(!ts) return '—';
+  const diff=Date.now()-ts;
+  const m=Math.floor(diff/60000);
+  if(m<1) return 'hace un momento';
+  if(m<60) return 'hace '+m+' min';
+  const h=Math.floor(m/60);
+  if(h<24) return 'hace '+h+'h';
+  const d=Math.floor(h/24);
+  return 'hace '+d+' día'+(d>1?'s':'');
+}
+
+function fmtDate(ts){
+  if(!ts) return '—';
+  return new Date(ts).toLocaleDateString('es-CL',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
+}
+
+window.addEventListener('DOMContentLoaded', function(){
+  const events = JSON.parse(localStorage.getItem(_AK)||'[]');
+
+  // ── Stats summary ──
+  const loginsToday = events.filter(e=>e.t==='login'&&Date.now()-e.ts<86400000).length;
+  const uploads     = PARTY.filter(p=>localStorage.getItem('upload_char_'+p.slug)==='1').length;
+  const totalVisits = events.filter(e=>e.t==='visit').length;
+  const grid = document.getElementById('statsGrid');
+  grid.innerHTML =
+    `<div class="stat-card"><span class="stat-val">${loginsToday}</span><span class="stat-lbl">Logins hoy</span></div>`+
+    `<div class="stat-card"><span class="stat-val">${uploads}/6</span><span class="stat-lbl">JSON subidos</span></div>`+
+    `<div class="stat-card"><span class="stat-val">${totalVisits}</span><span class="stat-lbl">Visitas totales</span></div>`+
+    `<div class="stat-card"><span class="stat-val">${events.length}</span><span class="stat-lbl">Eventos registrados</span></div>`;
+
+  // ── Character table ──
+  const visitsBySlug = {};
+  events.filter(e=>e.t==='visit').forEach(e=>{
+    const s=e.d?.slug||'';
+    visitsBySlug[s]=(visitsBySlug[s]||0)+1;
+  });
+  const tbody = document.getElementById('charTableBody');
+  tbody.innerHTML = PARTY.map(p=>{
+    const hasUpload = localStorage.getItem('upload_char_'+p.slug)==='1';
+    const lastUp    = localStorage.getItem('last_upload_'+p.slug);
+    const lastLog   = localStorage.getItem('last_login_'+p.slug);
+    const visits    = visitsBySlug[p.slug]||0;
+    const upBadge   = hasUpload
+      ? `<span class="badge-yes">✓ Sí</span> <span style="font-size:11px;color:var(--text3)">${fmtDate(parseInt(lastUp))}</span>`
+      : '<span class="badge-no">✗ No</span>';
+    return `<tr>
+      <td><span class="char-name" style="color:${p.color}">${p.name}</span></td>
+      <td style="font-size:13px;color:var(--text2)">${p.class_str}</td>
+      <td>${upBadge}</td>
+      <td style="font-size:13px;color:var(--text2)">${relTime(parseInt(lastLog))}</td>
+      <td style="font-family:'Cinzel',serif;color:var(--gold2)">${visits}</td>
+    </tr>`;
+  }).join('');
+
+  // ── Tab chart ──
+  const tabCounts = {};
+  const tabLabels = {
+    'combate':'⚔ Combate','hechizos':'✦ Hechizos','habilidades':'◈ Habilidades',
+    'personaje':'📋 Personaje','mapa':'🗺 Mapa','sesion':'📖 Sesión',
+    'personajes':'👥 Personajes','misiones':'🔍 Misiones','mundo':'🌍 Mundo'
+  };
+  events.filter(e=>e.t==='tab').forEach(e=>{
+    const t=e.d?.tab||'';
+    tabCounts[t]=(tabCounts[t]||0)+1;
+  });
+  const sortedTabs = Object.entries(tabCounts).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  const maxTab = sortedTabs[0]?.[1]||1;
+  const chartEl = document.getElementById('tabChart');
+  if(sortedTabs.length===0){
+    chartEl.innerHTML='<div class="empty">Sin datos de tabs aún.</div>';
+  } else {
+    chartEl.innerHTML = sortedTabs.map(([tab,cnt])=>
+      `<div class="bar-row">
+        <span class="bar-label">${tabLabels[tab]||tab}</span>
+        <div class="bar-track"><div class="bar-fill" style="width:${Math.round(cnt/maxTab*100)}%"></div></div>
+        <span class="bar-count">${cnt}</span>
+      </div>`
+    ).join('');
+  }
+
+  // ── Activity log ──
+  const recent = [...events].reverse().slice(0,20);
+  const listEl = document.getElementById('activityList');
+  const typeLabel = {login:'Inició sesión',visit:'Visitó página',tab:'Cambió tab',upload:'Subió JSON'};
+  if(recent.length===0){
+    listEl.innerHTML='<li class="empty">Sin actividad registrada aún.</li>';
+  } else {
+    listEl.innerHTML = recent.map(e=>{
+      const action=typeLabel[e.t]||e.t;
+      const who=e.d?.slug||'';
+      const tab=e.d?.tab?' ('+e.d.tab+')':'';
+      return `<li class="activity-item">
+        <div class="activity-dot"></div>
+        <div>
+          <div class="activity-text"><strong>${who}</strong> ${action}${tab}</div>
+          <div class="activity-ts">${fmtDate(e.ts)}</div>
+        </div>
+      </li>`;
+    }).join('');
+  }
+});
+</script>
+</body>
+</html>
