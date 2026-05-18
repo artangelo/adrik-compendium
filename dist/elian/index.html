@@ -464,6 +464,40 @@ h1, h2, h3, h4 { font-family: 'Cinzel', serif; }
 #dynamic-stats { display: none; }
 #dynamic-stats.visible { display: block; }
 
+/* SESSION BADGE */
+.session-badge {
+  display: none; align-items: center; gap: 8px;
+  background: var(--surface2); border: 1px solid var(--surface3);
+  border-radius: 20px; padding: 5px 12px 5px 5px;
+  cursor: pointer; position: relative;
+  transition: border-color 0.2s;
+}
+.session-badge:hover { border-color: var(--char-border); }
+.session-badge img { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
+.session-badge-init {
+  width: 28px; height: 28px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Cinzel', serif; font-size: 12px; font-weight: 600;
+  flex-shrink: 0;
+}
+.session-badge-info { display: flex; flex-direction: column; gap: 1px; }
+.session-badge-name { font-size: 12px; font-family: 'Cinzel', serif; }
+.session-badge-admin { font-size: 10px; color: var(--gold); opacity: 0.8; font-family: 'Cinzel', serif; }
+.session-badge-logout { margin-left: 4px; padding-left: 8px; border-left: 1px solid var(--surface3); }
+
+/* COMPLETED MISSIONS */
+.completed-missions { margin-top: 10px; }
+.completed-missions summary {
+  font-family: 'Cinzel', serif; font-size: 13px; color: var(--text3);
+  cursor: pointer; padding: 12px 16px;
+  background: var(--surface); border: 1px solid var(--surface3);
+  border-radius: var(--radius); list-style: none;
+  transition: all 0.2s;
+}
+.completed-missions summary:hover { border-color: var(--gold-border); color: var(--text2); }
+.completed-missions[open] summary { border-radius: var(--radius) var(--radius) 0 0; border-bottom-color: transparent; }
+.completed-missions-body { background: var(--surface); border: 1px solid var(--surface3); border-top: none; border-radius: 0 0 var(--radius) var(--radius); padding: 12px 16px; }
+
 /* SCROLLBAR */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: var(--bg); }
@@ -474,7 +508,10 @@ h1, h2, h3, h4 { font-family: 'Cinzel', serif; }
 <body>
 
 <div class="header">
-  <a href="../hub/index.html" class="hub-link">← Party Hub</a>
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+    <a href="../hub/index.html" class="hub-link" style="margin-bottom:0">← Party Hub</a>
+    <div id="session-badge" class="session-badge"></div>
+  </div>
   <div class="header-top">
     <div class="header-identity">
       <div class="portrait-wrap">
@@ -487,7 +524,7 @@ h1, h2, h3, h4 { font-family: 'Cinzel', serif; }
         <div class="char-sub">Mago · Humano</div>
       </div>
     </div>
-    <div style="font-size:11px;color:var(--text3);font-style:italic;align-self:flex-end">actualizado 17 May 2026</div>
+    <div style="font-size:11px;color:var(--text3);font-style:italic;align-self:flex-end">actualizado 18 May 2026</div>
   </div>
 
   
@@ -497,12 +534,14 @@ h1, h2, h3, h4 { font-family: 'Cinzel', serif; }
 <div class="tab-bar">
   <div class="tab-group">
     <span class="tab-group-label">Personal</span>
-    <button class="tab-btn tab-personal active" onclick="switchTab('personaje',this)">📋 Personaje</button>
+    <button class="tab-btn tab-personal active" onclick="switchTab('mi-personaje',this)">📋 Mi Personaje</button>
+<button class="tab-btn tab-personal" onclick="switchTab('combate',this)">⚔ Combate</button>
+<button class="tab-btn tab-personal" onclick="switchTab('habilidades',this)">◈ Habilidades</button>
   </div>
   <div class="tab-sep"></div>
   <div class="tab-group">
     <span class="tab-group-label">Party</span>
-    <button class="tab-btn tab-party" onclick="switchTab('mapa',this)">🗺 Mapa</button>
+    <button class="tab-btn tab-party" onclick="switchTab('mapa',this)">🕸 Relaciones</button>
     <button class="tab-btn tab-party" onclick="switchTab('sesion',this)">📖 Sesión</button>
     <button class="tab-btn tab-party" onclick="switchTab('personajes',this)">👥 Personajes</button>
     <button class="tab-btn tab-party" onclick="switchTab('misiones',this)">🔍 Misiones</button>
@@ -512,8 +551,15 @@ h1, h2, h3, h4 { font-family: 'Cinzel', serif; }
 
 <div class="content">
 
-<!-- TAB: PERSONAJE -->
-<div id="tab-personaje" class="tab-panel active">
+<!-- TAB: MI PERSONAJE -->
+<div id="tab-mi-personaje" class="tab-panel active">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px">
+    <div class="section-label" style="margin:0">Datos del Personaje</div>
+    <label class="upload-btn" for="json-file-input" style="display:inline-block;padding:8px 18px;font-size:12px">
+      ⬆ Actualizar desde Foundry
+    </label>
+    <input type="file" id="json-file-input" accept=".json" style="display:none" onchange="loadCharJSON(this)">
+  </div>
   <div class="upload-zone" id="upload-zone">
     <div class="upload-icon">⬆</div>
     <div class="upload-title">Sube tu personaje</div>
@@ -522,95 +568,63 @@ h1, h2, h3, h4 { font-family: 'Cinzel', serif; }
       <strong style="color:var(--text)">Actor → botón derecho → Export Data</strong><br><br>
       Sube el archivo JSON aquí. Tus datos se guardan en este navegador.
     </div>
-    <label class="upload-btn" for="json-file-input">Seleccionar archivo JSON</label>
-    <input type="file" id="json-file-input" accept=".json" style="display:none" onchange="loadCharJSON(this)">
+    <label class="upload-btn" for="json-file-input-2">Seleccionar archivo JSON</label>
+    <input type="file" id="json-file-input-2" accept=".json" style="display:none" onchange="loadCharJSON(this)">
     <div class="upload-note">Los datos se guardan localmente (localStorage) y no se comparten.</div>
   </div>
   <div id="dynamic-stats"></div>
 </div>
 
+<!-- TAB: COMBATE -->
+<div id="tab-combate" class="tab-panel">
+  <div id="combat-recommendations">
+    <div class="card" style="margin-bottom:12px;border-color:rgba(42,157,127,0.2);background:rgba(42,157,127,0.04)">
+      <div class="card-sub" style="font-size:13px;color:var(--text3)">
+        Las recomendaciones se generan automáticamente al cargar los datos del personaje.
+        Sube tu JSON en la pestaña <strong style="color:var(--text)">📋 Mi Personaje</strong> para verlas.
+      </div>
+    </div>
+  </div>
+  <div id="explore-recommendations" style="margin-top:20px">
+    <div class="section-label">Exploración</div>
+    <div id="explore-recs-body">
+      <div class="card"><div class="card-sub" style="font-size:13px;color:var(--text3)">Carga tu personaje para ver tus fortalezas de exploración.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- TAB: HABILIDADES -->
+<div id="tab-habilidades" class="tab-panel">
+  <div id="features-body">
+    <div class="card"><div class="card-sub" style="font-size:13px;color:var(--text3)">Sube tu JSON para ver features y equipo.</div></div>
+  </div>
+</div>
+
 <!-- TAB: MAPA -->
 <div id="tab-mapa" class="tab-panel">
-  
-  <div class="section-label teal">Mapa de relaciones</div>
+    <div class="section-label teal">Relaciones de Elian</div>
   <div class="map-container">
-    <svg viewBox="0 0 900 520" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <marker id="arr" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto">
-          <path d="M0,0 L0,6 L6,3 z" fill="rgba(201,150,58,0.4)"/>
-        </marker>
-      </defs>
-      <line x1="450" y1="250" x2="180" y2="100" stroke="rgba(201,150,58,0.25)" stroke-width="1.5" marker-end="url(#arr)"/>
-      <line x1="450" y1="250" x2="165" y2="200" stroke="rgba(201,150,58,0.25)" stroke-width="1.5" marker-end="url(#arr)"/>
-      <line x1="450" y1="250" x2="160" y2="390" stroke="rgba(123,99,204,0.35)" stroke-width="1.5" stroke-dasharray="5,4" marker-end="url(#arr)"/>
-      <line x1="450" y1="250" x2="310" y2="430" stroke="rgba(42,157,127,0.35)" stroke-width="1.5" marker-end="url(#arr)"/>
-      <line x1="450" y1="250" x2="650" y2="430" stroke="rgba(74,138,222,0.35)" stroke-width="1.5" marker-end="url(#arr)"/>
-      <line x1="450" y1="250" x2="710" y2="130" stroke="rgba(201,150,58,0.3)" stroke-width="1.5" marker-end="url(#arr)"/>
-      <line x1="450" y1="250" x2="750" y2="250" stroke="rgba(204,51,51,0.5)" stroke-width="2" marker-end="url(#arr)"/>
-      <line x1="450" y1="250" x2="450" y2="430" stroke="rgba(204,51,51,0.3)" stroke-width="1.5" stroke-dasharray="5,4" marker-end="url(#arr)"/>
-      <line x1="750" y1="250" x2="450" y2="100" stroke="rgba(204,80,48,0.3)" stroke-width="1.5" marker-end="url(#arr)"/>
-      <line x1="750" y1="250" x2="830" y2="390" stroke="rgba(204,80,48,0.25)" stroke-width="1.5" marker-end="url(#arr)"/>
-      <line x1="710" y1="130" x2="830" y2="390" stroke="rgba(201,150,58,0.3)" stroke-width="1.5" marker-end="url(#arr)"/>
-      <line x1="180" y1="100" x2="310" y2="430" stroke="rgba(201,150,58,0.2)" stroke-width="1" stroke-dasharray="4,4"/>
-      <line x1="165" y1="200" x2="180" y2="100" stroke="rgba(201,150,58,0.2)" stroke-width="1"/>
-      <text x="295" y="158" font-size="10" fill="rgba(201,150,58,0.6)" font-family="Source Sans 3, sans-serif" text-anchor="middle">enviado por</text>
-      <text x="285" y="225" font-size="10" fill="rgba(201,150,58,0.6)" font-family="Source Sans 3, sans-serif" text-anchor="middle">origen</text>
-      <text x="270" y="340" font-size="10" fill="rgba(123,99,204,0.7)" font-family="Source Sans 3, sans-serif" text-anchor="middle">fe cuestionada</text>
-      <text x="368" y="365" font-size="10" fill="rgba(42,157,127,0.7)" font-family="Source Sans 3, sans-serif" text-anchor="middle">familiar / rescató</text>
-      <text x="560" y="370" font-size="10" fill="rgba(74,138,222,0.7)" font-family="Source Sans 3, sans-serif" text-anchor="middle">compañeros</text>
-      <text x="600" y="175" font-size="10" fill="rgba(201,150,58,0.6)" font-family="Source Sans 3, sans-serif" text-anchor="middle">contratado por</text>
-      <text x="610" y="242" font-size="10" fill="rgba(204,51,51,0.8)" font-family="Source Sans 3, sans-serif" text-anchor="middle">enfrentamiento</text>
-      <text x="465" y="355" font-size="10" fill="rgba(204,51,51,0.6)" font-family="Source Sans 3, sans-serif" text-anchor="middle">acusación</text>
-      <rect x="390" y="218" width="120" height="64" rx="8" fill="rgba(201,150,58,0.15)" stroke="#C9963A" stroke-width="2"/>
-      <text x="450" y="244" font-size="15" font-weight="600" fill="#E8B84B" font-family="Cinzel, serif" text-anchor="middle">Adrik</text>
-      <text x="450" y="260" font-size="11" fill="rgba(201,150,58,0.8)" font-family="Source Sans 3, sans-serif" text-anchor="middle">Frostbeard</text>
-      <text x="450" y="275" font-size="10" fill="rgba(201,150,58,0.6)" font-family="Source Sans 3, sans-serif" text-anchor="middle">Clérigo · Niv. 2</text>
-      <rect x="108" y="74" width="144" height="48" rx="7" fill="rgba(22,29,52,0.9)" stroke="rgba(201,150,58,0.3)" stroke-width="1"/>
-      <text x="180" y="97" font-size="13" font-weight="500" fill="#EDE6D6" font-family="Cinzel, serif" text-anchor="middle">Padre</text>
-      <text x="180" y="113" font-size="10" fill="#9A9080" font-family="Source Sans 3, sans-serif" text-anchor="middle">Clan Frostbeard · Sur</text>
-      <rect x="90" y="170" width="150" height="50" rx="7" fill="rgba(22,29,52,0.9)" stroke="rgba(201,150,58,0.3)" stroke-width="1"/>
-      <text x="165" y="193" font-size="13" font-weight="500" fill="#EDE6D6" font-family="Cinzel, serif" text-anchor="middle">Clan Frostbeard</text>
-      <text x="165" y="210" font-size="10" fill="#9A9080" font-family="Source Sans 3, sans-serif" text-anchor="middle">3 generaciones · Sur</text>
-      <rect x="82" y="363" width="156" height="54" rx="7" fill="rgba(123,99,204,0.1)" stroke="rgba(123,99,204,0.4)" stroke-width="1" stroke-dasharray="4,3"/>
-      <text x="160" y="386" font-size="13" font-weight="500" fill="#9B80EE" font-family="Cinzel, serif" text-anchor="middle">Selûne</text>
-      <text x="160" y="402" font-size="10" fill="rgba(123,99,204,0.7)" font-family="Source Sans 3, sans-serif" text-anchor="middle">Diosa · fe cuestionada</text>
-      <text x="160" y="415" font-size="10" fill="rgba(123,99,204,0.6)" font-family="Source Sans 3, sans-serif" text-anchor="middle">¿por qué yo?</text>
-      <rect x="224" y="406" width="172" height="50" rx="7" fill="rgba(42,157,127,0.1)" stroke="rgba(42,157,127,0.35)" stroke-width="1"/>
-      <text x="310" y="429" font-size="13" font-weight="500" fill="#2A9D7F" font-family="Cinzel, serif" text-anchor="middle">Dorbulgruf Shalescar</text>
-      <text x="310" y="446" font-size="10" fill="rgba(42,157,127,0.7)" font-family="Source Sans 3, sans-serif" text-anchor="middle">Alcalde Bremen · Primo lejano · Rescatado</text>
-      <rect x="350" y="72" width="200" height="48" rx="7" fill="rgba(123,99,204,0.1)" stroke="rgba(123,99,204,0.3)" stroke-width="1"/>
-      <text x="450" y="95" font-size="13" font-weight="500" fill="#9B80EE" font-family="Cinzel, serif" text-anchor="middle">Invierno Eterno</text>
-      <text x="450" y="111" font-size="10" fill="rgba(123,99,204,0.7)" font-family="Source Sans 3, sans-serif" text-anchor="middle">2 años sin sol · Causado por Auril</text>
-      <rect x="680" y="216" width="140" height="68" rx="7" fill="rgba(204,51,51,0.1)" stroke="rgba(204,51,51,0.5)" stroke-width="1.5"/>
-      <text x="750" y="241" font-size="14" font-weight="600" fill="#EE6060" font-family="Cinzel, serif" text-anchor="middle">Auril</text>
-      <text x="750" y="257" font-size="10" fill="rgba(204,51,51,0.8)" font-family="Source Sans 3, sans-serif" text-anchor="middle">La Doncella del Hielo</text>
-      <text x="750" y="272" font-size="10" fill="rgba(204,51,51,0.7)" font-family="Source Sans 3, sans-serif" text-anchor="middle">Antagonista principal</text>
-      <rect x="344" y="402" width="212" height="54" rx="7" fill="rgba(204,51,51,0.08)" stroke="rgba(204,51,51,0.3)" stroke-width="1" stroke-dasharray="4,3"/>
-      <text x="450" y="424" font-size="12" font-weight="500" fill="#EE8888" font-family="Cinzel, serif" text-anchor="middle">¿A quiénes dejé morir?</text>
-      <text x="450" y="440" font-size="10" fill="rgba(204,51,51,0.7)" font-family="Source Sans 3, sans-serif" text-anchor="middle">Auril lo sabe · Hace 10 años</text>
-      <text x="450" y="452" font-size="10" fill="rgba(204,51,51,0.6)" font-family="Source Sans 3, sans-serif" text-anchor="middle">Núcleo del arco personal</text>
-      <rect x="622" y="100" width="176" height="52" rx="7" fill="rgba(201,150,58,0.1)" stroke="rgba(201,150,58,0.35)" stroke-width="1"/>
-      <text x="710" y="123" font-size="13" font-weight="500" fill="#C9963A" font-family="Cinzel, serif" text-anchor="middle">Gillin Trollbane</text>
-      <text x="710" y="140" font-size="10" fill="rgba(201,150,58,0.7)" font-family="Source Sans 3, sans-serif" text-anchor="middle">Salvadora · Empleadora · 100gp</text>
-      <rect x="762" y="363" width="136" height="52" rx="7" fill="rgba(204,80,48,0.1)" stroke="rgba(204,80,48,0.35)" stroke-width="1"/>
-      <text x="830" y="386" font-size="13" font-weight="500" fill="#CC5030" font-family="Cinzel, serif" text-anchor="middle">Sefek Caltro</text>
-      <text x="830" y="402" font-size="10" fill="rgba(204,80,48,0.7)" font-family="Source Sans 3, sans-serif" text-anchor="middle">Objetivo · Piel azul</text>
-      <text x="830" y="414" font-size="10" fill="rgba(204,80,48,0.6)" font-family="Source Sans 3, sans-serif" text-anchor="middle">No siente el frío</text>
-      <rect x="564" y="400" width="180" height="62" rx="7" fill="rgba(74,138,222,0.1)" stroke="rgba(74,138,222,0.35)" stroke-width="1"/>
-      <text x="654" y="422" font-size="13" font-weight="500" fill="#4A8ADE" font-family="Cinzel, serif" text-anchor="middle">La Party</text>
-      <text x="654" y="438" font-size="10" fill="rgba(74,138,222,0.7)" font-family="Source Sans 3, sans-serif" text-anchor="middle">Sven · Draxus · Teska</text>
-      <text x="654" y="452" font-size="10" fill="rgba(74,138,222,0.6)" font-family="Source Sans 3, sans-serif" text-anchor="middle">Elian · Yankavic</text>
+    <svg viewBox="0 0 700 420" xmlns="http://www.w3.org/2000/svg">
+      <defs><marker id="arr" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto"><path d="M0,0 L0,6 L6,3 z" fill="rgba(96,165,250,0.4)"/></marker></defs>
+      <line x1="350" y1="200" x2="180" y2="60" stroke="rgba(96,165,250,0.4)" stroke-width="1.5" marker-end="url(#arr)"/>
+      <line x1="350" y1="200" x2="550" y2="200" stroke="rgba(201,150,58,0.4)" stroke-width="1.5" marker-end="url(#arr)"/>
+      <line x1="350" y1="200" x2="350" y2="340" stroke="rgba(74,138,222,0.35)" stroke-width="1.5" marker-end="url(#arr)"/>
+      <text x="230" y="145" font-size="10" fill="rgba(96,165,250,0.7)" font-family="Source Sans 3, sans-serif" text-anchor="middle">promesa incumplida</text>
+      <text x="465" y="190" font-size="10" fill="rgba(201,150,58,0.7)" font-family="Source Sans 3, sans-serif" text-anchor="middle">lo levantó 2 veces</text>
+      <text x="350" y="285" font-size="10" fill="rgba(74,138,222,0.7)" font-family="Source Sans 3, sans-serif" text-anchor="middle">compañeros</text>
+      <rect x="290" y="168" width="120" height="64" rx="8" fill="rgba(96,165,250,0.15)" stroke="#60A5FA" stroke-width="2"/>
+      <text x="350" y="194" font-size="15" font-weight="600" fill="#60A5FA" font-family="Cinzel, serif" text-anchor="middle">Elian</text>
+      <text x="350" y="212" font-size="10" fill="rgba(96,165,250,0.7)" font-family="Source Sans 3, sans-serif" text-anchor="middle">Mago · Humano · Joven</text>
+      <rect x="60" y="30" width="240" height="54" rx="7" fill="rgba(96,165,250,0.1)" stroke="rgba(96,165,250,0.35)" stroke-width="1"/>
+      <text x="180" y="53" font-size="13" font-weight="500" fill="#60A5FA" font-family="Cinzel, serif" text-anchor="middle">Abuelo (fallecido)</text>
+      <text x="180" y="69" font-size="10" fill="rgba(96,165,250,0.7)" font-family="Source Sans 3, sans-serif" text-anchor="middle">Promesa incumplida · lleva su diario</text>
+      <rect x="480" y="168" width="180" height="64" rx="7" fill="rgba(201,150,58,0.1)" stroke="rgba(201,150,58,0.35)" stroke-width="1"/>
+      <text x="570" y="193" font-size="13" font-weight="500" fill="#C9963A" font-family="Cinzel, serif" text-anchor="middle">Adrik</text>
+      <text x="570" y="209" font-size="10" fill="rgba(201,150,58,0.7)" font-family="Source Sans 3, sans-serif" text-anchor="middle">Lo salvó 2 veces · Clérigo</text>
+      <rect x="250" y="310" width="200" height="54" rx="7" fill="rgba(74,138,222,0.1)" stroke="rgba(74,138,222,0.35)" stroke-width="1"/>
+      <text x="350" y="333" font-size="13" font-weight="500" fill="#4A8ADE" font-family="Cinzel, serif" text-anchor="middle">La Party</text>
+      <text x="350" y="350" font-size="10" fill="rgba(74,138,222,0.7)" font-family="Source Sans 3, sans-serif" text-anchor="middle">El más frágil — pero siempre se levanta</text>
     </svg>
-  </div>
-  <div class="grid-2">
-    <div class="mystery-card">
-      <div class="mystery-title">⚠ El misterio de Adrik</div>
-      <div class="mystery-text">Auril le dijo directamente: "asesino, los dejaste morir, y lo sabes." Hace 10 años, Adrik sobrevivió una tormenta que mató a dos compañeros. ¿Fue solo eso? ¿O hay algo más? Este misterio es el núcleo del arco personal del personaje.</div>
-    </div>
-    <div class="feature-card">
-      <div class="feature-name" style="margin-bottom:8px">Arco de fe con Selûne</div>
-      <div class="feature-desc">Adrik tiene poderes que vienen de una diosa que no eligió activamente. Cada uso de sus poderes en momentos críticos es una oportunidad para que algo cambie. No hay que forzarlo: basta con ese segundo de silencio después de que algo funciona.</div>
-    </div>
   </div>
 </div>
 
@@ -699,6 +713,54 @@ h1, h2, h3, h4 { font-family: 'Cinzel', serif; }
     <a href="../yankavic/index.html" class="party-char-link">Ver página de Yankavic →</a>
   </div>
 </div>
+<div class="section-label teal" style="margin-top:32px">Aliados Clave</div>
+<div class="persona-card" style="border-left:3px solid var(--amber)">
+  <div class="persona-header">
+    <div class="persona-name">Gillin Trollbane</div>
+    <span class="badge amber">Empleadora · Salvadora</span>
+  </div>
+  <div class="persona-rel">Nos rescató en la nieve</div>
+  <div class="persona-note">Enana veterana. Cabaña 1 día al norte de Bremen. Su nieta fue asesinada. Recompensa: 100 gp + objeto mágico por persona.</div>
+</div>
+<div class="persona-card" style="border-left:3px solid var(--teal)">
+  <div class="persona-header">
+    <div class="persona-name">Dorbulgruf Shalescar</div>
+    <span class="badge teal">Alcalde de Bremen</span>
+  </div>
+  <div class="persona-rel">Primo lejano del padre de Adrik</div>
+  <div class="persona-note">Rescatado de la cueva. No recuerda nada. Peleó contra Auril con hacha de mano de Adrik.</div>
+</div>
+<div class="section-label teal" style="margin-top:24px">Amenazas Conocidas</div>
+<div class="persona-card" style="border-left:3px solid var(--red);background:linear-gradient(90deg,rgba(204,51,51,0.08),var(--surface))">
+  <div class="persona-header">
+    <div class="persona-name" style="color:var(--red)">Auril — La Doncella del Hielo</div>
+    <span class="badge red">Antagonista Principal</span>
+  </div>
+  <div class="persona-rel">Causante del invierno eterno</div>
+  <div class="persona-note">Figura de ave, plumaje blanco, manto azul profundo. Tiene acciones legendarias. Le dijo a Adrik: 'asesino, los dejaste morir'. A Draxus le dijo que lo preservaría solo a él. Le irrita que mencionen a otros dioses.</div>
+</div>
+<div class="persona-card" style="border-left:3px solid var(--coral);background:linear-gradient(90deg,rgba(204,80,48,0.08),var(--surface))">
+  <div class="persona-header">
+    <div class="persona-name" style="color:var(--coral)">Sefek Caltro</div>
+    <span class="badge coral">Objetivo Activo</span>
+  </div>
+  <div class="persona-rel">Guardaespaldas de la compañía Torga</div>
+  <div class="persona-note">Piel azul, no usa abrigo, no tiembla. Sospechoso de 3 asesinatos con daga de hielo negro. Posible conexión con Auril.</div>
+</div>
+<div class="persona-card" style="border-left:3px solid var(--coral);background:linear-gradient(90deg,rgba(204,80,48,0.08),var(--surface))">
+  <div class="persona-header">
+    <div class="persona-name" style="color:var(--coral)">Aliana</div>
+    <span class="badge coral">Manifestación de Auril</span>
+  </div>
+  <div class="persona-rel">Trampa — era una proyección</div>
+  <div class="persona-note">Mujer encontrada enterrada. Adrik detectó que mentía (Insight). Se transformó en nieve al ser confrontada.</div>
+</div>
+<div class="section-label teal" style="margin-top:24px">Enemigos Encontrados</div>
+<div class="card" style="border-color:rgba(204,80,48,0.2);background:rgba(204,80,48,0.04)">
+  <div class="card-sub" style="font-size:13px;color:var(--text3);font-style:italic">
+    Los enemigos encontrados en la campaña se irán añadiendo aquí.
+  </div>
+</div>
 </div>
 
 <!-- TAB: MISIONES -->
@@ -734,7 +796,18 @@ h1, h2, h3, h4 { font-family: 'Cinzel', serif; }
 
 <!-- TAB: MUNDO -->
 <div id="tab-mundo" class="tab-panel">
-  <div class="section-label teal">Antagonistas</div>
+  <div class="section-label teal">Mapa de Icewind Dale</div>
+<div class="map-container" style="min-height:80px;display:flex;align-items:center;justify-content:center">
+  <span style="font-size:13px;color:var(--text3);font-style:italic">Mapa de Icewind Dale · próximamente</span>
+</div>
+<div class="section-label teal" style="margin-top:20px">Directorio de Ubicaciones</div>
+<div class="card" style="margin-bottom:8px"><div class="card-title">Bremen</div><div class="card-sub">Punto de inicio. El Alce Gruñón. Sin sol 2 años. Dorbulgruf era el nexo diplomático.</div></div>
+<div class="card coral" style="margin-bottom:8px"><div class="card-title">La Cueva del Hielo Negro</div><div class="card-sub">Al norte de Bremen. Hielo negro que no refleja seres vivos. Frío proviene de adentro. Enfrentamos a Auril aquí.</div></div>
+<div class="card" style="margin-bottom:8px"><div class="card-title">Cabaña de Gillin</div><div class="card-sub">1 día al norte de Bremen. Lugar seguro. Aquí despertamos y subimos a nivel 2.</div></div>
+<div class="card coral" style="margin-bottom:8px"><div class="card-title">East Haven</div><div class="card-sub">Primera víctima: halfling trampero. Daga de hielo negro en el pecho. Puerta cerrada.</div></div>
+<div class="card coral" style="margin-bottom:8px"><div class="card-title">Targos</div><div class="card-sub">Segunda víctima: constructor de barcos. Muelle congelado. Misma daga.</div></div>
+<div class="card coral" style="margin-bottom:8px"><div class="card-title">Bryn Shander</div><div class="card-sub">Ciudad más grande. Tercera víctima: enano soplador de vidrio. Mismo patrón.</div></div>
+<hr class="divider"><div class="section-label teal">Antagonistas</div>
 <div class="persona-card" style="border-left:3px solid var(--red);background:linear-gradient(90deg,rgba(204,51,51,0.08),var(--surface))">
   <div class="persona-header">
     <div class="persona-name" style="color:var(--red)">Auril — La Doncella del Hielo</div>
@@ -776,13 +849,6 @@ h1, h2, h3, h4 { font-family: 'Cinzel', serif; }
   <div class="persona-rel">Primo lejano del padre de Adrik</div>
   <div class="persona-note">Rescatado de la cueva. No recuerda nada. Peleó contra Auril con hacha de mano de Adrik.</div>
 </div>
-<hr class="divider"><div class="section-label teal">Lugares</div>
-<div class="card "><div class="card-title">Bremen</div><div class="card-sub">Punto de inicio. El Alce Gruñón. Sin sol 2 años. Dorbulgruf era el nexo diplomático.</div></div>
-<div class="card coral"><div class="card-title">La Cueva del Hielo Negro</div><div class="card-sub">Al norte de Bremen. Hielo negro que no refleja seres vivos. Frío proviene de adentro. Enfrentamos a Auril aquí.</div></div>
-<div class="card "><div class="card-title">Cabaña de Gillin</div><div class="card-sub">1 día al norte de Bremen. Lugar seguro. Aquí despertamos y subimos a nivel 2.</div></div>
-<div class="card coral"><div class="card-title">East Haven</div><div class="card-sub">Primera víctima: halfling trampero. Daga de hielo negro en el pecho. Puerta cerrada.</div></div>
-<div class="card coral"><div class="card-title">Targos</div><div class="card-sub">Segunda víctima: constructor de barcos. Muelle congelado. Misma daga.</div></div>
-<div class="card coral"><div class="card-title">Bryn Shander</div><div class="card-sub">Ciudad más grande. Tercera víctima: enano soplador de vidrio. Mismo patrón.</div></div>
 </div>
 
 </div><!-- end content -->
@@ -845,6 +911,108 @@ function toggleCD() {
     btn.style.borderColor = 'rgba(42,157,127,0.3)';
   }
   localStorage.setItem('cd_' + CHAR_SLUG, cdUsed ? '1' : '0');
+}
+
+// ── D&D 5e Recommendations Engine ─────────────────────────────────────────────
+function generateCombatRecs(char) {
+  const recs = [];
+  const cls = (char.class || '').toLowerCase();
+  const sub = (char.subclass || '').toLowerCase();
+  const spells = (char.spells || []).map(s => s.toLowerCase());
+  const features = (char.features || []).map(f => (typeof f === 'string' ? f : f.name || '').toLowerCase());
+  const lvl = char.level || 1;
+  const hasSpell = (name) => spells.some(s => s.includes(name.toLowerCase()));
+  const hasFeature = (name) => features.some(f => f.includes(name.toLowerCase()));
+
+  if (cls.includes('cleric') || cls.includes('clérigo') || cls.includes('clerigo')) {
+    if (hasSpell('bless')) recs.push({ num: 1, color: 'amber', title: 'Bless — primer turno siempre', sub: 'Slot nivel 1 · Concentración', note: '+1d4 a ataques y saves a 3 aliados. Dura 1 minuto. Prioridad absoluta.' });
+    if (hasSpell('healing word')) recs.push({ num: 2, color: 'teal', title: 'Healing Word si alguien cae', sub: 'Slot nivel 1 · Acción bonus · Rango 60ft', note: 'Levanta inconscientes a distancia sin usar tu acción principal.' });
+    if (sub.includes('twilight')) recs.push({ num: 3, color: 'purple', title: 'Twilight Sanctuary — Channel Divinity', sub: 'Sin slot · 30 pies alrededor de ti', note: '1d6+' + Math.ceil(lvl / 2) + ' HP temporales o elimina miedo/encantamiento al final de cada turno.' });
+    if (hasSpell('guiding bolt')) recs.push({ num: 4, color: 'coral', title: 'Guiding Bolt cuando Bless activo', sub: 'Slot nivel 1', note: '4d6 radiante + ventaja al siguiente ataque vs ese objetivo.' });
+    const cantripDmg = spells.find(s => s.includes('toll') || s.includes('sacred flame') || s.includes('fire bolt'));
+    if (cantripDmg) recs.push({ num: 5, color: 'gray', title: 'Cantrip de daño — sin slot', sub: 'Cantrip', note: 'Ataque básico sin gastar recursos.' });
+  } else if (cls.includes('rogue') || cls.includes('pícaro') || cls.includes('picaro')) {
+    recs.push({ num: 1, color: 'amber', title: 'Posición para Sneak Attack', sub: 'Daño adicional', note: 'Necesitas ventaja o un aliado adyacente al objetivo. 1d6 extra por nivel par.' });
+    if (lvl >= 2) recs.push({ num: 2, color: 'teal', title: 'Cunning Action — movilidad', sub: 'Acción bonus', note: 'Dash/Disengage/Hide como acción bonus. Disengage evita ataques de oportunidad.' });
+    recs.push({ num: 3, color: 'purple', title: 'Ataque a distancia o flanqueo', sub: 'Posicionamiento', note: 'Mantén distancia para sneak attack. Flanqueo activo da ventaja.' });
+  } else if (cls.includes('fighter') || cls.includes('guerrero')) {
+    if (lvl >= 2) recs.push({ num: 1, color: 'amber', title: 'Action Surge en turno decisivo', sub: '1 uso por descanso corto', note: 'Una acción adicional completa. Guárdalo para el momento más importante.' });
+    recs.push({ num: 2, color: 'teal', title: 'Second Wind — HP emergencia', sub: 'Acción bonus · 1 uso/descanso corto', note: '1d10 + nivel HP. Úsalo cuando estés por debajo del 50%.' });
+    const hasGWM = hasFeature('great weapon master') || hasFeature('gwm');
+    const hasSS  = hasFeature('sharpshooter');
+    if (hasGWM || hasSS) recs.push({ num: 3, color: 'purple', title: 'Aplicar feat en objetivos con baja AC', sub: 'Great Weapon Master / Sharpshooter', note: '-5 ataque, +10 daño. Usa solo cuando la AC del enemigo lo permite.' });
+    recs.push({ num: 4, color: 'gray', title: 'Ataque múltiple', sub: lvl >= 5 ? 'Extra Attack' : 'Attack Action', note: 'Ataca a tantos objetivos diferentes como sea posible para controlar zona.' });
+  } else if (cls.includes('bard') || cls.includes('bardo')) {
+    recs.push({ num: 1, color: 'amber', title: 'Bardic Inspiration antes del combate', sub: 'Acción bonus · 1d6', note: 'Distribúyela antes de que empiece el combate si es posible.' });
+    if (hasSpell('vicious mockery')) recs.push({ num: 2, color: 'teal', title: 'Vicious Mockery — desventaja', sub: 'Cantrip · WIS save', note: 'Desventaja en el próximo ataque del enemigo. Sin slot.' });
+    recs.push({ num: 3, color: 'purple', title: 'Hechizos de control', sub: 'Concentración', note: 'Prioriza efectos que afecten múltiples enemigos (Hypnotic Pattern, etc.).' });
+  } else if (cls.includes('wizard') || cls.includes('mago')) {
+    recs.push({ num: 1, color: 'amber', title: 'Control primero', sub: 'Concentración', note: 'Hold Person, Web, Hypnotic Pattern. Paralizar > daño en la mayoría de combates.' });
+    if (hasSpell('shield')) recs.push({ num: 2, color: 'teal', title: 'Shield como reacción', sub: 'Reacción · 1 slot', note: '+5 AC cuando te atacan. Guarda siempre un slot para esto.' });
+    if (hasSpell('misty step')) recs.push({ num: 3, color: 'purple', title: 'Misty Step para reposicionamiento', sub: 'Acción bonus · 1 slot', note: 'Teletransportación 30 pies. Escapa o reposiciona sin AoO.' });
+  } else if (cls.includes('paladin') || cls.includes('paladín')) {
+    recs.push({ num: 1, color: 'amber', title: 'Divine Smite en críticos', sub: 'Gasta slot al impactar', note: 'Expande slots en críticos para maximizar daño (doble dados). 2d8 por slot nivel 1.' });
+    if (hasFeature('lay on hands')) recs.push({ num: 2, color: 'teal', title: 'Lay on Hands — emergencia', sub: 'Acción · 5 HP por punto', note: 'Pool de ' + (lvl * 5) + ' HP. Úsalo cuando no tienes slots.' });
+    if (lvl >= 6) recs.push({ num: 3, color: 'purple', title: 'Aura of Protection activa', sub: 'Pasivo · 10 pies', note: 'Añade tu modificador CAR a todos los saving throws de aliados cercanos.' });
+    recs.push({ num: 4, color: 'gray', title: 'Ataque con arma sagrada', sub: 'Acción', note: 'Posiciona near del frontline para aprovechar el aura.' });
+  }
+  return recs;
+}
+
+function generateExploreRecs(char) {
+  const recs = [];
+  const skills = char.skills || {};
+  // Sort skills by bonus
+  const sorted = Object.entries(skills).sort((a, b) => (b[1].total || b[1]) - (a[1].total || a[1]));
+  const top3 = sorted.slice(0, 3);
+  if (top3.length > 0) {
+    const names = top3.map(([k, v]) => {
+      const bonus = typeof v === 'object' ? v.total : v;
+      return k + ' ' + (bonus >= 0 ? '+' : '') + bonus;
+    }).join(', ');
+    recs.push({ title: 'Fortaleza en exploración', note: names });
+  }
+  if (char.darkvision) recs.push({ title: 'Darkvision', note: char.darkvision + ' pies. Ven en oscuridad como tenue.' });
+  if (char.languages && char.languages.length) recs.push({ title: 'Idiomas', note: char.languages.join(', ') });
+  return recs;
+}
+
+function renderRecommendations(char) {
+  if (!char) return;
+  const combatRecs = generateCombatRecs(char);
+  const exploreRecs = generateExploreRecs(char);
+
+  // Render combat
+  const combatDiv = document.getElementById('combat-recommendations');
+  if (combatDiv) {
+    if (combatRecs.length > 0) {
+      let html = '<div class="section-label" style="margin-top:0">Prioridades de combate</div><ul class="priority-list">';
+      combatRecs.forEach(r => {
+        html += `<li class="priority-item">
+          <div class="priority-num ${r.color}">${r.num}</div>
+          <div class="priority-body">
+            <div class="priority-title">${r.title}</div>
+            ${r.sub ? `<div class="priority-dw">${r.sub}</div>` : ''}
+            <div class="priority-note">${r.note}</div>
+          </div>
+        </li>`;
+      });
+      html += '</ul>';
+      combatDiv.innerHTML = html;
+    } else {
+      combatDiv.innerHTML = '<div class="card"><div class="card-sub" style="font-size:13px;color:var(--text3)">No hay recomendaciones específicas para esta clase. Sube tu JSON para obtener recomendaciones personalizadas.</div></div>';
+    }
+  }
+
+  // Render explore
+  const exploreDiv = document.getElementById('explore-recs-body');
+  if (exploreDiv && exploreRecs.length > 0) {
+    let html = '';
+    exploreRecs.forEach(r => {
+      html += `<div class="card" style="margin-bottom:8px"><div class="card-title" style="font-size:14px">${r.title}</div><div class="card-sub">${r.note}</div></div>`;
+    });
+    exploreDiv.innerHTML = html;
+  }
 }
 
 // ── FVTT JSON Upload (for non-pre-rendered pages) ──
@@ -923,6 +1091,8 @@ function renderDynamicChar(char) {
     </div>`;
   dyn.classList.add('visible');
   if (zone) zone.style.display = 'none';
+  // Generate recommendations
+  renderRecommendations(char);
 }
 
 // ── Auth restrictions (called by auth script + DOMContentLoaded) ──
@@ -956,10 +1126,12 @@ window.addEventListener('DOMContentLoaded', function() {
     const btn = document.querySelector(`[onclick="switchTab('${savedTab}',this)"]`);
     if (btn) switchTab(savedTab, btn);
   }
-  // Try loading char from localStorage (for non-Adrik pages)
+  // Load character: localStorage first, then PRELOADED_CHAR if available
   const stored = localStorage.getItem('char_' + CHAR_SLUG);
   if (stored) {
     try { renderDynamicChar(JSON.parse(stored)); } catch(e) {}
+  } else if (typeof PRELOADED_CHAR !== 'undefined' && PRELOADED_CHAR) {
+    try { renderDynamicChar(PRELOADED_CHAR); } catch(e) {}
   }
   // Apply auth restrictions after restoring state
   applyAuthRestrictions();
@@ -1002,17 +1174,22 @@ function _trackUpload(slug) {
   _track('visit', { slug: 'elian', ts: Date.now() });
   localStorage.setItem('last_visit_elian', Date.now());
 
-  // User indicator in header
-  const hubLink = document.querySelector('.hub-link');
-  if (hubLink) {
-    hubLink.insertAdjacentHTML('afterend',
-      '<span id="session-indicator" style="font-size:11px;color:var(--text3);margin-left:14px">' +
-      '<span style="color:#60A5FA">' + sess.slug + '</span>' +
-      (sess.admin ? ' <span style="color:var(--gold);opacity:0.7;font-size:10px">★ admin</span>' : '') +
-      ' &nbsp;·&nbsp; <a href="#" onclick="logout();return false" ' +
-      'style="color:var(--text3);text-decoration:none;border-bottom:1px solid var(--surface3)">salir</a>' +
-      '</span>'
-    );
+  // Session badge in header
+  const badge = document.getElementById('session-badge');
+  if (badge) {
+    const portraitSrc = '../assets/portraits/' + sess.slug + '.jpg';
+    const adminBadge = sess.admin ? '<span class="session-badge-admin">★ admin</span>' : '';
+    badge.innerHTML =
+      '<img src="' + portraitSrc + '" alt="' + sess.slug + '" ' +
+      'onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">' +
+      '<div class="session-badge-init" style="display:none;background:var(--char-bg);color:var(--char-color);border:1.5px solid var(--char-border)">' +
+      sess.slug.charAt(0).toUpperCase() + '</div>' +
+      '<div class="session-badge-info">' +
+      '<span class="session-badge-name" style="color:#60A5FA">' + sess.slug + '</span>' +
+      adminBadge + '</div>' +
+      '<div class="session-badge-logout"><a href="#" onclick="logout();return false" ' +
+      'style="font-size:11px;color:var(--text3);text-decoration:none">salir</a></div>';
+    badge.style.display = 'flex';
   }
 
   // Apply tab restrictions immediately

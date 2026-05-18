@@ -135,17 +135,22 @@ function _trackUpload(slug) {{
   _track('visit', {{ slug: '{slug}', ts: Date.now() }});
   localStorage.setItem('last_visit_{slug}', Date.now());
 
-  // User indicator in header
-  const hubLink = document.querySelector('.hub-link');
-  if (hubLink) {{
-    hubLink.insertAdjacentHTML('afterend',
-      '<span id="session-indicator" style="font-size:11px;color:var(--text3);margin-left:14px">' +
-      '<span style="color:{char_color}">' + sess.slug + '</span>' +
-      (sess.admin ? ' <span style="color:var(--gold);opacity:0.7;font-size:10px">★ admin</span>' : '') +
-      ' &nbsp;·&nbsp; <a href="#" onclick="logout();return false" ' +
-      'style="color:var(--text3);text-decoration:none;border-bottom:1px solid var(--surface3)">salir</a>' +
-      '</span>'
-    );
+  // Session badge in header
+  const badge = document.getElementById('session-badge');
+  if (badge) {{
+    const portraitSrc = '../assets/portraits/' + sess.slug + '.jpg';
+    const adminBadge = sess.admin ? '<span class="session-badge-admin">★ admin</span>' : '';
+    badge.innerHTML =
+      '<img src="' + portraitSrc + '" alt="' + sess.slug + '" ' +
+      'onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'">' +
+      '<div class="session-badge-init" style="display:none;background:var(--char-bg);color:var(--char-color);border:1.5px solid var(--char-border)">' +
+      sess.slug.charAt(0).toUpperCase() + '</div>' +
+      '<div class="session-badge-info">' +
+      '<span class="session-badge-name" style="color:{char_color}">' + sess.slug + '</span>' +
+      adminBadge + '</div>' +
+      '<div class="session-badge-logout"><a href="#" onclick="logout();return false" ' +
+      'style="font-size:11px;color:var(--text3);text-decoration:none">salir</a></div>';
+    badge.style.display = 'flex';
   }}
 
   // Apply tab restrictions immediately
@@ -283,92 +288,17 @@ def adrik_header_content(c):
     <span style="font-size:13px;color:var(--text2)">Channel Divinity: <button onclick="toggleCD()" id="cdBtn" style="background:var(--teal-bg);color:var(--teal);border:1px solid rgba(42,157,127,0.3);border-radius:20px;padding:3px 10px;cursor:pointer;font-size:12px;font-family:\'Source Sans 3\',sans-serif">1 uso disponible</button></span>
   </div>'''
 
-# ── Adrik personal tab panels ──────────────────────────────────────────────────
-ADRIK_PERSONAL_BUTTONS = """\
-<button class="tab-btn tab-personal active" onclick="switchTab('combate',this)">⚔ Combate</button>
-<button class="tab-btn tab-personal" onclick="switchTab('hechizos',this)">✦ Hechizos</button>
+# ── Unified personal tab buttons/panels ──────────────────────────────────────
+UNIFIED_PERSONAL_BUTTONS = """\
+<button class="tab-btn tab-personal active" onclick="switchTab('mi-personaje',this)">📋 Mi Personaje</button>
+<button class="tab-btn tab-personal" onclick="switchTab('combate',this)">⚔ Combate</button>
 <button class="tab-btn tab-personal" onclick="switchTab('habilidades',this)">◈ Habilidades</button>"""
 
-ADRIK_PERSONAL_PANELS = """\
-<!-- TAB: COMBATE -->
-<div id="tab-combate" class="tab-panel active">
-  <div class="section-label">Prioridades de combate</div>
-  <ul class="priority-list">
-    <li class="priority-item">
-      <div class="priority-num amber">1</div>
-      <div class="priority-body">
-        <div class="priority-title">Bless — siempre el primer turno</div>
-        <div class="priority-dw">"Baraz azamar" · Slot nivel 1 · Concentración</div>
-        <div class="priority-note">Cubre a los 3 aliados que más atacan (Draxus, Sven, Yankavic). +1d4 a ataques y saving throws. Dura 1 minuto. Prioridad absoluta antes de cualquier otra acción.</div>
-      </div>
-    </li>
-    <li class="priority-item">
-      <div class="priority-num purple">2</div>
-      <div class="priority-body">
-        <div class="priority-title">Twilight Sanctuary — combate prolongado o daño en área</div>
-        <div class="priority-dw">"Sel kharak dur" · Channel Divinity · Sin spell slot</div>
-        <div class="priority-note">Esfera de 30 pies centrada en ti, se mueve contigo. Al final de cada turno dentro: 1d6+2 HP temporales O elimina miedo/encantamiento. No gasta slot.</div>
-      </div>
-    </li>
-    <li class="priority-item">
-      <div class="priority-num teal">3</div>
-      <div class="priority-body">
-        <div class="priority-title">Healing Word — si alguien cae a 0 HP</div>
-        <div class="priority-dw">"Kharak azamar" · Slot nivel 1 · Acción bonus</div>
-        <div class="priority-note">Acción bonus. Rango 60 pies. Levantas a un aliado inconsciente sin sacrificar tu acción principal. Siempre superior a Cure Wounds en economía de acción.</div>
-      </div>
-    </li>
-    <li class="priority-item">
-      <div class="priority-num gray">4</div>
-      <div class="priority-body">
-        <div class="priority-title">Command — control sin concentración</div>
-        <div class="priority-dw">"Karak dûm" · Slot nivel 1 · Sin concentración</div>
-        <div class="priority-note">Fuerza a un enemigo a perder su acción (huye, cae, detente). No compite con Bless en concentración. Úsalo cuando el combate lo requiera.</div>
-      </div>
-    </li>
-    <li class="priority-item">
-      <div class="priority-num coral">5</div>
-      <div class="priority-body">
-        <div class="priority-title">Guiding Bolt — daño ofensivo fuerte</div>
-        <div class="priority-dw">"Nar khalad sel" · Slot nivel 1</div>
-        <div class="priority-note">4d6 radiante + ventaja al siguiente ataque contra ese objetivo. Úsalo cuando Bless ya está activo y todos están en pie.</div>
-      </div>
-    </li>
-    <li class="priority-item">
-      <div class="priority-num gray">6</div>
-      <div class="priority-body">
-        <div class="priority-title">Warhammer / Toll the Dead — ataque básico</div>
-        <div class="priority-dw">"Kharak dûm" para Toll the Dead · Cantrip, sin slot</div>
-        <div class="priority-note">Toll the Dead NO usa spell slot — es cantrip. D8 normal, d12 si el objetivo ya está herido (SAB save). Warhammer en melee si hay flanqueo activo.</div>
-      </div>
-    </li>
-  </ul>
-  <div class="section-label">Antes del combate</div>
-  <div class="grid-2">
-    <div class="card purple">
-      <div class="card-title">Vigilant Blessing</div>
-      <div class="card-sub">Como acción, da ventaja en la próxima iniciativa a un aliado. Úsalo en el Fighter o el Rogue antes de combates que anticipas. Se consume al tirar iniciativa.</div>
-    </div>
-    <div class="card teal">
-      <div class="card-title">Eyes of Night (compartido)</div>
-      <div class="card-sub">Como acción, comparte darkvision 300 pies con 3 aliados por 1 hora. Actívalo antes de entrar a zonas oscuras. 1 uso por descanso largo.</div>
-    </div>
-  </div>
-  <div class="section-label">Skills de exploración</div>
-  <div class="skill-grid">
-    <div class="skill-item"><span class="skill-name">Survival</span><span class="skill-val">+5</span></div>
-    <div class="skill-item"><span class="skill-name">Insight</span><span class="skill-val">+5</span></div>
-    <div class="skill-item"><span class="skill-name">Athletics</span><span class="skill-val">+3</span></div>
-    <div class="skill-item"><span class="skill-name">Religion</span><span class="skill-val">+2</span></div>
-  </div>
-  <div class="card" style="margin-top:10px">
-    <div class="card-sub"><strong style="color:var(--text)">Saving throws con proficiencia:</strong> Sabiduría +5, Carisma +3. Concentración: CON save DC 10 o mitad del daño. Sin proficiencia en CON — posicionate detrás del frontline para no romper Bless.</div>
-  </div>
-</div>
-
-<!-- TAB: HECHIZOS -->
-<div id="tab-hechizos" class="tab-panel">
-  <div class="section-label">Cantrips — nunca usan spell slot</div>
+def _adrik_habilidades_html():
+    return '''\
+<!-- TAB: HABILIDADES -->
+<div id="tab-habilidades" class="tab-panel">
+  <div class="section-label">Hechizos — Cantrips</div>
   <div class="spell-grid">
     <div class="spell-card cantrip">
       <div class="spell-name">Toll the Dead</div>
@@ -378,57 +308,57 @@ ADRIK_PERSONAL_PANELS = """\
     </div>
     <div class="spell-card cantrip">
       <div class="spell-name">Guidance</div>
-      <div class="spell-dw">"Sel'ur"</div>
+      <div class="spell-dw">"Sel\'ur"</div>
       <span class="badge teal spell-tag">Utilidad · Cantrip</span>
-      <div class="spell-desc">Acción bonus. +1d4 al próximo check de un aliado. Úsalo siempre que puedas antes de checks importantes.</div>
+      <div class="spell-desc">+1d4 al próximo check de un aliado. Úsalo siempre que puedas.</div>
     </div>
     <div class="spell-card cantrip">
       <div class="spell-name">Sacred Flame</div>
       <div class="spell-dw">"Nar sel"</div>
       <span class="badge teal spell-tag">Daño · Cantrip</span>
-      <div class="spell-desc">DEX save. Radiante. Ignora cobertura. Backup cuando Toll the Dead no aplica.</div>
+      <div class="spell-desc">DEX save. Radiante. Ignora cobertura.</div>
     </div>
   </div>
-  <div class="section-label">Dominio Crepúsculo — siempre preparados, no cuentan contra el límite</div>
+  <div class="section-label">Hechizos — Dominio Crepúsculo</div>
   <div class="spell-grid">
     <div class="spell-card domain">
       <div class="spell-name">Sleep</div>
       <div class="spell-dw">"Khadûm"</div>
       <span class="badge purple spell-tag">Control · 1 slot</span>
-      <div class="spell-desc">Afecta criaturas empezando por las de menos HP. Muy útil vs múltiples enemigos débiles.</div>
+      <div class="spell-desc">Afecta criaturas de menos HP primero. Útil vs múltiples enemigos débiles.</div>
     </div>
     <div class="spell-card domain">
       <div class="spell-name">Faerie Fire</div>
       <div class="spell-dw">"Sel nar"</div>
-      <span class="badge purple spell-tag">Control · 1 slot · Concentración</span>
-      <div class="spell-desc">Ventaja en todos los ataques vs criaturas afectadas. No puedes tenerlo activo junto a Bless — elige uno.</div>
+      <span class="badge purple spell-tag">Control · 1 slot · Conc.</span>
+      <div class="spell-desc">Ventaja en todos los ataques vs criaturas afectadas. No se combina con Bless.</div>
     </div>
   </div>
-  <div class="section-label">Hechizos preparados — usan spell slot de nivel 1</div>
+  <div class="section-label">Hechizos — Preparados</div>
   <div class="spell-grid">
     <div class="spell-card prepared">
       <div class="spell-name">Bless ⭐</div>
       <div class="spell-dw">"Baraz azamar"</div>
-      <span class="badge amber spell-tag">Soporte · 1 slot · Concentración</span>
-      <div class="spell-desc">PRIORIDAD 1. +1d4 ataques y saves a 3 aliados. 1 minuto. Cambia el combate completo.</div>
+      <span class="badge amber spell-tag">Soporte · 1 slot · Conc.</span>
+      <div class="spell-desc">+1d4 ataques/saves a 3 aliados. 1 min. Prioridad absoluta.</div>
     </div>
     <div class="spell-card prepared">
       <div class="spell-name">Healing Word</div>
       <div class="spell-dw">"Kharak azamar"</div>
-      <span class="badge amber spell-tag">Curación · 1 slot · Acción bonus</span>
-      <div class="spell-desc">Rango 60 pies. Levanta inconscientes a distancia. Económicamente superior a Cure Wounds.</div>
+      <span class="badge amber spell-tag">Curación · 1 slot · Bonus</span>
+      <div class="spell-desc">Acción bonus. 60 pies. Levanta inconscientes sin usar tu acción.</div>
     </div>
     <div class="spell-card prepared">
       <div class="spell-name">Guiding Bolt</div>
       <div class="spell-dw">"Nar khalad sel"</div>
       <span class="badge amber spell-tag">Daño · 1 slot</span>
-      <div class="spell-desc">4d6 radiante + ventaja al siguiente ataque vs ese objetivo. Tu opción ofensiva fuerte.</div>
+      <div class="spell-desc">4d6 radiante + ventaja al siguiente ataque. Ofensivo fuerte.</div>
     </div>
     <div class="spell-card prepared">
       <div class="spell-name">Shield of Faith</div>
-      <div class="spell-dw">"Sel'dur"</div>
-      <span class="badge amber spell-tag">Defensa · 1 slot · Concentración</span>
-      <div class="spell-desc">+2 AC a un aliado. Útil en Fighter o Rogue en combates difíciles.</div>
+      <div class="spell-dw">"Sel\'dur"</div>
+      <span class="badge amber spell-tag">Defensa · 1 slot · Conc.</span>
+      <div class="spell-desc">+2 AC a un aliado. Útil en Fighter o Rogue.</div>
     </div>
     <div class="spell-card prepared">
       <div class="spell-name">Command</div>
@@ -437,60 +367,71 @@ ADRIK_PERSONAL_PANELS = """\
       <div class="spell-desc">Sin concentración. Un enemigo pierde su acción. No compite con Bless.</div>
     </div>
   </div>
-  <div class="card gold" style="margin-top:16px">
-    <div class="card-title" style="color:var(--gold2);margin-bottom:6px">Gestión de slots</div>
-    <div class="card-sub">Tienes 3 slots de nivel 1. Bless ocupa 1. Guarda al menos 1 para Healing Word de emergencia. En nivel 3 obtendrás slots de nivel 2.</div>
-  </div>
-</div>
-
-<!-- TAB: HABILIDADES -->
-<div id="tab-habilidades" class="tab-panel">
   <div class="section-label">Features de clase — Twilight Domain</div>
   <div class="feature-card">
-    <div class="feature-top"><div class="feature-name">Eyes of Night</div><span class="badge purple">Nivel 1 · 1 uso/descanso largo</span></div>
-    <div class="feature-desc">Darkvision permanente de 300 pies para ti. Como acción: comparte esta visión con hasta 3 criaturas visibles durante 1 hora. En Icewind Dale, con 2 horas de luz al día, esta feature es crítica cada sesión.</div>
+    <div class="feature-top"><div class="feature-name">Eyes of Night</div><span class="badge purple">Nivel 1 · 1 uso/long rest</span></div>
+    <div class="feature-desc">Darkvision 300 pies permanente. Como acción: comparte con 3 aliados por 1 hora. Crítico en Icewind Dale.</div>
   </div>
   <div class="feature-card">
     <div class="feature-top"><div class="feature-name">Vigilant Blessing</div><span class="badge purple">Nivel 1 · Gasto de acción</span></div>
-    <div class="feature-desc">Como acción, tocas a una criatura (o a ti) y le das ventaja en su próxima tirada de iniciativa. Se consume al tirar. Ideal para el Fighter o el Rogue antes de combates anticipados.</div>
+    <div class="feature-desc">Toca a un aliado para darle ventaja en su próxima iniciativa. Se consume al tirar.</div>
   </div>
   <div class="feature-card">
     <div class="feature-top"><div class="feature-name">Twilight Sanctuary</div><span class="badge purple">Nivel 2 · Channel Divinity</span></div>
-    <div class="feature-desc">Como acción, emana una esfera de penumbra de 30 pies centrada en ti. Se mueve contigo. Dura 1 minuto. Al final de cada turno dentro: 1d6+2 HP temporales, o elimina un efecto de miedo o encantamiento.</div>
+    <div class="feature-desc">Esfera 30 pies centrada en ti, 1 min. Al final de cada turno dentro: 1d6+2 HP temporales o elimina miedo/encantamiento. No gasta slot.</div>
   </div>
   <div class="feature-card">
     <div class="feature-top"><div class="feature-name">Turn Undead</div><span class="badge gray">Nivel 2 · Channel Divinity</span></div>
-    <div class="feature-desc">Presenta tu símbolo sagrado. Cada no-muerto que te vea a 30 pies y falle SAB save es ahuyentado durante 1 minuto. Relevante en este módulo — ya hemos encontrado no-muertos.</div>
+    <div class="feature-desc">No-muertos a 30 pies que fallen SAB save huyen 1 min. Relevante en este módulo.</div>
   </div>
   <div class="feature-card">
-    <div class="feature-top"><div class="feature-name">Dwarven Toughness</div><span class="badge gray">Pasivo · Enano de Colina</span></div>
-    <div class="feature-desc">+1 HP máximo por nivel. Ya incluido en tus HP. A nivel 2: +2 HP sobre la base normal. Aumenta cada nivel.</div>
-  </div>
-  <div class="feature-card">
-    <div class="feature-top"><div class="feature-name">Stonecunning</div><span class="badge gray">Pasivo · Enano</span></div>
-    <div class="feature-desc">Ventaja en Intelligence (History) relacionados con estructuras de piedra. Ya lo usaste en la cueva.</div>
+    <div class="feature-top"><div class="feature-name">Dwarven Toughness / Stonecunning</div><span class="badge gray">Pasivo · Enano de Colina</span></div>
+    <div class="feature-desc">+1 HP por nivel. Ventaja en History de piedra.</div>
   </div>
   <div class="section-label">Equipo importante</div>
   <div class="grid-2">
-    <div class="card"><div class="card-title">Warhammer</div><div class="card-sub">Arma principal. 1d8 contundente. Proficiencia racial de enano.</div></div>
-    <div class="card amber"><div class="card-title">Scale Mail + Escudo ⚠</div><div class="card-sub">CA actual: 15. Con Chain Mail sería 18. Tienes proficiencia en armadura pesada.</div></div>
-    <div class="card"><div class="card-title">Quarterstaff</div><div class="card-sub">1d6/1d8 contundente. Versátil.</div></div>
-    <div class="card"><div class="card-title">Handaxe</div><div class="card-sub">Arrojadiza. Le prestaste una a Dorbulgruf en el combate con Auril.</div></div>
-    <div class="card"><div class="card-title">Cuerda 50 pies</div><div class="card-sub">La usaste para salvar a Teska del lago helado.</div></div>
-    <div class="card"><div class="card-title">Rations x11</div><div class="card-sub">Necesarias para descanso largo. Bien abastecido.</div></div>
-    <div class="card"><div class="card-title">Hunting Trap</div><div class="card-sub">Útil para comida en campo abierto.</div></div>
-    <div class="card"><div class="card-title">Collar de colmillo</div><div class="card-sub">Loot de troglodita. Origen desconocido.</div></div>
+    <div class="card"><div class="card-title">Warhammer</div><div class="card-sub">Arma principal. 1d8 contundente.</div></div>
+    <div class="card amber"><div class="card-title">Scale Mail + Escudo ⚠</div><div class="card-sub">CA actual: 15. Con Chain Mail sería 18.</div></div>
+    <div class="card"><div class="card-title">Cuerda 50 pies</div><div class="card-sub">Salvaste a Teska del lago helado con esta.</div></div>
+    <div class="card"><div class="card-title">Hunting Trap + Rations x11</div><div class="card-sub">Bien abastecido. Necesitas 1 ración por long rest.</div></div>
   </div>
-</div>"""
+</div>'''
 
-# ── Stub personal panels (para personajes no-Adrik) ────────────────────────────
-def stub_personal_panels(member):
-    name = member["name"]
-    initial = member["initial"]
-    color = member["color"]
-    return f'''\
-<!-- TAB: PERSONAJE -->
-<div id="tab-personaje" class="tab-panel active">
+# ── Unified personal panels (same structure for all characters) ────────────────
+def unified_personal_panels(slug, char_data=None):
+    """Generates unified personal panels for all characters.
+    For Adrik: char_data is the character.json dict.
+    For others: char_data is None; upload zone + recommendations from JS.
+    """
+    is_adrik = (slug == "adrik")
+
+    # --- TAB: MI PERSONAJE ---
+    if is_adrik and char_data:
+        preloaded = json.dumps(char_data, ensure_ascii=False)
+        mi_tab = f'''\
+<!-- TAB: MI PERSONAJE -->
+<div id="tab-mi-personaje" class="tab-panel active">
+  <script>const PRELOADED_CHAR = {preloaded};</script>
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px">
+    <div class="section-label" style="margin:0">Datos del Personaje</div>
+    <label class="upload-btn" for="json-file-input" style="display:inline-block;padding:8px 18px;font-size:12px">
+      ⬆ Actualizar desde Foundry
+    </label>
+    <input type="file" id="json-file-input" accept=".json" style="display:none" onchange="loadCharJSON(this)">
+  </div>
+  <div id="dynamic-stats"></div>
+</div>'''
+    else:
+        mi_tab = f'''\
+<!-- TAB: MI PERSONAJE -->
+<div id="tab-mi-personaje" class="tab-panel active">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px">
+    <div class="section-label" style="margin:0">Datos del Personaje</div>
+    <label class="upload-btn" for="json-file-input" style="display:inline-block;padding:8px 18px;font-size:12px">
+      ⬆ Actualizar desde Foundry
+    </label>
+    <input type="file" id="json-file-input" accept=".json" style="display:none" onchange="loadCharJSON(this)">
+  </div>
   <div class="upload-zone" id="upload-zone">
     <div class="upload-icon">⬆</div>
     <div class="upload-title">Sube tu personaje</div>
@@ -499,33 +440,67 @@ def stub_personal_panels(member):
       <strong style="color:var(--text)">Actor → botón derecho → Export Data</strong><br><br>
       Sube el archivo JSON aquí. Tus datos se guardan en este navegador.
     </div>
-    <label class="upload-btn" for="json-file-input">Seleccionar archivo JSON</label>
-    <input type="file" id="json-file-input" accept=".json" style="display:none" onchange="loadCharJSON(this)">
+    <label class="upload-btn" for="json-file-input-2">Seleccionar archivo JSON</label>
+    <input type="file" id="json-file-input-2" accept=".json" style="display:none" onchange="loadCharJSON(this)">
     <div class="upload-note">Los datos se guardan localmente (localStorage) y no se comparten.</div>
   </div>
   <div id="dynamic-stats"></div>
 </div>'''
 
-# ── Party content generators ───────────────────────────────────────────────────
-def map_html():
-    """SVG de relaciones + soporte para imagen de mapa."""
-    map_img = os.path.join(BASE, "dist", "assets", "maps", "icewind-dale.jpg")
-    map_img_section = ""
-    if os.path.exists(map_img):
-        map_img_section = '''<div class="section-label teal">Mapa de Icewind Dale</div>
-  <div class="map-img-container">
-    <img src="../assets/maps/icewind-dale.jpg" alt="Mapa de Icewind Dale">
-  </div>'''
+    # --- TAB: COMBATE (recommendations) ---
+    combate_tab = '''\
+<!-- TAB: COMBATE -->
+<div id="tab-combate" class="tab-panel">
+  <div id="combat-recommendations">
+    <div class="card" style="margin-bottom:12px;border-color:rgba(42,157,127,0.2);background:rgba(42,157,127,0.04)">
+      <div class="card-sub" style="font-size:13px;color:var(--text3)">
+        Las recomendaciones se generan automáticamente al cargar los datos del personaje.
+        Sube tu JSON en la pestaña <strong style="color:var(--text)">📋 Mi Personaje</strong> para verlas.
+      </div>
+    </div>
+  </div>
+  <div id="explore-recommendations" style="margin-top:20px">
+    <div class="section-label">Exploración</div>
+    <div id="explore-recs-body">
+      <div class="card"><div class="card-sub" style="font-size:13px;color:var(--text3)">Carga tu personaje para ver tus fortalezas de exploración.</div></div>
+    </div>
+  </div>
+</div>'''
 
-    return f'''{map_img_section}
-  <div class="section-label teal">Mapa de relaciones</div>
+    # --- TAB: HABILIDADES ---
+    if is_adrik:
+        habilidades_tab = _adrik_habilidades_html()
+    else:
+        habilidades_tab = '''\
+<!-- TAB: HABILIDADES -->
+<div id="tab-habilidades" class="tab-panel">
+  <div id="features-body">
+    <div class="card"><div class="card-sub" style="font-size:13px;color:var(--text3)">Sube tu JSON para ver features y equipo.</div></div>
+  </div>
+</div>'''
+
+    return mi_tab + "\n\n" + combate_tab + "\n\n" + habilidades_tab
+
+# ── Per-character relation graphs ─────────────────────────────────────────────
+def _svg_node(x, y, w, h, rx, fill, stroke, sw, dash=""):
+    dash_attr = f' stroke-dasharray="{dash}"' if dash else ""
+    return f'<rect x="{x}" y="{y}" width="{w}" height="{h}" rx="{rx}" fill="{fill}" stroke="{stroke}" stroke-width="{sw}"{dash_attr}/>'
+
+def _svg_line(x1, y1, x2, y2, stroke, sw, dash=""):
+    dash_attr = f' stroke-dasharray="{dash}"' if dash else ""
+    return f'<line x1="{x1}" y1="{y1}" x2="{x2}" y2="{y2}" stroke="{stroke}" stroke-width="{sw}"{dash_attr} marker-end="url(#arr)"/>'
+
+def _svg_text(x, y, size, fill, text, anchor="middle", weight="400", font="Source Sans 3, sans-serif"):
+    return f'<text x="{x}" y="{y}" font-size="{size}" font-weight="{weight}" fill="{fill}" font-family="{font}" text-anchor="{anchor}">{text}</text>'
+
+def _svg_label(x, y, text, fill):
+    return f'<text x="{x}" y="{y}" font-size="10" fill="{fill}" font-family="Source Sans 3, sans-serif" text-anchor="middle">{text}</text>'
+
+RELATION_GRAPHS = {
+    "adrik": lambda: '''\
   <div class="map-container">
     <svg viewBox="0 0 900 520" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <marker id="arr" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto">
-          <path d="M0,0 L0,6 L6,3 z" fill="rgba(201,150,58,0.4)"/>
-        </marker>
-      </defs>
+      <defs><marker id="arr" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto"><path d="M0,0 L0,6 L6,3 z" fill="rgba(201,150,58,0.4)"/></marker></defs>
       <line x1="450" y1="250" x2="180" y2="100" stroke="rgba(201,150,58,0.25)" stroke-width="1.5" marker-end="url(#arr)"/>
       <line x1="450" y1="250" x2="165" y2="200" stroke="rgba(201,150,58,0.25)" stroke-width="1.5" marker-end="url(#arr)"/>
       <line x1="450" y1="250" x2="160" y2="390" stroke="rgba(123,99,204,0.35)" stroke-width="1.5" stroke-dasharray="5,4" marker-end="url(#arr)"/>
@@ -534,15 +509,8 @@ def map_html():
       <line x1="450" y1="250" x2="710" y2="130" stroke="rgba(201,150,58,0.3)" stroke-width="1.5" marker-end="url(#arr)"/>
       <line x1="450" y1="250" x2="750" y2="250" stroke="rgba(204,51,51,0.5)" stroke-width="2" marker-end="url(#arr)"/>
       <line x1="450" y1="250" x2="450" y2="430" stroke="rgba(204,51,51,0.3)" stroke-width="1.5" stroke-dasharray="5,4" marker-end="url(#arr)"/>
-      <line x1="750" y1="250" x2="450" y2="100" stroke="rgba(204,80,48,0.3)" stroke-width="1.5" marker-end="url(#arr)"/>
-      <line x1="750" y1="250" x2="830" y2="390" stroke="rgba(204,80,48,0.25)" stroke-width="1.5" marker-end="url(#arr)"/>
-      <line x1="710" y1="130" x2="830" y2="390" stroke="rgba(201,150,58,0.3)" stroke-width="1.5" marker-end="url(#arr)"/>
-      <line x1="180" y1="100" x2="310" y2="430" stroke="rgba(201,150,58,0.2)" stroke-width="1" stroke-dasharray="4,4"/>
-      <line x1="165" y1="200" x2="180" y2="100" stroke="rgba(201,150,58,0.2)" stroke-width="1"/>
-      <text x="295" y="158" font-size="10" fill="rgba(201,150,58,0.6)" font-family="Source Sans 3, sans-serif" text-anchor="middle">enviado por</text>
-      <text x="285" y="225" font-size="10" fill="rgba(201,150,58,0.6)" font-family="Source Sans 3, sans-serif" text-anchor="middle">origen</text>
       <text x="270" y="340" font-size="10" fill="rgba(123,99,204,0.7)" font-family="Source Sans 3, sans-serif" text-anchor="middle">fe cuestionada</text>
-      <text x="368" y="365" font-size="10" fill="rgba(42,157,127,0.7)" font-family="Source Sans 3, sans-serif" text-anchor="middle">familiar / rescató</text>
+      <text x="368" y="365" font-size="10" fill="rgba(42,157,127,0.7)" font-family="Source Sans 3, sans-serif" text-anchor="middle">familiar · rescató</text>
       <text x="560" y="370" font-size="10" fill="rgba(74,138,222,0.7)" font-family="Source Sans 3, sans-serif" text-anchor="middle">compañeros</text>
       <text x="600" y="175" font-size="10" fill="rgba(201,150,58,0.6)" font-family="Source Sans 3, sans-serif" text-anchor="middle">contratado por</text>
       <text x="610" y="242" font-size="10" fill="rgba(204,51,51,0.8)" font-family="Source Sans 3, sans-serif" text-anchor="middle">enfrentamiento</text>
@@ -552,21 +520,20 @@ def map_html():
       <text x="450" y="260" font-size="11" fill="rgba(201,150,58,0.8)" font-family="Source Sans 3, sans-serif" text-anchor="middle">Frostbeard</text>
       <text x="450" y="275" font-size="10" fill="rgba(201,150,58,0.6)" font-family="Source Sans 3, sans-serif" text-anchor="middle">Clérigo · Niv. 2</text>
       <rect x="108" y="74" width="144" height="48" rx="7" fill="rgba(22,29,52,0.9)" stroke="rgba(201,150,58,0.3)" stroke-width="1"/>
-      <text x="180" y="97" font-size="13" font-weight="500" fill="#EDE6D6" font-family="Cinzel, serif" text-anchor="middle">Padre</text>
-      <text x="180" y="113" font-size="10" fill="#9A9080" font-family="Source Sans 3, sans-serif" text-anchor="middle">Clan Frostbeard · Sur</text>
-      <rect x="90" y="170" width="150" height="50" rx="7" fill="rgba(22,29,52,0.9)" stroke="rgba(201,150,58,0.3)" stroke-width="1"/>
-      <text x="165" y="193" font-size="13" font-weight="500" fill="#EDE6D6" font-family="Cinzel, serif" text-anchor="middle">Clan Frostbeard</text>
-      <text x="165" y="210" font-size="10" fill="#9A9080" font-family="Source Sans 3, sans-serif" text-anchor="middle">3 generaciones · Sur</text>
+      <text x="180" y="97" font-size="13" font-weight="500" fill="#EDE6D6" font-family="Cinzel, serif" text-anchor="middle">Padre · Clan Frostbeard</text>
+      <text x="180" y="113" font-size="10" fill="#9A9080" font-family="Source Sans 3, sans-serif" text-anchor="middle">Sur · 3 generaciones</text>
       <rect x="82" y="363" width="156" height="54" rx="7" fill="rgba(123,99,204,0.1)" stroke="rgba(123,99,204,0.4)" stroke-width="1" stroke-dasharray="4,3"/>
       <text x="160" y="386" font-size="13" font-weight="500" fill="#9B80EE" font-family="Cinzel, serif" text-anchor="middle">Selûne</text>
-      <text x="160" y="402" font-size="10" fill="rgba(123,99,204,0.7)" font-family="Source Sans 3, sans-serif" text-anchor="middle">Diosa · fe cuestionada</text>
-      <text x="160" y="415" font-size="10" fill="rgba(123,99,204,0.6)" font-family="Source Sans 3, sans-serif" text-anchor="middle">¿por qué yo?</text>
+      <text x="160" y="402" font-size="10" fill="rgba(123,99,204,0.7)" font-family="Source Sans 3, sans-serif" text-anchor="middle">Diosa · fe cuestionada · ¿por qué yo?</text>
       <rect x="224" y="406" width="172" height="50" rx="7" fill="rgba(42,157,127,0.1)" stroke="rgba(42,157,127,0.35)" stroke-width="1"/>
       <text x="310" y="429" font-size="13" font-weight="500" fill="#2A9D7F" font-family="Cinzel, serif" text-anchor="middle">Dorbulgruf Shalescar</text>
-      <text x="310" y="446" font-size="10" fill="rgba(42,157,127,0.7)" font-family="Source Sans 3, sans-serif" text-anchor="middle">Alcalde Bremen · Primo lejano · Rescatado</text>
-      <rect x="350" y="72" width="200" height="48" rx="7" fill="rgba(123,99,204,0.1)" stroke="rgba(123,99,204,0.3)" stroke-width="1"/>
-      <text x="450" y="95" font-size="13" font-weight="500" fill="#9B80EE" font-family="Cinzel, serif" text-anchor="middle">Invierno Eterno</text>
-      <text x="450" y="111" font-size="10" fill="rgba(123,99,204,0.7)" font-family="Source Sans 3, sans-serif" text-anchor="middle">2 años sin sol · Causado por Auril</text>
+      <text x="310" y="446" font-size="10" fill="rgba(42,157,127,0.7)" font-family="Source Sans 3, sans-serif" text-anchor="middle">Alcalde Bremen · Rescatado</text>
+      <rect x="564" y="400" width="180" height="62" rx="7" fill="rgba(74,138,222,0.1)" stroke="rgba(74,138,222,0.35)" stroke-width="1"/>
+      <text x="654" y="422" font-size="13" font-weight="500" fill="#4A8ADE" font-family="Cinzel, serif" text-anchor="middle">La Party</text>
+      <text x="654" y="438" font-size="10" fill="rgba(74,138,222,0.7)" font-family="Source Sans 3, sans-serif" text-anchor="middle">Sven · Draxus · Teska · Elian · Yankavic</text>
+      <rect x="622" y="100" width="176" height="52" rx="7" fill="rgba(201,150,58,0.1)" stroke="rgba(201,150,58,0.35)" stroke-width="1"/>
+      <text x="710" y="123" font-size="13" font-weight="500" fill="#C9963A" font-family="Cinzel, serif" text-anchor="middle">Gillin Trollbane</text>
+      <text x="710" y="140" font-size="10" fill="rgba(201,150,58,0.7)" font-family="Source Sans 3, sans-serif" text-anchor="middle">Empleadora · 100gp + objeto mágico</text>
       <rect x="680" y="216" width="140" height="68" rx="7" fill="rgba(204,51,51,0.1)" stroke="rgba(204,51,51,0.5)" stroke-width="1.5"/>
       <text x="750" y="241" font-size="14" font-weight="600" fill="#EE6060" font-family="Cinzel, serif" text-anchor="middle">Auril</text>
       <text x="750" y="257" font-size="10" fill="rgba(204,51,51,0.8)" font-family="Source Sans 3, sans-serif" text-anchor="middle">La Doncella del Hielo</text>
@@ -574,18 +541,6 @@ def map_html():
       <rect x="344" y="402" width="212" height="54" rx="7" fill="rgba(204,51,51,0.08)" stroke="rgba(204,51,51,0.3)" stroke-width="1" stroke-dasharray="4,3"/>
       <text x="450" y="424" font-size="12" font-weight="500" fill="#EE8888" font-family="Cinzel, serif" text-anchor="middle">¿A quiénes dejé morir?</text>
       <text x="450" y="440" font-size="10" fill="rgba(204,51,51,0.7)" font-family="Source Sans 3, sans-serif" text-anchor="middle">Auril lo sabe · Hace 10 años</text>
-      <text x="450" y="452" font-size="10" fill="rgba(204,51,51,0.6)" font-family="Source Sans 3, sans-serif" text-anchor="middle">Núcleo del arco personal</text>
-      <rect x="622" y="100" width="176" height="52" rx="7" fill="rgba(201,150,58,0.1)" stroke="rgba(201,150,58,0.35)" stroke-width="1"/>
-      <text x="710" y="123" font-size="13" font-weight="500" fill="#C9963A" font-family="Cinzel, serif" text-anchor="middle">Gillin Trollbane</text>
-      <text x="710" y="140" font-size="10" fill="rgba(201,150,58,0.7)" font-family="Source Sans 3, sans-serif" text-anchor="middle">Salvadora · Empleadora · 100gp</text>
-      <rect x="762" y="363" width="136" height="52" rx="7" fill="rgba(204,80,48,0.1)" stroke="rgba(204,80,48,0.35)" stroke-width="1"/>
-      <text x="830" y="386" font-size="13" font-weight="500" fill="#CC5030" font-family="Cinzel, serif" text-anchor="middle">Sefek Caltro</text>
-      <text x="830" y="402" font-size="10" fill="rgba(204,80,48,0.7)" font-family="Source Sans 3, sans-serif" text-anchor="middle">Objetivo · Piel azul</text>
-      <text x="830" y="414" font-size="10" fill="rgba(204,80,48,0.6)" font-family="Source Sans 3, sans-serif" text-anchor="middle">No siente el frío</text>
-      <rect x="564" y="400" width="180" height="62" rx="7" fill="rgba(74,138,222,0.1)" stroke="rgba(74,138,222,0.35)" stroke-width="1"/>
-      <text x="654" y="422" font-size="13" font-weight="500" fill="#4A8ADE" font-family="Cinzel, serif" text-anchor="middle">La Party</text>
-      <text x="654" y="438" font-size="10" fill="rgba(74,138,222,0.7)" font-family="Source Sans 3, sans-serif" text-anchor="middle">Sven · Draxus · Teska</text>
-      <text x="654" y="452" font-size="10" fill="rgba(74,138,222,0.6)" font-family="Source Sans 3, sans-serif" text-anchor="middle">Elian · Yankavic</text>
     </svg>
   </div>
   <div class="grid-2">
@@ -595,9 +550,154 @@ def map_html():
     </div>
     <div class="feature-card">
       <div class="feature-name" style="margin-bottom:8px">Arco de fe con Selûne</div>
-      <div class="feature-desc">Adrik tiene poderes que vienen de una diosa que no eligió activamente. Cada uso de sus poderes en momentos críticos es una oportunidad para que algo cambie. No hay que forzarlo: basta con ese segundo de silencio después de que algo funciona.</div>
+      <div class="feature-desc">Adrik tiene poderes que vienen de una diosa que no eligió activamente. Cada uso de sus poderes en momentos críticos es una oportunidad para que algo cambie.</div>
     </div>
-  </div>'''
+  </div>''',
+    "draxus": lambda: '''\
+  <div class="section-label teal">Relaciones de Draxus</div>
+  <div class="map-container">
+    <svg viewBox="0 0 700 420" xmlns="http://www.w3.org/2000/svg">
+      <defs><marker id="arr" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto"><path d="M0,0 L0,6 L6,3 z" fill="rgba(148,163,184,0.4)"/></marker></defs>
+      <line x1="350" y1="200" x2="350" y2="60" stroke="rgba(204,51,51,0.5)" stroke-width="2" marker-end="url(#arr)"/>
+      <line x1="350" y1="200" x2="150" y2="320" stroke="rgba(74,138,222,0.35)" stroke-width="1.5" marker-end="url(#arr)"/>
+      <line x1="350" y1="200" x2="550" y2="320" stroke="rgba(204,80,48,0.4)" stroke-width="1.5" stroke-dasharray="5,4" marker-end="url(#arr)"/>
+      <text x="350" y="135" font-size="10" fill="rgba(204,51,51,0.7)" font-family="Source Sans 3, sans-serif" text-anchor="middle">te preservaré solo a ti</text>
+      <text x="220" y="285" font-size="10" fill="rgba(74,138,222,0.7)" font-family="Source Sans 3, sans-serif" text-anchor="middle">compañeros</text>
+      <text x="480" y="270" font-size="10" fill="rgba(204,80,48,0.7)" font-family="Source Sans 3, sans-serif" text-anchor="middle">busca a...</text>
+      <rect x="290" y="168" width="120" height="64" rx="8" fill="rgba(148,163,184,0.15)" stroke="#94A3B8" stroke-width="2"/>
+      <text x="350" y="194" font-size="15" font-weight="600" fill="#94A3B8" font-family="Cinzel, serif" text-anchor="middle">Draxus</text>
+      <text x="350" y="212" font-size="10" fill="rgba(148,163,184,0.7)" font-family="Source Sans 3, sans-serif" text-anchor="middle">Fighter · Dragonborn Plateado</text>
+      <rect x="260" y="30" width="180" height="54" rx="7" fill="rgba(204,51,51,0.1)" stroke="rgba(204,51,51,0.5)" stroke-width="1.5"/>
+      <text x="350" y="53" font-size="14" font-weight="600" fill="#EE6060" font-family="Cinzel, serif" text-anchor="middle">Auril</text>
+      <text x="350" y="69" font-size="10" fill="rgba(204,51,51,0.7)" font-family="Source Sans 3, sans-serif" text-anchor="middle">Amenaza especial · ¿por qué él?</text>
+      <rect x="60" y="300" width="180" height="54" rx="7" fill="rgba(74,138,222,0.1)" stroke="rgba(74,138,222,0.35)" stroke-width="1"/>
+      <text x="150" y="323" font-size="13" font-weight="500" fill="#4A8ADE" font-family="Cinzel, serif" text-anchor="middle">La Party</text>
+      <text x="150" y="340" font-size="10" fill="rgba(74,138,222,0.7)" font-family="Source Sans 3, sans-serif" text-anchor="middle">Compañeros de aventura</text>
+      <rect x="460" y="300" width="180" height="54" rx="7" fill="rgba(204,80,48,0.1)" stroke="rgba(204,80,48,0.35)" stroke-width="1" stroke-dasharray="4,3"/>
+      <text x="550" y="323" font-size="13" font-weight="500" fill="#CC5030" font-family="Cinzel, serif" text-anchor="middle">Alguien que busca</text>
+      <text x="550" y="340" font-size="10" fill="rgba(204,80,48,0.7)" font-family="Source Sans 3, sans-serif" text-anchor="middle">Misterio sin revelar · ¿Sur?</text>
+    </svg>
+  </div>''',
+    "sven": lambda: '''\
+  <div class="section-label teal">Relaciones de Sven</div>
+  <div class="map-container">
+    <svg viewBox="0 0 700 420" xmlns="http://www.w3.org/2000/svg">
+      <defs><marker id="arr" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto"><path d="M0,0 L0,6 L6,3 z" fill="rgba(56,189,248,0.4)"/></marker></defs>
+      <line x1="350" y1="200" x2="180" y2="60" stroke="rgba(56,189,248,0.4)" stroke-width="1.5" marker-end="url(#arr)"/>
+      <line x1="350" y1="200" x2="530" y2="60" stroke="rgba(74,138,222,0.35)" stroke-width="1.5" marker-end="url(#arr)"/>
+      <line x1="350" y1="200" x2="350" y2="340" stroke="rgba(74,138,222,0.35)" stroke-width="1.5" marker-end="url(#arr)"/>
+      <text x="240" y="150" font-size="10" fill="rgba(56,189,248,0.7)" font-family="Source Sans 3, sans-serif" text-anchor="middle">origen · conexión profunda</text>
+      <text x="470" y="150" font-size="10" fill="rgba(74,138,222,0.7)" font-family="Source Sans 3, sans-serif" text-anchor="middle">¿conexión norte?</text>
+      <text x="350" y="285" font-size="10" fill="rgba(74,138,222,0.7)" font-family="Source Sans 3, sans-serif" text-anchor="middle">compañeros</text>
+      <rect x="290" y="168" width="120" height="64" rx="8" fill="rgba(56,189,248,0.15)" stroke="#38BDF8" stroke-width="2"/>
+      <text x="350" y="194" font-size="15" font-weight="600" fill="#38BDF8" font-family="Cinzel, serif" text-anchor="middle">Sven</text>
+      <text x="350" y="212" font-size="10" fill="rgba(56,189,248,0.7)" font-family="Source Sans 3, sans-serif" text-anchor="middle">Rogue · Elfo · Marinero</text>
+      <rect x="80" y="30" width="200" height="54" rx="7" fill="rgba(56,189,248,0.1)" stroke="rgba(56,189,248,0.35)" stroke-width="1"/>
+      <text x="180" y="53" font-size="13" font-weight="500" fill="#38BDF8" font-family="Cinzel, serif" text-anchor="middle">Thermaline</text>
+      <text x="180" y="69" font-size="10" fill="rgba(56,189,248,0.7)" font-family="Source Sans 3, sans-serif" text-anchor="middle">Puerto de origen · El norte es su hogar</text>
+      <rect x="420" y="30" width="200" height="54" rx="7" fill="rgba(204,80,48,0.1)" stroke="rgba(204,80,48,0.35)" stroke-width="1" stroke-dasharray="4,3"/>
+      <text x="520" y="53" font-size="13" font-weight="500" fill="#CC5030" font-family="Cinzel, serif" text-anchor="middle">Conexión con el Norte</text>
+      <text x="520" y="69" font-size="10" fill="rgba(204,80,48,0.7)" font-family="Source Sans 3, sans-serif" text-anchor="middle">¿Por qué está tan cómodo aquí?</text>
+      <rect x="250" y="310" width="200" height="54" rx="7" fill="rgba(74,138,222,0.1)" stroke="rgba(74,138,222,0.35)" stroke-width="1"/>
+      <text x="350" y="333" font-size="13" font-weight="500" fill="#4A8ADE" font-family="Cinzel, serif" text-anchor="middle">La Party</text>
+      <text x="350" y="350" font-size="10" fill="rgba(74,138,222,0.7)" font-family="Source Sans 3, sans-serif" text-anchor="middle">Compañeros de aventura</text>
+    </svg>
+  </div>''',
+    "teska": lambda: '''\
+  <div class="section-label teal">Relaciones de Teska</div>
+  <div class="map-container">
+    <svg viewBox="0 0 700 420" xmlns="http://www.w3.org/2000/svg">
+      <defs><marker id="arr" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto"><path d="M0,0 L0,6 L6,3 z" fill="rgba(167,139,250,0.4)"/></marker></defs>
+      <line x1="350" y1="200" x2="180" y2="60" stroke="rgba(167,139,250,0.4)" stroke-width="1.5" stroke-dasharray="5,4" marker-end="url(#arr)"/>
+      <line x1="350" y1="200" x2="530" y2="60" stroke="rgba(204,51,51,0.4)" stroke-width="1.5" marker-end="url(#arr)"/>
+      <line x1="350" y1="200" x2="350" y2="340" stroke="rgba(74,138,222,0.35)" stroke-width="1.5" marker-end="url(#arr)"/>
+      <text x="225" y="150" font-size="10" fill="rgba(167,139,250,0.7)" font-family="Source Sans 3, sans-serif" text-anchor="middle">¿traición?</text>
+      <text x="475" y="150" font-size="10" fill="rgba(204,51,51,0.7)" font-family="Source Sans 3, sans-serif" text-anchor="middle">amenaza directa</text>
+      <text x="350" y="285" font-size="10" fill="rgba(74,138,222,0.7)" font-family="Source Sans 3, sans-serif" text-anchor="middle">compañeros</text>
+      <rect x="290" y="168" width="120" height="64" rx="8" fill="rgba(167,139,250,0.15)" stroke="#A78BFA" stroke-width="2"/>
+      <text x="350" y="194" font-size="15" font-weight="600" fill="#A78BFA" font-family="Cinzel, serif" text-anchor="middle">Teska</text>
+      <text x="350" y="212" font-size="10" fill="rgba(167,139,250,0.7)" font-family="Source Sans 3, sans-serif" text-anchor="middle">Bardo · Tiefling · Arpistas</text>
+      <rect x="60" y="30" width="240" height="54" rx="7" fill="rgba(167,139,250,0.1)" stroke="rgba(167,139,250,0.4)" stroke-width="1" stroke-dasharray="4,3"/>
+      <text x="180" y="53" font-size="13" font-weight="500" fill="#A78BFA" font-family="Cinzel, serif" text-anchor="middle">Los Arpistas</text>
+      <text x="180" y="69" font-size="10" fill="rgba(167,139,250,0.7)" font-family="Source Sans 3, sans-serif" text-anchor="middle">Empleadores · ¿lo enviaron a morir?</text>
+      <rect x="400" y="30" width="240" height="54" rx="7" fill="rgba(204,51,51,0.1)" stroke="rgba(204,51,51,0.5)" stroke-width="1.5"/>
+      <text x="520" y="53" font-size="14" font-weight="600" fill="#EE6060" font-family="Cinzel, serif" text-anchor="middle">Auril</text>
+      <text x="520" y="69" font-size="10" fill="rgba(204,51,51,0.7)" font-family="Source Sans 3, sans-serif" text-anchor="middle">Antagonista · revela la traición</text>
+      <rect x="250" y="310" width="200" height="54" rx="7" fill="rgba(74,138,222,0.1)" stroke="rgba(74,138,222,0.35)" stroke-width="1"/>
+      <text x="350" y="333" font-size="13" font-weight="500" fill="#4A8ADE" font-family="Cinzel, serif" text-anchor="middle">La Party</text>
+      <text x="350" y="350" font-size="10" fill="rgba(74,138,222,0.7)" font-family="Source Sans 3, sans-serif" text-anchor="middle">Compañeros de aventura</text>
+    </svg>
+  </div>''',
+    "elian": lambda: '''\
+  <div class="section-label teal">Relaciones de Elian</div>
+  <div class="map-container">
+    <svg viewBox="0 0 700 420" xmlns="http://www.w3.org/2000/svg">
+      <defs><marker id="arr" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto"><path d="M0,0 L0,6 L6,3 z" fill="rgba(96,165,250,0.4)"/></marker></defs>
+      <line x1="350" y1="200" x2="180" y2="60" stroke="rgba(96,165,250,0.4)" stroke-width="1.5" marker-end="url(#arr)"/>
+      <line x1="350" y1="200" x2="550" y2="200" stroke="rgba(201,150,58,0.4)" stroke-width="1.5" marker-end="url(#arr)"/>
+      <line x1="350" y1="200" x2="350" y2="340" stroke="rgba(74,138,222,0.35)" stroke-width="1.5" marker-end="url(#arr)"/>
+      <text x="230" y="145" font-size="10" fill="rgba(96,165,250,0.7)" font-family="Source Sans 3, sans-serif" text-anchor="middle">promesa incumplida</text>
+      <text x="465" y="190" font-size="10" fill="rgba(201,150,58,0.7)" font-family="Source Sans 3, sans-serif" text-anchor="middle">lo levantó 2 veces</text>
+      <text x="350" y="285" font-size="10" fill="rgba(74,138,222,0.7)" font-family="Source Sans 3, sans-serif" text-anchor="middle">compañeros</text>
+      <rect x="290" y="168" width="120" height="64" rx="8" fill="rgba(96,165,250,0.15)" stroke="#60A5FA" stroke-width="2"/>
+      <text x="350" y="194" font-size="15" font-weight="600" fill="#60A5FA" font-family="Cinzel, serif" text-anchor="middle">Elian</text>
+      <text x="350" y="212" font-size="10" fill="rgba(96,165,250,0.7)" font-family="Source Sans 3, sans-serif" text-anchor="middle">Mago · Humano · Joven</text>
+      <rect x="60" y="30" width="240" height="54" rx="7" fill="rgba(96,165,250,0.1)" stroke="rgba(96,165,250,0.35)" stroke-width="1"/>
+      <text x="180" y="53" font-size="13" font-weight="500" fill="#60A5FA" font-family="Cinzel, serif" text-anchor="middle">Abuelo (fallecido)</text>
+      <text x="180" y="69" font-size="10" fill="rgba(96,165,250,0.7)" font-family="Source Sans 3, sans-serif" text-anchor="middle">Promesa incumplida · lleva su diario</text>
+      <rect x="480" y="168" width="180" height="64" rx="7" fill="rgba(201,150,58,0.1)" stroke="rgba(201,150,58,0.35)" stroke-width="1"/>
+      <text x="570" y="193" font-size="13" font-weight="500" fill="#C9963A" font-family="Cinzel, serif" text-anchor="middle">Adrik</text>
+      <text x="570" y="209" font-size="10" fill="rgba(201,150,58,0.7)" font-family="Source Sans 3, sans-serif" text-anchor="middle">Lo salvó 2 veces · Clérigo</text>
+      <rect x="250" y="310" width="200" height="54" rx="7" fill="rgba(74,138,222,0.1)" stroke="rgba(74,138,222,0.35)" stroke-width="1"/>
+      <text x="350" y="333" font-size="13" font-weight="500" fill="#4A8ADE" font-family="Cinzel, serif" text-anchor="middle">La Party</text>
+      <text x="350" y="350" font-size="10" fill="rgba(74,138,222,0.7)" font-family="Source Sans 3, sans-serif" text-anchor="middle">El más frágil — pero siempre se levanta</text>
+    </svg>
+  </div>''',
+    "yankavic": lambda: '''\
+  <div class="section-label teal">Relaciones de Yankavic</div>
+  <div class="map-container">
+    <svg viewBox="0 0 700 420" xmlns="http://www.w3.org/2000/svg">
+      <defs><marker id="arr" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto"><path d="M0,0 L0,6 L6,3 z" fill="rgba(52,211,153,0.4)"/></marker></defs>
+      <line x1="350" y1="200" x2="180" y2="60" stroke="rgba(52,211,153,0.4)" stroke-width="1.5" stroke-dasharray="5,4" marker-end="url(#arr)"/>
+      <line x1="350" y1="200" x2="530" y2="60" stroke="rgba(204,51,51,0.5)" stroke-width="2" marker-end="url(#arr)"/>
+      <line x1="350" y1="200" x2="350" y2="340" stroke="rgba(74,138,222,0.35)" stroke-width="1.5" marker-end="url(#arr)"/>
+      <text x="230" y="150" font-size="10" fill="rgba(52,211,153,0.7)" font-family="Source Sans 3, sans-serif" text-anchor="middle">maestro desaparecido</text>
+      <text x="475" y="140" font-size="10" fill="rgba(204,51,51,0.7)" font-family="Source Sans 3, sans-serif" text-anchor="middle">amenaza directa · juramento</text>
+      <text x="350" y="285" font-size="10" fill="rgba(74,138,222,0.7)" font-family="Source Sans 3, sans-serif" text-anchor="middle">compañeros</text>
+      <rect x="290" y="168" width="120" height="64" rx="8" fill="rgba(52,211,153,0.15)" stroke="#34D399" stroke-width="2"/>
+      <text x="350" y="194" font-size="15" font-weight="600" fill="#34D399" font-family="Cinzel, serif" text-anchor="middle">Yankavic</text>
+      <text x="350" y="212" font-size="10" fill="rgba(52,211,153,0.7)" font-family="Source Sans 3, sans-serif" text-anchor="middle">Paladín · Semielfo · Dungask Hold</text>
+      <rect x="60" y="30" width="240" height="54" rx="7" fill="rgba(52,211,153,0.1)" stroke="rgba(52,211,153,0.35)" stroke-width="1" stroke-dasharray="4,3"/>
+      <text x="180" y="53" font-size="13" font-weight="500" fill="#34D399" font-family="Cinzel, serif" text-anchor="middle">Maestro (desaparecido)</text>
+      <text x="180" y="69" font-size="10" fill="rgba(52,211,153,0.7)" font-family="Source Sans 3, sans-serif" text-anchor="middle">Dungask Hold · ¿ligado al módulo?</text>
+      <rect x="400" y="30" width="240" height="54" rx="7" fill="rgba(204,51,51,0.1)" stroke="rgba(204,51,51,0.5)" stroke-width="1.5"/>
+      <text x="520" y="53" font-size="14" font-weight="600" fill="#EE6060" font-family="Cinzel, serif" text-anchor="middle">Auril</text>
+      <text x="520" y="69" font-size="10" fill="rgba(204,51,51,0.7)" font-family="Source Sans 3, sans-serif" text-anchor="middle">Tu juramento se romperá</text>
+      <rect x="250" y="310" width="200" height="54" rx="7" fill="rgba(74,138,222,0.1)" stroke="rgba(74,138,222,0.35)" stroke-width="1"/>
+      <text x="350" y="333" font-size="13" font-weight="500" fill="#4A8ADE" font-family="Cinzel, serif" text-anchor="middle">La Party</text>
+      <text x="350" y="350" font-size="10" fill="rgba(74,138,222,0.7)" font-family="Source Sans 3, sans-serif" text-anchor="middle">Compañeros de aventura</text>
+    </svg>
+  </div>''',
+}
+
+def relations_html(slug, world_data):
+    """Returns per-character SVG relation graph."""
+    graph_fn = RELATION_GRAPHS.get(slug)
+    if graph_fn:
+        return graph_fn()
+    # Default fallback
+    return '''\
+  <div class="section-label teal">Relaciones</div>
+  <div class="card"><div class="card-sub" style="font-size:13px;color:var(--text3)">Grafo de relaciones para este personaje — próximamente.</div></div>'''
+
+# ── Party content generators ───────────────────────────────────────────────────
+def map_html():
+    """Legacy: redirect to relations_html. Kept for compatibility."""
+    return relations_html("adrik", world)
+
+def map_html_for(slug):
+    return relations_html(slug, world)
+
 
 def sessions_html(sd):
     if not sd or not sd.get("sessions"):
@@ -620,10 +720,16 @@ def sessions_html(sd):
         title   = s.get("title", "Sesión")
         date    = s.get("date", "")
         content = s.get("content", [])
+        poster  = s.get("poster", "")
         date_str = f' <span style="color:var(--text3);font-size:12px">· {date}</span>' if date else ""
+        poster_html = (
+            f'<img src="{poster}" style="width:100%;border-radius:8px;margin-bottom:12px;'
+            f'object-fit:cover;max-height:200px" alt="Poster sesión">'
+        ) if poster else ""
         paras = "".join(f"<p style='margin-bottom:6px'>{p}</p>" for p in content)
         parts.append(
             f'<div class="card" style="margin-bottom:12px">'
+            f'{poster_html}'
             f'<div class="card-title">{title}{date_str}</div>'
             f'<div class="card-sub" style="margin-top:8px;line-height:1.7">{paras}</div>'
             f'</div>'
@@ -631,7 +737,7 @@ def sessions_html(sd):
     return "\n".join(parts)
 
 def personajes_html(w):
-    """Character backgrounds and development arcs tab."""
+    """Character backgrounds, development arcs, key NPCs, and known threats."""
     party_data = w.get("party", [])
     arcs = {
         "adrik":    ("Outlander. Sobrevivió una tormenta hace 10 años que mató a dos compañeros. Tiene poderes que vienen de Selûne sin haberla elegido activamente.",
@@ -710,18 +816,69 @@ def personajes_html(w):
     <a href="../{slug}/index.html" class="party-char-link">Ver página de {m["name"]} →</a>
   </div>
 </div>''')
+
+    # Aliados Clave
+    npcs = w.get("npcs", [])
+    allies = [n for n in npcs if n.get("category") == "ally"]
+    antagonists = [n for n in npcs if n.get("category") == "antagonist"]
+
+    if allies:
+        parts.append('<div class="section-label teal" style="margin-top:32px">Aliados Clave</div>')
+        for npc in allies:
+            role  = npc.get("role", "")
+            rel   = npc.get("relation", "")
+            note  = npc.get("note", "")
+            color = "var(--amber)" if "emplea" in role.lower() else "var(--teal)"
+            badge = "amber" if "emplea" in role.lower() else "teal"
+            parts.append(f'''<div class="persona-card" style="border-left:3px solid {color}">
+  <div class="persona-header">
+    <div class="persona-name">{npc.get("name","")}</div>
+    <span class="badge {badge}">{role}</span>
+  </div>
+  <div class="persona-rel">{rel}</div>
+  <div class="persona-note">{note}</div>
+</div>''')
+
+    if antagonists:
+        parts.append('<div class="section-label teal" style="margin-top:24px">Amenazas Conocidas</div>')
+        for npc in antagonists:
+            role = npc.get("role", "")
+            rel  = npc.get("relation", "")
+            note = npc.get("note", "")
+            is_main = "principal" in role.lower() or "Auril" in npc.get("name","")
+            color   = "var(--red)" if is_main else "var(--coral)"
+            bg_cls  = "red" if is_main else "coral"
+            parts.append(f'''<div class="persona-card" style="border-left:3px solid {color};background:linear-gradient(90deg,rgba({("204,51,51" if is_main else "204,80,48")},0.08),var(--surface))">
+  <div class="persona-header">
+    <div class="persona-name" style="color:{color}">{npc.get("name","")}</div>
+    <span class="badge {bg_cls}">{role}</span>
+  </div>
+  <div class="persona-rel">{rel}</div>
+  <div class="persona-note">{note}</div>
+</div>''')
+
+    # Placeholder for enemies encountered (empty section)
+    parts.append('''<div class="section-label teal" style="margin-top:24px">Enemigos Encontrados</div>
+<div class="card" style="border-color:rgba(204,80,48,0.2);background:rgba(204,80,48,0.04)">
+  <div class="card-sub" style="font-size:13px;color:var(--text3);font-style:italic">
+    Los enemigos encontrados en la campaña se irán añadiendo aquí.
+  </div>
+</div>''')
+
     return "\n".join(parts)
 
 def misiones_html(w):
-    """Active quests + mysteries + open threads."""
+    """Active quests + mysteries + open threads + completed accordion."""
     quests    = w.get("quests", [])
     mysteries = w.get("mysteries", [])
     parts     = []
 
-    if quests:
+    active_quests = [q for q in quests if q.get("status") != "completed"]
+    completed_quests = [q for q in quests if q.get("status") == "completed"]
+
+    if active_quests:
         parts.append('<div class="section-label teal">Misiones Activas</div>')
-        for q in quests:
-            status_color = "var(--gold2)" if q.get("status") == "active" else "var(--text3)"
+        for q in active_quests:
             status_label = "Activa" if q.get("status") == "active" else q.get("status", "")
             reward = q.get("reward", "")
             reward_html = f'<div class="quest-reward"><strong>Recompensa:</strong> {reward}</div>' if reward else ""
@@ -762,19 +919,83 @@ def misiones_html(w):
   <div class="card-title" style="color:#EE8888;font-size:14px">¿Los Arpistas traicionaron a Teska?</div>
   <div class="card-sub">Auril le dijo que sus propios empleadores lo enviaron para deshacerse de él. ¿Misión encubierta o trampa?</div>
 </div>''')
+
+    # Completed missions accordion
+    if completed_quests:
+        completed_items = ""
+        for q in completed_quests:
+            resolution = q.get("resolution", "")
+            reward_received = q.get("reward_received", "")
+            res_html = f'<div style="font-size:13px;color:var(--teal);margin-top:4px">✓ {resolution}</div>' if resolution else ""
+            rew_html = f'<div style="font-size:12px;color:var(--text3);margin-top:2px">Recompensa: {reward_received}</div>' if reward_received else ""
+            completed_items += f'''
+<div class="card" style="margin-bottom:8px;border-color:rgba(42,157,127,0.2);background:rgba(42,157,127,0.04)">
+  <div class="card-title" style="font-size:14px;color:var(--text2)">{q.get("title","")}</div>
+  {res_html}{rew_html}
+</div>'''
+        parts.append(f'''<div style="margin-top:20px">
+<details class="completed-missions">
+  <summary>Misiones Completadas ({len(completed_quests)})</summary>
+  <div class="completed-missions-body">{completed_items}</div>
+</details>
+</div>''')
+
     return "\n".join(parts)
 
 def mundo_html(w):
-    """NPCs (antagonists + allies) + places."""
+    """Mapa regional + directorio de ubicaciones + NPCs."""
     npcs   = w.get("npcs", [])
     places = w.get("places", [])
+    quests = w.get("quests", [])
     parts  = []
+
+    # 1. Mapa regional
+    map_img_path = os.path.join(BASE, "dist", "assets", "maps", "icewind-dale.jpg")
+    if os.path.exists(map_img_path):
+        parts.append('''<div class="section-label teal">Mapa de Icewind Dale</div>
+<div class="map-img-container">
+  <img src="../assets/maps/icewind-dale.jpg" alt="Mapa de Icewind Dale">
+</div>''')
+    else:
+        parts.append('''<div class="section-label teal">Mapa de Icewind Dale</div>
+<div class="map-container" style="min-height:80px;display:flex;align-items:center;justify-content:center">
+  <span style="font-size:13px;color:var(--text3);font-style:italic">Mapa de Icewind Dale · próximamente</span>
+</div>''')
+
+    # 2. Ubicaciones y quests relacionadas
+    if places:
+        parts.append('<div class="section-label teal" style="margin-top:20px">Directorio de Ubicaciones</div>')
+        # Build quest-by-location index
+        quest_by_location = {}
+        for q in quests:
+            loc_mentions = []
+            for p in places:
+                pname = p.get("name", "")
+                if pname.lower() in q.get("title","").lower() or pname.lower() in q.get("description","").lower():
+                    loc_mentions.append(pname)
+            for loc in loc_mentions:
+                quest_by_location.setdefault(loc, []).append(q.get("title",""))
+        for place in places:
+            pname = place.get("name", "")
+            pdesc = place.get("desc", "")
+            related_quests = quest_by_location.get(pname, [])
+            quest_tags = "".join(
+                f'<span class="badge amber" style="margin-right:4px;font-size:10px">{qt}</span>'
+                for qt in related_quests
+            )
+            is_dangerous = any(w2 in pname.lower() for w2 in ["cueva","cave","haven","targos","bryn"])
+            cls = "card coral" if is_dangerous else "card"
+            quest_extra = ('<div style="margin-top:8px">' + quest_tags + '</div>') if quest_tags else ""
+            parts.append(f'<div class="{cls}" style="margin-bottom:8px"><div class="card-title">{pname}</div>'
+                         f'<div class="card-sub">{pdesc}</div>'
+                         f'{quest_extra}'
+                         f'</div>')
 
     antagonists = [n for n in npcs if n.get("category") == "antagonist"]
     allies      = [n for n in npcs if n.get("category") == "ally"]
 
     if antagonists:
-        parts.append('<div class="section-label teal">Antagonistas</div>')
+        parts.append('<hr class="divider"><div class="section-label teal">Antagonistas</div>')
         for npc in antagonists:
             role = npc.get("role", "")
             rel  = npc.get("relation", "")
@@ -808,15 +1029,6 @@ def mundo_html(w):
   <div class="persona-note">{note}</div>
 </div>''')
 
-    if places:
-        parts.append('<hr class="divider"><div class="section-label teal">Lugares</div>')
-        for place in places:
-            name = place.get("name", "")
-            desc = place.get("desc", "")
-            is_dangerous = any(w in name.lower() for w in ["cueva","cave","haven","targos","bryn"])
-            cls = "coral" if is_dangerous else ""
-            parts.append(f'<div class="card {cls}"><div class="card-title">{name}</div><div class="card-sub">{desc}</div></div>')
-
     return "\n".join(parts)
 
 # ── Hub HTML generation ────────────────────────────────────────────────────────
@@ -845,7 +1057,7 @@ def hub_party_card(member, char_data, sessions_data):
 
     # Portrait — always use <img> with onerror fallback (handles images added after build)
     portrait_html = (
-        f'<img class="portrait-img" src="assets/portraits/{slug}.jpg" '
+        f'<img class="portrait-img" src="../assets/portraits/{slug}.jpg" '
         f'alt="{name}" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'">'
         f'<div class="portrait-fallback" style="display:none;background:{bg};color:{color};border-color:{border}">{initial}</div>'
     )
@@ -855,7 +1067,7 @@ def hub_party_card(member, char_data, sessions_data):
     level_html = f'<span style="color:{color};font-family:Cinzel,serif;font-size:12px">Nivel {lvl}</span> · ' if lvl != "?" else ""
 
     return f'''\
-<a href="{slug}/index.html" class="{card_cls}" style="border-color:{border if is_player else 'var(--surface3)'}">
+<a href="../{slug}/index.html" class="{card_cls}" style="border-color:{border if is_player else 'var(--surface3)'}">
   <div class="portrait-wrap">{portrait_html}</div>
   <div class="char-info">
     <div class="char-card-name">{name}{player_tag}</div>
@@ -1012,8 +1224,8 @@ def build_character_page(member):
         upd       = last_updated(char)
         warnings  = warnings_html(char.get("warnings", []))
         hdr       = adrik_header_content(char)
-        pers_btns = ADRIK_PERSONAL_BUTTONS
-        pers_pnls = ADRIK_PERSONAL_PANELS
+        pers_btns = UNIFIED_PERSONAL_BUTTONS
+        pers_pnls = unified_personal_panels(slug, char)
         slots_total = char.get("spellSlots", {}).get("1", {}).get("max", 3)
     else:
         world_member = next((p for p in world.get("party", []) if p.get("name","").lower().startswith(slug)), {})
@@ -1021,12 +1233,12 @@ def build_character_page(member):
         upd       = datetime.now().strftime("%-d %b %Y")
         warnings  = ""
         hdr       = ""
-        pers_btns = '<button class="tab-btn tab-personal active" onclick="switchTab(\'personaje\',this)">📋 Personaje</button>'
-        pers_pnls = stub_personal_panels(member)
+        pers_btns = UNIFIED_PERSONAL_BUTTONS
+        pers_pnls = unified_personal_panels(slug, None)
         slots_total = 0
 
     # Party content (same for all)
-    _map    = map_html()
+    _map    = map_html_for(slug)
     _sess   = sessions_html(sessions_data)
     _pers   = personajes_html(world)
     _mis    = misiones_html(world)
