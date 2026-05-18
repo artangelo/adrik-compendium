@@ -24,6 +24,52 @@ def load(path, default=None):
 def fmt(n):
     return f"+{n}" if n >= 0 else str(n)
 
+# ── Version tracking ───────────────────────────────────────────────────────────
+def load_and_bump_version():
+    """Read data/version.json, increment minor (or major if --major flag), save, return string."""
+    vpath = os.path.join(BASE, "data", "version.json")
+    ver = {"major": 0, "minor": 0}
+    if os.path.exists(vpath):
+        with open(vpath, encoding="utf-8") as f:
+            ver = json.load(f)
+    if "--major" in sys.argv:
+        ver["major"] += 1
+        ver["minor"] = 0
+    else:
+        ver["minor"] += 1
+    with open(vpath, "w", encoding="utf-8") as f:
+        json.dump(ver, f)
+    return f"v{ver['major']}.{ver['minor']}"
+
+VERSION = load_and_bump_version()
+
+# ── Auto-inject session posters ────────────────────────────────────────────────
+import re as _re
+
+def inject_posters(sd):
+    """Scan dist/assets/sessions/ for sesion-N.* and inject poster paths into sessions data."""
+    if not sd or not sd.get("sessions"):
+        return sd
+    sessions_dir = os.path.join(BASE, "dist", "assets", "sessions")
+    if not os.path.exists(sessions_dir):
+        return sd
+    for s in sd["sessions"]:
+        if s.get("poster"):
+            continue  # Already set manually, respect that
+        # Try explicit number field first, then extract from title
+        num = s.get("number")
+        if not num:
+            m = _re.search(r'[Ss]esi[oó]n\s+(\d+)', s.get("title", ""))
+            if m:
+                num = int(m.group(1))
+        if not num:
+            continue
+        for ext in ("jpg", "jpeg", "png", "webp"):
+            if os.path.exists(os.path.join(sessions_dir, f"sesion-{num}.{ext}")):
+                s["poster"] = f"../assets/sessions/sesion-{num}.{ext}"
+                break
+    return sd
+
 # ── Load data ──────────────────────────────────────────────────────────────────
 char_path     = os.path.join(BASE, "data", "character.json")
 world_path    = os.path.join(BASE, "data", "world.json")
@@ -35,9 +81,9 @@ if not os.path.exists(char_path):
     print("   python3 scripts/parse-foundry.py <foundry-export.json>")
     sys.exit(1)
 
-char         = load(char_path)
-world        = load(world_path, {})
-sessions_data = load(sessions_path)
+char          = load(char_path)
+world         = load(world_path, {})
+sessions_data = inject_posters(load(sessions_path))
 
 with open(char_tmpl, encoding="utf-8") as f:
     CHAR_TMPL = f.read()
@@ -1172,7 +1218,7 @@ h1,h2,h3{{font-family:'Cinzel',serif}}
   <div class="section-label">Quest Activa</div>
 {quest_html}
 </div>
-<div class="footer">Adrik Compendium · Generado {build_date} · <a href="#" onclick="logout();return false" style="color:var(--text3);text-decoration:none">Cerrar sesión</a></div>
+<div class="footer">Adrik Compendium · <span style="color:var(--gold);font-family:'Cinzel',serif">{VERSION}</span> · {build_date} · <a href="#" onclick="logout();return false" style="color:var(--text3);text-decoration:none">Cerrar sesión</a></div>
 </body>
 <script>
 const _SK2='icewind_session';
@@ -1265,6 +1311,7 @@ def build_character_page(member):
         "{{PERSONAJES_HTML}}":     _pers,
         "{{MISIONES_HTML}}":       _mis,
         "{{MUNDO_HTML}}":          _mundo,
+        "{{VERSION}}":             VERSION,
         "{{AUTH_SCRIPT}}":         auth_script(slug),
     }
     for k, v in replacements.items():
@@ -1386,6 +1433,9 @@ h1,h2{{font-family:'Cinzel',serif}}
       <button class="login-btn" onclick="doLogin()">Entrar →</button>
     </div>
     <div class="error-msg" id="errMsg">Contraseña incorrecta. Intenta de nuevo.</div>
+  </div>
+  <div style="text-align:center;margin-top:28px;font-size:11px;color:var(--text3)">
+    Adrik Compendium · <span style="color:var(--gold);font-family:'Cinzel',serif">{VERSION}</span>
   </div>
 </div>
 <script>
@@ -1562,6 +1612,9 @@ h1,h2,h3{{font-family:'Cinzel',serif}}
     Para ver las estadísticas de todos los jugadores, cada uno debe visitar su página desde este dispositivo, o compartirte su actividad.
   </div>
 </div>
+<div style="text-align:center;padding:20px;font-size:11px;color:var(--text3);border-top:1px solid var(--surface3);margin-top:8px">
+  Adrik Compendium · <span style="color:var(--gold);font-family:'Cinzel',serif">{VERSION}</span>
+</div>
 
 <script>
 const _SK = 'icewind_session';
@@ -1703,10 +1756,11 @@ for member in PARTY:
 sessions_count = len(sessions_data.get("sessions", [])) if sessions_data else 0
 warns = char.get("warnings", []) if char else []
 print()
-print(f"✅ Sitio generado · {len(PARTY)} personajes · {sessions_count} sesiones")
+print(f"✅ Sitio generado · {len(PARTY)} personajes · {sessions_count} sesiones · {VERSION}")
 if char:
     print(f"   {char.get('name')} — Nivel {char.get('level')} {char.get('class')}")
 if warns:
     print(f"   ⚠  {len(warns)} advertencia(s) de Foundry en Adrik")
 print(f"   🔐 Login: dist/index.html")
 print(f"   ★  Admin: dist/admin/index.html (solo Adrik · contraseña: selune)")
+print(f"   📌 Para versión mayor: python3 scripts/build.py --major")
