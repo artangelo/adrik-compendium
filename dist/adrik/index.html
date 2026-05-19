@@ -1209,6 +1209,9 @@ function loadCharJSON(input) {
       const raw = JSON.parse(e.target.result);
       const char = parseFoundry(raw);
       localStorage.setItem('char_' + CHAR_SLUG, JSON.stringify(char));
+      // Track upload directly (no dependency on auth script timing)
+      localStorage.setItem('upload_char_' + CHAR_SLUG, '1');
+      localStorage.setItem('last_upload_' + CHAR_SLUG, Date.now());
       if (typeof _trackUpload !== 'undefined') _trackUpload(CHAR_SLUG);
       renderDynamicChar(char);
     } catch(err) {
@@ -1323,7 +1326,7 @@ window.addEventListener('DOMContentLoaded', function() {
 </script>
 
 <div style="text-align:center;padding:20px 16px;font-size:11px;color:var(--text3);border-top:1px solid var(--surface3);margin-top:32px">
-  Adrik Compendium · <span style="color:var(--gold);font-family:'Cinzel',serif">v0.3</span>
+  Adrik Compendium · <span style="color:var(--gold);font-family:'Cinzel',serif">v0.4</span>
   · <a href="#" onclick="if(typeof logout!=='undefined')logout();return false" style="color:var(--text3);text-decoration:none">Cerrar sesión</a>
 </div>
 

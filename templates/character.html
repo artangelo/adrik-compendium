@@ -750,6 +750,9 @@ function loadCharJSON(input) {
       const raw = JSON.parse(e.target.result);
       const char = parseFoundry(raw);
       localStorage.setItem('char_' + CHAR_SLUG, JSON.stringify(char));
+      // Track upload directly (no dependency on auth script timing)
+      localStorage.setItem('upload_char_' + CHAR_SLUG, '1');
+      localStorage.setItem('last_upload_' + CHAR_SLUG, Date.now());
       if (typeof _trackUpload !== 'undefined') _trackUpload(CHAR_SLUG);
       renderDynamicChar(char);
     } catch(err) {
