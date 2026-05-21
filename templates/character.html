@@ -545,6 +545,7 @@ h1, h2, h3, h4 { font-family: 'Cinzel', serif; }
     <button class="tab-btn tab-party" onclick="switchTab('personajes',this)">👥 Personajes</button>
     <button class="tab-btn tab-party" onclick="switchTab('misiones',this)">🔍 Misiones</button>
     <button class="tab-btn tab-party" onclick="switchTab('mundo',this)">🌍 Mundo</button>
+    <button class="tab-btn tab-party" onclick="switchTab('referencias',this)">📚 Referencias</button>
   </div>
 </div>
 
@@ -575,6 +576,11 @@ h1, h2, h3, h4 { font-family: 'Cinzel', serif; }
 <!-- TAB: MUNDO -->
 <div id="tab-mundo" class="tab-panel">
   {{MUNDO_HTML}}
+</div>
+
+<!-- TAB: REFERENCIAS -->
+<div id="tab-referencias" class="tab-panel">
+  {{REFERENCIAS_HTML}}
 </div>
 
 </div><!-- end content -->
@@ -991,7 +997,7 @@ window.addEventListener('DOMContentLoaded', function() {
 
 <div style="text-align:center;padding:20px 16px;font-size:11px;color:var(--text3);border-top:1px solid var(--surface3);margin-top:32px">
   Adrik Compendium · <span style="color:var(--gold);font-family:'Cinzel',serif">{{VERSION}}</span>
-  · <a href="#" onclick="if(typeof logout!=='undefined')logout();return false" style="color:var(--text3);text-decoration:none">Cerrar sesión</a>
+  · <a href="#" onclick="try{localStorage.removeItem('icewind_session')}catch(e){}location.href='../index.html';return false" style="color:var(--text3);text-decoration:none">Cerrar sesión</a>
 </div>
 
 {{AUTH_SCRIPT}}

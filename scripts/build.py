@@ -1137,6 +1137,76 @@ def hub_party_card(member, char_data, sessions_data):
   <div class="char-card-arrow" style="color:{color}">→</div>
 </a>'''
 
+def referencias_html():
+    """Sección de fuentes y referencias oficiales usadas en el compendium."""
+    return '''<div id="tab-referencias" class="tab-panel">
+<div class="section-label">Fuentes Oficiales</div>
+<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;margin-bottom:20px">
+
+  <div class="card gold">
+    <div class="card-title">📖 Reglas Base</div>
+    <div class="card-sub" style="margin-top:8px">
+      <div style="margin-bottom:6px"><strong style="color:var(--text)">Player\'s Handbook (PHB)</strong><br>
+      <span style="font-size:12px;color:var(--text3)">Reglas de clases, razas, hechizos, equipo y mecánicas base D&D 5e (2014)</span></div>
+      <div style="margin-bottom:6px"><strong style="color:var(--text)">Dungeon Master\'s Guide (DMG)</strong><br>
+      <span style="font-size:12px;color:var(--text3)">Objetos mágicos, encuentros, worldbuilding D&D 5e (2014)</span></div>
+      <div><strong style="color:var(--text)">Monster Manual (MM)</strong><br>
+      <span style="font-size:12px;color:var(--text3)">Stats y habilidades de criaturas y enemigos (2014)</span></div>
+    </div>
+  </div>
+
+  <div class="card gold">
+    <div class="card-title">📖 Suplementos</div>
+    <div class="card-sub" style="margin-top:8px">
+      <div style="margin-bottom:6px"><strong style="color:var(--text)">Xanathar\'s Guide to Everything</strong><br>
+      <span style="font-size:12px;color:var(--text3)">Subclases adicionales, hechizos y reglas opcionales (2017)</span></div>
+      <div><strong style="color:var(--text)">Tasha\'s Cauldron of Everything</strong><br>
+      <span style="font-size:12px;color:var(--text3)">Twilight Domain (Adrik), subclases y mecánicas opcionales (2020)</span></div>
+    </div>
+  </div>
+
+  <div class="card teal">
+    <div class="card-title">🗺 Aventura — Esta Campaña</div>
+    <div class="card-sub" style="margin-top:8px">
+      <div style="margin-bottom:6px"><strong style="color:var(--text)">Icewind Dale: Rime of the Frostmaiden</strong><br>
+      <span style="font-size:12px;color:var(--text3)">Campaña oficial. Los Diez Pueblos, Auril la Doncella del Hielo, el invierno eterno. NPCs, mapas y eventos de la aventura. (2020)</span></div>
+    </div>
+  </div>
+
+  <div class="card teal">
+    <div class="card-title">🤖 Cómo se generan las recomendaciones</div>
+    <div class="card-sub" style="margin-top:8px;line-height:1.65">
+      <div style="margin-bottom:6px">Las <strong style="color:var(--text)">recomendaciones de combate</strong> se generan desde la hoja de personaje de Foundry VTT: nivel, hechizos preparados, estadísticas de combate y equipo.</div>
+      <div style="margin-bottom:6px">Los <strong style="color:var(--text)">mapas relacionales</strong> se construyen desde <code style="background:var(--surface2);padding:1px 5px;border-radius:3px;font-size:12px">data/world.json</code>, que Claude actualiza con cada transcripción de sesión.</div>
+      <div>El <strong style="color:var(--text)">resumen de sesiones</strong> viene de las notas de Granola procesadas automáticamente cada sábado.</div>
+    </div>
+  </div>
+
+  <div class="card amber">
+    <div class="card-title">📋 Clases en esta Party</div>
+    <div class="card-sub" style="margin-top:8px">
+      <div style="margin-bottom:5px"><strong style="color:var(--text)">Adrik — Clérigo Crepúsculo</strong><br><span style="font-size:12px;color:var(--text3)">PHB + Tasha\'s Cauldron (Twilight Domain)</span></div>
+      <div style="margin-bottom:5px"><strong style="color:var(--text)">Draxus — Fighter</strong><br><span style="font-size:12px;color:var(--text3)">PHB (Fighter)</span></div>
+      <div style="margin-bottom:5px"><strong style="color:var(--text)">Sven — Rogue</strong><br><span style="font-size:12px;color:var(--text3)">PHB (Rogue)</span></div>
+      <div style="margin-bottom:5px"><strong style="color:var(--text)">Teska — Bardo</strong><br><span style="font-size:12px;color:var(--text3)">PHB (Bard)</span></div>
+      <div style="margin-bottom:5px"><strong style="color:var(--text)">Elian — Mago</strong><br><span style="font-size:12px;color:var(--text3)">PHB (Wizard)</span></div>
+      <div><strong style="color:var(--text)">Yankavic — Paladín</strong><br><span style="font-size:12px;color:var(--text3)">PHB (Paladin)</span></div>
+    </div>
+  </div>
+
+  <div class="card amber">
+    <div class="card-title">⚠ Limitaciones</div>
+    <div class="card-sub" style="margin-top:8px;line-height:1.65;font-size:13px;color:var(--text2)">
+      Las recomendaciones son <strong style="color:var(--text)">orientativas</strong>, no reemplazan el criterio del jugador ni del DM. Reflejan las reglas RAW (rules as written) de D&D 5e.<br><br>
+      Para información más completa, consulta siempre el libro de fuente correspondiente.<br><br>
+      <span style="color:var(--text3);font-size:12px">Compendium generado por Claude (Anthropic) · No afiliado con Wizards of the Coast</span>
+    </div>
+  </div>
+
+</div>
+</div>'''
+
+
 def build_hub():
     sessions_count = len(sessions_data.get("sessions", [])) if sessions_data else 0
     quests = world.get("quests", [])
@@ -1330,6 +1400,7 @@ def build_character_page(member):
         "{{PERSONAJES_HTML}}":     _pers,
         "{{MISIONES_HTML}}":       _mis,
         "{{MUNDO_HTML}}":          _mundo,
+        "{{REFERENCIAS_HTML}}":    referencias_html(),
         "{{VERSION}}":             VERSION,
         "{{AUTH_SCRIPT}}":         auth_script(slug),
     }

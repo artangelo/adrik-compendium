@@ -84,6 +84,36 @@ race_item = next((i for i in raw.get("items", []) if i.get("type") == "race"), N
 background = bg_item.get("name", "Outlander") if bg_item else "Outlander"
 race = race_item.get("name", "Dwarf (Hill)") if race_item else "Dwarf (Hill)"
 
+# --- Character Details (biography, traits, etc.) ---
+details = sys_data.get("details", {})
+biography_raw = details.get("biography", {})
+biography = biography_raw.get("value", "") if isinstance(biography_raw, dict) else str(biography_raw)
+# Strip basic HTML tags from biography
+import re as _re
+biography = _re.sub(r'<[^>]+>', ' ', biography).strip()
+biography = _re.sub(r'\s+', ' ', biography).strip()
+
+trait      = details.get("trait", "")
+ideal      = details.get("ideal", "")
+bond       = details.get("bond", "")
+flaw       = details.get("flaw", "")
+alignment  = details.get("alignment", "")
+appearance = details.get("appearance", "")
+age        = details.get("age", "")
+height     = details.get("height", "")
+weight     = details.get("weight", "")
+eyes       = details.get("eyes", "")
+hair       = details.get("hair", "")
+skin       = details.get("skin", "")
+
+# Languages from traits
+languages_data = sys_data.get("traits", {}).get("languages", {})
+lang_value = languages_data.get("value", [])
+lang_custom = languages_data.get("custom", "")
+languages = list(lang_value) if isinstance(lang_value, list) else []
+if lang_custom:
+    languages.extend([l.strip() for l in lang_custom.split(";") if l.strip()])
+
 # --- Currency, Inspiration, Exhaustion ---
 currency = sys_data.get("currency", {})
 inspiration = sys_data.get("attributes", {}).get("inspiration", False)
@@ -175,6 +205,15 @@ character = {
     "spellSlots": {str(k): v for k, v in spell_slots.items()},
     "equipment": equipment,
     "activeConditions": active_conditions,
+    "biography": biography,
+    "trait": trait,
+    "ideal": ideal,
+    "bond": bond,
+    "flaw": flaw,
+    "alignment": alignment,
+    "appearance": appearance,
+    "physique": {"age": age, "height": height, "weight": weight, "eyes": eyes, "hair": hair, "skin": skin},
+    "languages": languages,
     "warnings": warnings,
     "lastUpdated": datetime.now().isoformat(),
 }
