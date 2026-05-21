@@ -747,27 +747,96 @@ function renderRecommendations(char) {
   }
 }
 
-// ── FVTT JSON Upload (for non-pre-rendered pages) ──
+// ── Upload status toast ──────────────────────────────────────────────────────
+function showUploadStatus(type, message) {
+  let el = document.getElementById('upload-status');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'upload-status';
+    el.style.cssText = 'padding:11px 16px;border-radius:8px;font-size:13px;margin-bottom:14px;transition:opacity 0.3s;display:none';
+    const panel = document.getElementById('tab-mi-personaje');
+    if (panel) panel.insertBefore(el, panel.firstChild);
+  }
+  const palette = {
+    loading: ['rgba(96,165,250,0.12)','rgba(96,165,250,0.35)','#60A5FA'],
+    success: ['rgba(74,222,128,0.12)','rgba(74,222,128,0.35)','#4ADE80'],
+    warning: ['rgba(232,184,75,0.12)','rgba(232,184,75,0.35)','#E8B84B'],
+    error:   ['rgba(238,96,96,0.12)', 'rgba(238,96,96,0.35)', '#EE6060'],
+  };
+  const [bg, border, color] = palette[type] || palette.error;
+  el.style.background = bg;
+  el.style.border = `1px solid ${border}`;
+  el.style.color = color;
+  el.style.opacity = '1';
+  el.style.display = 'block';
+  el.textContent = message;
+  if (type === 'success') {
+    clearTimeout(el._timer);
+    el._timer = setTimeout(() => {
+      el.style.opacity = '0';
+      setTimeout(() => { el.style.display = 'none'; }, 300);
+    }, 4000);
+  }
+}
+
+// ── FVTT JSON Upload ─────────────────────────────────────────────────────────
 function loadCharJSON(input) {
   const file = input.files[0];
   if (!file) return;
+
+  showUploadStatus('loading', '⏳ Leyendo archivo...');
+
   const reader = new FileReader();
   reader.onload = function(e) {
+
+    // 1. Parse JSON
+    let raw;
     try {
-      const raw = JSON.parse(e.target.result);
-      const char = parseFoundry(raw);
+      raw = JSON.parse(e.target.result);
+    } catch(err) {
+      showUploadStatus('error', '❌ El archivo no es JSON válido. Asegúrate de exportar desde Foundry: Actor → clic derecho → Export Data.');
+      return;
+    }
+
+    // 2. Parse Foundry structure
+    let char;
+    try {
+      char = parseFoundry(raw);
+    } catch(err) {
+      showUploadStatus('error', '❌ No se reconoció el formato. ¿Es un export de actor de Foundry VTT 5e? Detalle: ' + err.message);
+      return;
+    }
+
+    // 3. Save to localStorage (critical — do this before any rendering)
+    try {
       localStorage.setItem('char_' + CHAR_SLUG, JSON.stringify(char));
-      // Track upload directly (no dependency on auth script timing)
       localStorage.setItem('upload_char_' + CHAR_SLUG, '1');
       localStorage.setItem('last_upload_' + CHAR_SLUG, Date.now());
-      const _prevCount = parseInt(localStorage.getItem('upload_count_' + CHAR_SLUG) || '0');
-      localStorage.setItem('upload_count_' + CHAR_SLUG, _prevCount + 1);
+      const prev = parseInt(localStorage.getItem('upload_count_' + CHAR_SLUG) || '0');
+      localStorage.setItem('upload_count_' + CHAR_SLUG, prev + 1);
       if (typeof _trackUpload !== 'undefined') _trackUpload(CHAR_SLUG);
+    } catch(err) {
+      showUploadStatus('error', '❌ No se pudo guardar: almacenamiento del navegador lleno. Intenta limpiar el caché.');
+      return;
+    }
+
+    // 4. Show success immediately (data is safe)
+    const subtitle = [char.class, char.subclass, char.race].filter(Boolean).join(' · ');
+    showUploadStatus('success', `✅ ${char.name} cargado — Nivel ${char.level}${subtitle ? ' · ' + subtitle : ''}`);
+
+    // 5. Render (non-fatal — data is already saved)
+    try {
       renderDynamicChar(char);
     } catch(err) {
-      alert('Error al leer el archivo JSON: ' + err.message);
+      console.error('[compendium] render error:', err);
+      showUploadStatus('warning', '⚠ Datos guardados correctamente, pero hubo un error al mostrarlos. Recarga la página (F5) para verlos.');
     }
   };
+
+  reader.onerror = function() {
+    showUploadStatus('error', '❌ No se pudo leer el archivo. Intenta de nuevo.');
+  };
+
   reader.readAsText(file);
 }
 
@@ -804,8 +873,13 @@ function parseFoundry(data) {
   const ideal  = stripHtml(details.ideal  || '');
   const bond   = stripHtml(details.bond   || '');
   const flaw   = stripHtml(details.flaw   || '');
-  const background = details.background || '';
-  const race       = details.race       || '';
+  // background & race can be string (old Foundry) or object {value:...} (new Foundry)
+  const background = typeof details.background === 'object'
+    ? (details.background?.value || details.background?.name || '')
+    : (details.background || '');
+  const race = typeof details.race === 'object'
+    ? (details.race?.value || details.race?.name || '')
+    : (details.race || '');
 
   // Items: spells, equipment, features
   const items = Array.isArray(data.items) ? data.items : [];
