@@ -525,7 +525,10 @@ h1, h2, h3, h4 { font-family: 'Cinzel', serif; }
         <div class="char-sub">{{CHAR_SUBTITLE}}</div>
       </div>
     </div>
-    <div style="font-size:11px;color:var(--text3);font-style:italic;align-self:flex-end">actualizado {{LAST_UPDATED}}</div>
+    <div id="char-date-line" style="font-size:11px;color:var(--text3);font-style:italic;align-self:flex-end;text-align:right">
+      Foundry: <span id="char-foundry-date">{{LAST_UPDATED}}</span>
+      <span id="char-upload-date" style="display:none"> · cargado <span id="char-upload-val"></span></span>
+    </div>
   </div>
 
   {{WARNINGS}}
@@ -650,7 +653,8 @@ function generateCombatRecs(char) {
   const recs = [];
   const cls = (char.class || '').toLowerCase();
   const sub = (char.subclass || '').toLowerCase();
-  const spells = (char.spells || []).map(s => s.toLowerCase());
+  // char.spells is an array of objects {name, level, ...} — extract name strings
+  const spells = (char.spells || []).map(s => (typeof s === 'string' ? s : s.name || '').toLowerCase());
   const features = (char.features || []).map(f => (typeof f === 'string' ? f : f.name || '').toLowerCase());
   const lvl = char.level || 1;
   const hasSpell = (name) => spells.some(s => s.includes(name.toLowerCase()));
@@ -847,7 +851,13 @@ function parseFoundry(data) {
   const attr = sys.attributes || {};
   const abils = sys.abilities || {};
   const details = sys.details || {};
-  const lvl = details.level?.value || details.level || 1;
+  // Foundry v12 stores level in class items, not details.level
+  const _classItemsEarly = Array.isArray(data.items) ? data.items.filter(i => i.type === 'class') : [];
+  const _classLevelSum = _classItemsEarly.reduce((sum, item) => {
+    const sd = item.system || item.data || {};
+    return sum + (sd.levels || sd.level || 0);
+  }, 0);
+  const lvl = _classLevelSum || details.level?.value || details.level || 1;
   const prof = Math.ceil(1 + lvl / 4);
   const abilities = {};
   ['str','dex','con','int','wis','cha'].forEach(k => {
@@ -873,18 +883,29 @@ function parseFoundry(data) {
   const ideal  = stripHtml(details.ideal  || '');
   const bond   = stripHtml(details.bond   || '');
   const flaw   = stripHtml(details.flaw   || '');
-  // background & race can be string (old Foundry) or object {value:...} (new Foundry)
-  const background = typeof details.background === 'object'
-    ? (details.background?.value || details.background?.name || '')
-    : (details.background || '');
-  const race = typeof details.race === 'object'
+  // Foundry v12 stores race/background as UUIDs in details — get from items instead
+  function _isUUID(s) {
+    return typeof s === 'string' && s.length >= 12 && /^[A-Za-z0-9]+$/.test(s) && !s.includes(' ');
+  }
+  const _raceItem = Array.isArray(data.items) ? data.items.find(i => i.type === 'race') : null;
+  const _bgItem   = Array.isArray(data.items) ? data.items.find(i => i.type === 'background') : null;
+  const _raceFromDetails = typeof details.race === 'object'
     ? (details.race?.value || details.race?.name || '')
     : (details.race || '');
+  const _bgFromDetails = typeof details.background === 'object'
+    ? (details.background?.value || details.background?.name || '')
+    : (details.background || '');
+  const race       = _raceItem?.name || (_isUUID(_raceFromDetails) ? '' : _raceFromDetails);
+  const background = _bgItem?.name   || (_isUUID(_bgFromDetails)   ? '' : _bgFromDetails);
+
+  // Inspiration: standard 5e is boolean, homebrew stacking can be a number
+  const _inspRaw = attr.inspiration;
+  const inspiration = typeof _inspRaw === 'number' ? _inspRaw : (_inspRaw ? 1 : 0);
 
   // Items: spells, equipment, features
   const items = Array.isArray(data.items) ? data.items : [];
 
-  const classItems = items.filter(i => i.type === 'class');
+  const classItems    = items.filter(i => i.type === 'class');
   const subclassItems = items.filter(i => i.type === 'subclass');
   const classStr    = classItems[0]?.name    || details.class    || '';
   const subclassStr = subclassItems[0]?.name || details.subclass || '';
@@ -926,6 +947,7 @@ function parseFoundry(data) {
     subclass: subclassStr,
     race,
     background,
+    inspiration,
     abilities,
     hp: { value: hp.value || 0, max: hp.max || 0 },
     ac: ac.value || 10,
@@ -959,6 +981,10 @@ function renderDynamicChar(char) {
   boxes += `<div class="stat-box wide"><span class="stat-val">${fmt(char.proficiencyBonus)}</span><span class="stat-label">Prof.</span></div>`;
   boxes += `<div class="stat-box wide"><span class="stat-val">${char.spellSaveDC}</span><span class="stat-label">Save DC</span></div>`;
   boxes += `<div class="stat-box wide"><span class="stat-val">${fmt(char.spellAttackBonus)}</span><span class="stat-label">Atk Hechizo</span></div>`;
+  if (char.inspiration > 0) {
+    const inspDisplay = char.inspiration > 1 ? char.inspiration + '✦' : '✦';
+    boxes += `<div class="stat-box wide" style="border-color:var(--gold-border2);background:rgba(201,150,58,0.08)"><span class="stat-val" style="color:var(--gold2)">${inspDisplay}</span><span class="stat-label">Inspiración</span></div>`;
+  }
 
   // ── Biography ──
   let bioHtml = '';
@@ -1065,6 +1091,25 @@ function applyAuthRestrictions() {
 }
 
 // ── Init ──
+// ── Session poster lightbox ───────────────────────────────────────────────────
+function openPoster(src) {
+  const lb = document.getElementById('poster-lightbox');
+  const img = document.getElementById('poster-lightbox-img');
+  if (!lb || !img) return;
+  img.src = src;
+  lb.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
+function closePoster() {
+  const lb = document.getElementById('poster-lightbox');
+  if (lb) lb.style.display = 'none';
+  document.body.style.overflow = '';
+}
+// Close on Escape key
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closePoster();
+});
+
 window.addEventListener('DOMContentLoaded', function() {
   // Restore slots
   const saved = localStorage.getItem('slots_' + CHAR_SLUG);
@@ -1085,10 +1130,26 @@ window.addEventListener('DOMContentLoaded', function() {
   } else if (typeof PRELOADED_CHAR !== 'undefined' && PRELOADED_CHAR) {
     try { renderDynamicChar(PRELOADED_CHAR); } catch(e) {}
   }
+  // Show last upload date (from browser JSON upload)
+  const _lastUploadTs = localStorage.getItem('last_upload_' + CHAR_SLUG);
+  if (_lastUploadTs) {
+    const _d = new Date(parseInt(_lastUploadTs));
+    const _meses = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+    const _upStr = _d.getDate() + ' ' + _meses[_d.getMonth()] + ' ' + _d.getFullYear();
+    const _upEl = document.getElementById('char-upload-date');
+    const _upVal = document.getElementById('char-upload-val');
+    if (_upEl && _upVal) { _upVal.textContent = _upStr; _upEl.style.display = 'inline'; }
+  }
   // Apply auth restrictions after restoring state
   applyAuthRestrictions();
 });
 </script>
+
+<!-- Poster lightbox overlay -->
+<div id="poster-lightbox" onclick="closePoster()" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.88);cursor:pointer;align-items:center;justify-content:center">
+  <img id="poster-lightbox-img" src="" alt="Poster sesión" style="max-width:92vw;max-height:92vh;border-radius:10px;box-shadow:0 8px 40px rgba(0,0,0,0.7)">
+  <div style="position:absolute;top:16px;right:20px;color:rgba(255,255,255,0.5);font-size:22px">✕</div>
+</div>
 
 <div style="text-align:center;padding:20px 16px;font-size:11px;color:var(--text3);border-top:1px solid var(--surface3);margin-top:32px">
   Adrik Compendium · <span style="color:var(--gold);font-family:'Cinzel',serif">{{VERSION}}</span>

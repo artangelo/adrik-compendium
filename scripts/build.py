@@ -220,6 +220,8 @@ function _trackUpload(slug) {{
 </script>"""
 
 # ── Helpers ────────────────────────────────────────────────────────────────────
+MESES_ES = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic']
+
 CLASS_ES = {
     "Cleric": "Clérigo", "Fighter": "Guerrero", "Rogue": "Pícaro",
     "Wizard": "Mago", "Paladin": "Paladín", "Bard": "Bardo",
@@ -249,11 +251,13 @@ def char_subtitle(c):
 def last_updated(c):
     ts = c.get("lastUpdated", "")
     if not ts:
-        return datetime.now().strftime("%-d %b %Y")
-    try:
-        return datetime.fromisoformat(ts).strftime("%-d %b %Y")
-    except Exception:
-        return ts[:10]
+        dt = datetime.now()
+    else:
+        try:
+            dt = datetime.fromisoformat(ts)
+        except Exception:
+            return ts[:10]
+    return f"{dt.day} {MESES_ES[dt.month - 1]} {dt.year}"
 
 # ── Adrik header: warnings + stat boxes + slot tracker ────────────────────────
 def warnings_html(warnings):
@@ -320,11 +324,15 @@ def stat_boxes_html(c):
         f'<div class="stat-box wide"><span class="stat-val">{fmt(atk)}</span>'
         f'<span class="stat-label">Ataque Hechizo</span></div>'
     )
-    if c.get("inspiration"):
+    insp = c.get("inspiration", 0)
+    if isinstance(insp, bool):
+        insp = 1 if insp else 0
+    if insp:
+        insp_display = f'{insp}✦' if insp > 1 else '✦'
         boxes.append(
-            '<div class="stat-box wide" style="border-color:var(--gold-border2);background:rgba(201,150,58,0.08)">'
-            '<span class="stat-val" style="color:var(--gold2)">✦</span>'
-            '<span class="stat-label">Inspiración</span></div>'
+            f'<div class="stat-box wide" style="border-color:var(--gold-border2);background:rgba(201,150,58,0.08)">'
+            f'<span class="stat-val" style="color:var(--gold2)">{insp_display}</span>'
+            f'<span class="stat-label">Inspiración</span></div>'
         )
     return "\n    ".join(boxes)
 
@@ -784,8 +792,10 @@ def sessions_html(sd):
         poster  = s.get("poster", "")
         date_str = f' <span style="color:var(--text3);font-size:12px">· {date}</span>' if date else ""
         poster_html = (
-            f'<img src="{poster}" style="width:100%;border-radius:8px;margin-bottom:12px;'
-            f'object-fit:cover;max-height:200px" alt="Poster sesión">'
+            f'<img src="{poster}" onclick="openPoster(this.src)" '
+            f'style="width:100%;border-radius:8px;margin-bottom:12px;'
+            f'object-fit:cover;max-height:200px;cursor:pointer" '
+            f'alt="Poster sesión" title="Clic para ver tamaño completo">'
         ) if poster else ""
         paras = "".join(f"<p style='margin-bottom:6px'>{p}</p>" for p in content)
         parts.append(

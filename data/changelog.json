@@ -1,6 +1,20 @@
 {
   "versions": [
     {
+      "version": "0.9",
+      "date": "2026-05-20",
+      "summary": "Fix 6 bugs reportados post-Sesión 4",
+      "type": "fix",
+      "changes": [
+        "Subtítulo ya no muestra UUIDs de Foundry v12 — race/background se leen desde items del actor",
+        "Nivel ahora se calcula correctamente sumando niveles de class items (Foundry v12)",
+        "Recomendaciones de combate funcionan: spells era array de objetos, no strings",
+        "Inspiración aparece como número (homebrew stacking): ✦, 2✦, 3✦...",
+        "Poster de sesión abre lightbox a tamaño completo al hacer clic",
+        "Fecha 'Foundry: DD mmm AAAA' en español + 'cargado DD mmm AAAA' muestra cuándo se subió el JSON"
+      ]
+    },
+    {
       "version": "0.8",
       "date": "2026-05-18",
       "summary": "Fix DM viendo perfil ajeno",
