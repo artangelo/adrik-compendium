@@ -955,9 +955,13 @@ function applyAuthRestrictions() {
   if (typeof _getSession === 'undefined') return;
   const sess = _getSession();
   if (!sess) return;
-  // Admin, DM, and the character's own player see all tabs
-  const fullAccess = sess.admin || sess.dm || sess.slug === CHAR_SLUG;
+
+  const isOwnPage   = sess.slug === CHAR_SLUG;
+  const isPrivileged = sess.admin || sess.dm;
+  const fullAccess  = isPrivileged || isOwnPage;
+
   if (!fullAccess) {
+    // Other players: hide personal tabs entirely
     document.querySelectorAll('.tab-btn.tab-personal').forEach(b => b.style.display = 'none');
     const lbl = document.querySelector('.tab-group-label.personal-label');
     if (lbl) lbl.style.display = 'none';
@@ -966,6 +970,23 @@ function applyAuthRestrictions() {
       const first = document.querySelector('.tab-btn.tab-party');
       if (first) { const m = first.getAttribute('onclick').match(/'(\w+)'/); if (m) switchTab(m[1], first); }
     }
+  } else if (isPrivileged && !isOwnPage) {
+    // DM or admin viewing another character's page — inject context banner
+    const existing = document.getElementById('dm-view-banner');
+    if (!existing) {
+      const roleLabel = sess.dm ? '⚔ DM' : '★ Admin';
+      const banner = document.createElement('div');
+      banner.id = 'dm-view-banner';
+      banner.style.cssText = 'background:rgba(224,82,82,0.08);border:1px solid rgba(224,82,82,0.3);border-radius:8px;padding:10px 16px;margin-bottom:16px;font-size:13px;color:rgba(224,82,82,0.9);display:flex;align-items:center;gap:10px';
+      banner.innerHTML = '<span style="font-family:Cinzel,serif;font-weight:600">' + roleLabel + '</span> Estás viendo el perfil de <strong>' + CHAR_SLUG.charAt(0).toUpperCase() + CHAR_SLUG.slice(1) + '</strong> — los datos y recomendaciones corresponden a ese personaje.';
+      // Insert before #dynamic-stats or .upload-zone
+      const target = document.getElementById('tab-mi-personaje');
+      if (target) target.insertBefore(banner, target.firstChild);
+    }
+    // Hide upload controls — DM doesn't upload another player's JSON
+    const uploadZone = document.querySelector('.upload-zone');
+    if (uploadZone) uploadZone.style.display = 'none';
+    document.querySelectorAll('[for="json-file-input"], [for="json-file-input-2"]').forEach(el => el.style.display = 'none');
   }
 }
 
