@@ -505,6 +505,7 @@ h1, h2, h3, h4 { font-family: 'Cinzel', serif; }
 ::-webkit-scrollbar-thumb { background: var(--surface3); border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--gold-border); }
 </style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 </head>
 <body>
 
@@ -525,7 +526,7 @@ h1, h2, h3, h4 { font-family: 'Cinzel', serif; }
         <div class="char-sub">Fighter · Dragonborn Plateado</div>
       </div>
     </div>
-    <div style="font-size:11px;color:var(--text3);font-style:italic;align-self:flex-end">última actualización: <span id="char-last-update-val">20 May 2026</span></div>
+    <div style="font-size:11px;color:var(--text3);font-style:italic;align-self:flex-end">última actualización: <span id="char-last-update-val">21 May 2026</span></div>
   </div>
 
   
@@ -968,7 +969,44 @@ h1, h2, h3, h4 { font-family: 'Cinzel', serif; }
 </div><!-- end content -->
 
 <script>
-const CHAR_SLUG = 'draxus';
+const CHAR_SLUG        = 'draxus';
+const SUPABASE_URL     = 'https://xjedidorfuzlafxfabqf.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_zlZopdymlk9d6YP8neJMPg_J0neVEY5';
+
+// Supabase client (null-safe: si las credenciales no están configuradas, se ignora)
+const _sb = (SUPABASE_URL && SUPABASE_ANON_KEY && window.supabase)
+  ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+  : null;
+
+async function _saveToServer(char) {
+  if (!_sb) return;
+  try {
+    const { error } = await _sb.from('characters').upsert({
+      slug: CHAR_SLUG,
+      data: char,
+      updated_at: new Date().toISOString(),
+    }, { onConflict: 'slug' });
+    if (error) console.warn('[compendium] Supabase save:', error.message);
+    else console.log('[compendium] Guardado en servidor ✓');
+  } catch(e) {
+    console.warn('[compendium] Supabase save failed:', e);
+  }
+}
+
+async function _loadFromServer() {
+  if (!_sb) return null;
+  try {
+    const { data, error } = await _sb
+      .from('characters')
+      .select('data, updated_at')
+      .eq('slug', CHAR_SLUG)
+      .single();
+    if (error || !data) return null;
+    return data;          // { data: charObj, updated_at: isoString }
+  } catch(e) {
+    return null;
+  }
+}
 const SLOTS_TOTAL = 0;
 let slotsUsed = 0;
 let cdUsed = false;
@@ -1192,7 +1230,7 @@ function loadCharJSON(input) {
       return;
     }
 
-    // 3. Save to localStorage (critical — do this before any rendering)
+    // 3. Save to localStorage (crítico — antes de renderizar)
     try {
       localStorage.setItem('char_' + CHAR_SLUG, JSON.stringify(char));
       localStorage.setItem('upload_char_' + CHAR_SLUG, '1');
@@ -1205,9 +1243,20 @@ function loadCharJSON(input) {
       return;
     }
 
-    // 4. Show success immediately (data is safe)
+    // 4. Mostrar éxito inmediatamente (datos ya guardados localmente)
     const subtitle = [char.class, char.subclass, char.race].filter(Boolean).join(' · ');
     showUploadStatus('success', `✅ ${char.name} cargado — Nivel ${char.level}${subtitle ? ' · ' + subtitle : ''}`);
+
+    // 4b. Guardar en Supabase en paralelo (no bloqueante)
+    _saveToServer(char).then(() => {
+      // Actualizar etiqueta de fecha una vez confirmado en servidor
+      const _el = document.getElementById('char-last-update-val');
+      if (_el) {
+        const _meses = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+        const _d = new Date();
+        _el.textContent = _d.getDate() + ' ' + _meses[_d.getMonth()] + ' ' + _d.getFullYear();
+      }
+    });
 
     // 5. Render (non-fatal — data is already saved)
     try {
@@ -1536,22 +1585,33 @@ window.addEventListener('DOMContentLoaded', function() {
     const btn = document.querySelector(`[onclick="switchTab('${savedTab}',this)"]`);
     if (btn) switchTab(savedTab, btn);
   }
-  // Load character: localStorage first, then PRELOADED_CHAR if available
-  const stored = localStorage.getItem('char_' + CHAR_SLUG);
-  if (stored) {
-    try { renderDynamicChar(JSON.parse(stored)); } catch(e) {}
+  // 1. Render inmediato con datos locales (rápido, mientras llega el servidor)
+  const _stored = localStorage.getItem('char_' + CHAR_SLUG);
+  if (_stored) {
+    try { renderDynamicChar(JSON.parse(_stored)); } catch(e) {}
   } else if (typeof PRELOADED_CHAR !== 'undefined' && PRELOADED_CHAR) {
     try { renderDynamicChar(PRELOADED_CHAR); } catch(e) {}
   }
-  // If user uploaded JSON from browser, use that date (most recent)
-  const _lastUploadTs = localStorage.getItem('last_upload_' + CHAR_SLUG);
-  if (_lastUploadTs) {
-    const _d = new Date(parseInt(_lastUploadTs));
-    const _meses = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
-    const _upStr = _d.getDate() + ' ' + _meses[_d.getMonth()] + ' ' + _d.getFullYear();
-    const _el = document.getElementById('char-last-update-val');
-    if (_el) _el.textContent = _upStr;
-  }
+
+  // 2. Fetch desde Supabase y actualizar (datos canónicos, sincronizados entre dispositivos)
+  _loadFromServer().then(function(result) {
+    if (!result) return;
+    const serverChar = result.data;
+    if (!serverChar) return;
+    // Actualizar caché local
+    try { localStorage.setItem('char_' + CHAR_SLUG, JSON.stringify(serverChar)); } catch(e) {}
+    // Re-renderizar con datos del servidor
+    try { renderDynamicChar(serverChar); } catch(e) {}
+    // Actualizar etiqueta de fecha con updated_at del servidor
+    if (result.updated_at) {
+      const _el = document.getElementById('char-last-update-val');
+      if (_el) {
+        const _meses = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+        const _d = new Date(result.updated_at);
+        _el.textContent = _d.getDate() + ' ' + _meses[_d.getMonth()] + ' ' + _d.getFullYear();
+      }
+    }
+  });
   // Apply auth restrictions after restoring state
   applyAuthRestrictions();
 });
@@ -1564,7 +1624,7 @@ window.addEventListener('DOMContentLoaded', function() {
 </div>
 
 <div style="text-align:center;padding:20px 16px;font-size:11px;color:var(--text3);border-top:1px solid var(--surface3);margin-top:32px">
-  Adrik Compendium · <span style="color:var(--gold);font-family:'Cinzel',serif">v0.13</span>
+  Adrik Compendium · <span style="color:var(--gold);font-family:'Cinzel',serif">v0.14</span>
   · <a href="#" onclick="try{localStorage.removeItem('icewind_session')}catch(e){}location.href='../index.html';return false" style="color:var(--text3);text-decoration:none">Cerrar sesión</a>
 </div>
 

@@ -131,6 +131,10 @@ PARTY = [
 
 PARTY_BY_SLUG = {m["slug"]: m for m in PARTY}
 
+# ── Supabase ───────────────────────────────────────────────────────────────────
+SUPABASE_URL      = "https://xjedidorfuzlafxfabqf.supabase.co"
+SUPABASE_ANON_KEY = "sb_publishable_zlZopdymlk9d6YP8neJMPg_J0neVEY5"
+
 # ── Credentials ────────────────────────────────────────────────────────────────
 CREDENTIALS = {
     "adrik":    {"password": "selune",   "admin": True,  "dm": False},
@@ -1413,6 +1417,8 @@ def build_character_page(member):
         "{{MUNDO_HTML}}":          _mundo,
         "{{REFERENCIAS_HTML}}":    referencias_html(),
         "{{VERSION}}":             VERSION,
+        "{{SUPABASE_URL}}":        SUPABASE_URL,
+        "{{SUPABASE_ANON_KEY}}":   SUPABASE_ANON_KEY,
         "{{AUTH_SCRIPT}}":         auth_script(slug),
     }
     for k, v in replacements.items():
