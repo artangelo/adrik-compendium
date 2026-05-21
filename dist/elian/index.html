@@ -1080,17 +1080,19 @@ function generateCombatRecs(char) {
 function generateExploreRecs(char) {
   const recs = [];
   const skills = char.skills || {};
-  // Sort skills by bonus
-  const sorted = Object.entries(skills).sort((a, b) => (b[1].total || b[1]) - (a[1].total || a[1]));
+  // Skill objects have {bonus, total, name} — support both field names
+  function _skBonus(v) { return typeof v === 'object' ? (v.bonus ?? v.total ?? 0) : (v || 0); }
+  const sorted = Object.entries(skills).sort((a, b) => _skBonus(b[1]) - _skBonus(a[1]));
   const top3 = sorted.slice(0, 3);
   if (top3.length > 0) {
     const names = top3.map(([k, v]) => {
-      const bonus = typeof v === 'object' ? v.total : v;
-      return k + ' ' + (bonus >= 0 ? '+' : '') + bonus;
+      const bonus = _skBonus(v);
+      const label = (typeof v === 'object' && v.name) ? v.name : k;
+      return label + ' ' + (bonus >= 0 ? '+' : '') + bonus;
     }).join(', ');
     recs.push({ title: 'Fortaleza en exploración', note: names });
   }
-  if (char.darkvision) recs.push({ title: 'Darkvision', note: char.darkvision + ' pies. Ven en oscuridad como tenue.' });
+  if (char.darkvision) recs.push({ title: 'Darkvision', note: char.darkvision + ' pies — ven en oscuridad como luz tenue.' });
   if (char.languages && char.languages.length) recs.push({ title: 'Idiomas', note: char.languages.join(', ') });
   return recs;
 }
@@ -1322,6 +1324,35 @@ function parseFoundry(data) {
     .filter(i => ['feat'].includes(i.type))
     .map(i => ({ name: i.name }));
 
+  // Skills — calculate bonus from ability mod + proficiency
+  const _skillAbil = {
+    acr:'dex', ani:'wis', arc:'int', ath:'str', dec:'cha', his:'int',
+    ins:'wis', itm:'cha', inv:'int', med:'wis', nat:'int', prc:'wis',
+    prf:'cha', per:'cha', rel:'int', slt:'dex', ste:'dex', sur:'wis',
+  };
+  const _skillNames = {
+    acr:'Acrobatics', ani:'Animal Handling', arc:'Arcana', ath:'Athletics',
+    dec:'Deception', his:'History', ins:'Insight', itm:'Intimidation',
+    inv:'Investigation', med:'Medicine', nat:'Nature', prc:'Perception',
+    prf:'Performance', per:'Persuasion', rel:'Religion', slt:'Sleight of Hand',
+    ste:'Stealth', sur:'Survival',
+  };
+  const rawSkills = sys.skills || {};
+  const skills = {};
+  Object.entries(_skillAbil).forEach(([key, abilKey]) => {
+    const sk = rawSkills[key] || {};
+    const abilMod = abilities[abilKey]?.mod || 0;
+    const profMult = sk.value || 0;          // 0=none, 1=proficient, 2=expertise
+    const bonus = abilMod + Math.floor(prof * profMult);
+    skills[key] = { name: _skillNames[key], ability: abilKey, bonus };
+  });
+
+  // Darkvision & languages
+  const senses = sys.attributes?.senses || sys.traits?.senses || {};
+  const darkvision = senses.darkvision || senses.dv || 0;
+  const rawLangs = sys.traits?.languages?.value || [];
+  const languages = rawLangs.map(l => l.charAt(0).toUpperCase() + l.slice(1));
+
   return {
     name: data.name || 'Personaje',
     level: lvl,
@@ -1344,6 +1375,9 @@ function parseFoundry(data) {
     spells,
     equipment,
     features,
+    skills,
+    darkvision,
+    languages,
   };
 }
 
@@ -1534,7 +1568,7 @@ window.addEventListener('DOMContentLoaded', function() {
 </div>
 
 <div style="text-align:center;padding:20px 16px;font-size:11px;color:var(--text3);border-top:1px solid var(--surface3);margin-top:32px">
-  Adrik Compendium · <span style="color:var(--gold);font-family:'Cinzel',serif">v0.11</span>
+  Adrik Compendium · <span style="color:var(--gold);font-family:'Cinzel',serif">v0.12</span>
   · <a href="#" onclick="try{localStorage.removeItem('icewind_session')}catch(e){}location.href='../index.html';return false" style="color:var(--text3);text-decoration:none">Cerrar sesión</a>
 </div>
 
