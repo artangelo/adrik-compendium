@@ -84,6 +84,7 @@ if not os.path.exists(char_path):
 char          = load(char_path)
 world         = load(world_path, {})
 sessions_data = inject_posters(load(sessions_path))
+changelog     = load(os.path.join(BASE, "data", "changelog.json"), {"versions": []})
 
 with open(char_tmpl, encoding="utf-8") as f:
     CHAR_TMPL = f.read()
@@ -1610,6 +1611,33 @@ function doLogin() {{
 
 # ── Admin dashboard ─────────────────────────────────────────────────────────────
 def build_admin():
+    # ── Changelog HTML ──
+    type_colors = {
+        "launch":  ("#4ADE80", "rgba(74,222,128,0.1)", "🚀"),
+        "feature": ("#E8B84B", "rgba(232,184,75,0.1)",  "✦"),
+        "fix":     ("#60A5FA", "rgba(96,165,250,0.1)",  "🔧"),
+        "content": ("#A78BFA", "rgba(167,139,250,0.1)", "📝"),
+    }
+    cl_rows = ""
+    for v in changelog.get("versions", []):
+        ver     = v.get("version", "?")
+        date    = v.get("date", "")
+        summary = v.get("summary", "")
+        vtype   = v.get("type", "feature")
+        changes = v.get("changes", [])
+        color, bg, icon = type_colors.get(vtype, ("#C8BEA8", "rgba(200,190,168,0.1)", "·"))
+        items_html = "".join(f'<li style="margin-bottom:3px;font-size:12px;color:var(--text2)">· {c}</li>' for c in changes)
+        cl_rows += f'''
+      <div style="background:{bg};border:1px solid {color}33;border-radius:8px;padding:14px 16px;margin-bottom:10px">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap">
+          <span style="font-family:Cinzel,serif;font-size:15px;font-weight:600;color:{color}">{icon} v{ver}</span>
+          <span style="font-size:13px;color:var(--text)">{summary}</span>
+          <span style="font-size:11px;color:var(--text3);margin-left:auto">{date}</span>
+        </div>
+        <ul style="list-style:none;padding:0;margin:0">{items_html}</ul>
+      </div>'''
+    changelog_html = cl_rows if cl_rows else '<div class="empty">Sin versiones registradas.</div>'
+
     party_rows = ""
     for m in PARTY:
         slug = m["slug"]
@@ -1732,6 +1760,9 @@ h1,h2,h3{{font-family:'Cinzel',serif}}
     Esta pantalla muestra la actividad registrada en <strong>este dispositivo</strong>.
     Para ver las estadísticas de todos los jugadores, cada uno debe visitar su página desde este dispositivo, o compartirte su actividad.
   </div>
+
+  <div class="section-label">Historial de Versiones</div>
+  {changelog_html}
 </div>
 <div style="text-align:center;padding:20px;font-size:11px;color:var(--text3);border-top:1px solid var(--surface3);margin-top:8px">
   Adrik Compendium · <span style="color:var(--gold);font-family:'Cinzel',serif">{VERSION}</span>

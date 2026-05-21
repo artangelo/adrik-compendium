@@ -1,0 +1,78 @@
+{
+  "versions": [
+    {
+      "version": "0.8",
+      "date": "2026-05-18",
+      "summary": "Fix DM viendo perfil ajeno",
+      "type": "fix",
+      "changes": [
+        "Banner rojo '⚔ DM — Estás viendo el perfil de...' al visitar página de otro personaje",
+        "DM no ve controles de upload en perfiles ajenos (no es su trabajo subir JSONs)",
+        "Lógica separada: isOwnPage vs isPrivileged vs fullAccess"
+      ]
+    },
+    {
+      "version": "0.7",
+      "date": "2026-05-18",
+      "summary": "Datos completos de Foundry + Tab Referencias",
+      "type": "feature",
+      "changes": [
+        "parse-foundry.py ahora extrae: biografía, rasgos de personalidad, ideales, vínculos, defectos, apariencia física, idiomas",
+        "Tab '📚 Referencias' visible para todos: libros base, aventura, suplementos, metodología de recomendaciones",
+        "Fix logout en footer: ahora es self-contained, no depende de función externa"
+      ]
+    },
+    {
+      "version": "0.6",
+      "date": "2026-05-18",
+      "summary": "Perfil Dungeon Master — Flint",
+      "type": "feature",
+      "changes": [
+        "Login DM con tarjeta separada de los jugadores, diseño en rojo ember",
+        "Rol dm:true permite ver todas las pestañas personales de cualquier personaje",
+        "Badge '⚔ DM' en rojo en el header de cada página visitada",
+        "Hub muestra badge DM diferenciado del admin"
+      ]
+    },
+    {
+      "version": "0.5",
+      "date": "2026-05-18",
+      "summary": "Sesión 4 procesada + correcciones",
+      "type": "content",
+      "changes": [
+        "Sesión 4 — El regreso a Bremen: resumen narrativo en sessions.json",
+        "Fix tracking de uploads en admin (localStorage directo en loadCharJSON)"
+      ]
+    },
+    {
+      "version": "0.2",
+      "date": "2026-05-18",
+      "summary": "Versionado automático + posters automáticos",
+      "type": "feature",
+      "changes": [
+        "data/version.json: versión se auto-incrementa en cada build",
+        "Versión aparece en el footer de todas las páginas (dorado, tipografía Cinzel)",
+        "python3 scripts/build.py --major para saltar de 0.x a 1.0",
+        "inject_posters(): detecta sesion-N.jpg/png en dist/assets/sessions/ automáticamente"
+      ]
+    },
+    {
+      "version": "0.1",
+      "date": "2026-05-08",
+      "summary": "Lanzamiento inicial del compendium",
+      "type": "launch",
+      "changes": [
+        "Sitio multi-jugador con 6 personajes: Adrik, Draxus, Sven, Teska, Elian, Yankavic",
+        "Sistema de autenticación por personaje con contraseñas simbólicas",
+        "Restricción de pestañas personales (solo el propio jugador las ve)",
+        "Motor de recomendaciones D&D 5e client-side (combate + exploración)",
+        "Dashboard admin (Adrik) con analytics de localStorage",
+        "Mapas relacionales SVG por personaje",
+        "Integración Foundry VTT: parse-foundry.py → data/character.json",
+        "GitHub Actions: deploy automático a GitHub Pages en cada push",
+        "Party Hub con tarjetas de personaje y quest activa",
+        "Historial de sesiones desde sessions.json"
+      ]
+    }
+  ]
+}
