@@ -1,17 +1,81 @@
 {
   "versions": [
     {
-      "version": "0.9",
+      "version": "0.15",
+      "date": "2026-05-21",
+      "summary": "— editar en data/changelog.json —",
+      "type": "update",
+      "changes": []
+    },
+    {
+      "version": "0.14",
+      "date": "2026-05-21",
+      "summary": "Supabase — datos de personaje en servidor",
+      "type": "feature",
+      "changes": [
+        "JSON del personaje se guarda en Supabase (PostgreSQL) en vez de solo en el navegador",
+        "Al subir JSON: guarda en localStorage (inmediato) y sube a Supabase en paralelo",
+        "Al cargar la página: render instantáneo local, luego sincroniza con servidor",
+        "Todos los dispositivos y jugadores ven los mismos datos sin depender del navegador"
+      ]
+    },
+    {
+      "version": "0.13",
+      "date": "2026-05-21",
+      "summary": "Fix etiqueta de fecha",
+      "type": "fix",
+      "changes": [
+        "Etiqueta simplificada a 'última actualización: DD mmm AAAA' — sin duplicados",
+        "Si el usuario subió JSON desde el navegador, muestra esa fecha (la más reciente)"
+      ]
+    },
+    {
+      "version": "0.12",
+      "date": "2026-05-21",
+      "summary": "Fix fortalezas de exploración",
+      "type": "fix",
+      "changes": [
+        "parseFoundry (browser) ahora extrae skills calculando bonus desde ability mods",
+        "También extrae darkvision y languages desde Foundry",
+        "generateExploreRecs usaba v.total pero el campo correcto es v.bonus — corregido",
+        "Muestra nombre legible del skill (Athletics, Insight…) en vez de la clave corta"
+      ]
+    },
+    {
+      "version": "0.11",
       "date": "2026-05-20",
       "summary": "Fix 6 bugs reportados post-Sesión 4",
       "type": "fix",
       "changes": [
-        "Subtítulo ya no muestra UUIDs de Foundry v12 — race/background se leen desde items del actor",
-        "Nivel ahora se calcula correctamente sumando niveles de class items (Foundry v12)",
+        "Subtítulo ya no muestra UUIDs de Foundry v12 — race/background desde items del actor",
+        "Nivel calculado correctamente sumando niveles de class items (Foundry v12)",
         "Recomendaciones de combate funcionan: spells era array de objetos, no strings",
-        "Inspiración aparece como número (homebrew stacking): ✦, 2✦, 3✦...",
-        "Poster de sesión abre lightbox a tamaño completo al hacer clic",
-        "Fecha 'Foundry: DD mmm AAAA' en español + 'cargado DD mmm AAAA' muestra cuándo se subió el JSON"
+        "Inspiración como número (homebrew stacking): ✦, 2✦, 3✦...",
+        "Poster de sesión abre lightbox a tamaño completo al hacer clic (Esc para cerrar)",
+        "Fecha en español + separación entre fecha Foundry y fecha de carga"
+      ]
+    },
+    {
+      "version": "0.10",
+      "date": "2026-05-18",
+      "summary": "Fix upload JSON — confirmación y errores claros",
+      "type": "fix",
+      "changes": [
+        "loadCharJSON reescrito en 5 pasos separados con manejo de errores independiente",
+        "Toast de confirmación con estado: loading / success / warning / error",
+        "Datos se guardan antes de renderizar — subida exitosa aunque el render falle",
+        "parseFoundry maneja background/race como string u objeto {value:...} (Foundry v12)"
+      ]
+    },
+    {
+      "version": "0.9",
+      "date": "2026-05-18",
+      "summary": "Historial de versiones en admin + changelog.json",
+      "type": "feature",
+      "changes": [
+        "Panel 'Historial de Versiones' en admin con tarjetas color-coded por tipo",
+        "data/changelog.json como fuente de verdad del historial",
+        "Tipos: 🚀 launch (verde), ✦ feature (dorado), 🔧 fix (azul), 📝 content (morado)"
       ]
     },
     {

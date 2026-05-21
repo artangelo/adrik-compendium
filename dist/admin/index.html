@@ -113,13 +113,61 @@ h1,h2,h3{font-family:'Cinzel',serif}
 
   <div class="section-label">Historial de Versiones</div>
   
+      <div style="background:rgba(200,190,168,0.08);border:1px solid #C8BEA833;border-radius:8px;padding:14px 16px;margin-bottom:10px">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap">
+          <span style="font-family:Cinzel,serif;font-size:15px;font-weight:600;color:#C8BEA8">· v0.15</span>
+          <span style="font-size:13px;color:var(--text)">— editar en data/changelog.json —</span>
+          <span style="font-size:11px;color:var(--text3);margin-left:auto">2026-05-21</span>
+        </div>
+        <ul style="list-style:none;padding:0;margin:0"></ul>
+      </div>
+      <div style="background:rgba(232,184,75,0.1);border:1px solid #E8B84B33;border-radius:8px;padding:14px 16px;margin-bottom:10px">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap">
+          <span style="font-family:Cinzel,serif;font-size:15px;font-weight:600;color:#E8B84B">✦ v0.14</span>
+          <span style="font-size:13px;color:var(--text)">Supabase — datos de personaje en servidor</span>
+          <span style="font-size:11px;color:var(--text3);margin-left:auto">2026-05-21</span>
+        </div>
+        <ul style="list-style:none;padding:0;margin:0"><li style="margin-bottom:3px;font-size:12px;color:var(--text2)">· JSON del personaje se guarda en Supabase (PostgreSQL) en vez de solo en el navegador</li><li style="margin-bottom:3px;font-size:12px;color:var(--text2)">· Al subir JSON: guarda en localStorage (inmediato) y sube a Supabase en paralelo</li><li style="margin-bottom:3px;font-size:12px;color:var(--text2)">· Al cargar la página: render instantáneo local, luego sincroniza con servidor</li><li style="margin-bottom:3px;font-size:12px;color:var(--text2)">· Todos los dispositivos y jugadores ven los mismos datos sin depender del navegador</li></ul>
+      </div>
       <div style="background:rgba(96,165,250,0.1);border:1px solid #60A5FA33;border-radius:8px;padding:14px 16px;margin-bottom:10px">
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap">
-          <span style="font-family:Cinzel,serif;font-size:15px;font-weight:600;color:#60A5FA">🔧 v0.9</span>
+          <span style="font-family:Cinzel,serif;font-size:15px;font-weight:600;color:#60A5FA">🔧 v0.13</span>
+          <span style="font-size:13px;color:var(--text)">Fix etiqueta de fecha</span>
+          <span style="font-size:11px;color:var(--text3);margin-left:auto">2026-05-21</span>
+        </div>
+        <ul style="list-style:none;padding:0;margin:0"><li style="margin-bottom:3px;font-size:12px;color:var(--text2)">· Etiqueta simplificada a 'última actualización: DD mmm AAAA' — sin duplicados</li><li style="margin-bottom:3px;font-size:12px;color:var(--text2)">· Si el usuario subió JSON desde el navegador, muestra esa fecha (la más reciente)</li></ul>
+      </div>
+      <div style="background:rgba(96,165,250,0.1);border:1px solid #60A5FA33;border-radius:8px;padding:14px 16px;margin-bottom:10px">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap">
+          <span style="font-family:Cinzel,serif;font-size:15px;font-weight:600;color:#60A5FA">🔧 v0.12</span>
+          <span style="font-size:13px;color:var(--text)">Fix fortalezas de exploración</span>
+          <span style="font-size:11px;color:var(--text3);margin-left:auto">2026-05-21</span>
+        </div>
+        <ul style="list-style:none;padding:0;margin:0"><li style="margin-bottom:3px;font-size:12px;color:var(--text2)">· parseFoundry (browser) ahora extrae skills calculando bonus desde ability mods</li><li style="margin-bottom:3px;font-size:12px;color:var(--text2)">· También extrae darkvision y languages desde Foundry</li><li style="margin-bottom:3px;font-size:12px;color:var(--text2)">· generateExploreRecs usaba v.total pero el campo correcto es v.bonus — corregido</li><li style="margin-bottom:3px;font-size:12px;color:var(--text2)">· Muestra nombre legible del skill (Athletics, Insight…) en vez de la clave corta</li></ul>
+      </div>
+      <div style="background:rgba(96,165,250,0.1);border:1px solid #60A5FA33;border-radius:8px;padding:14px 16px;margin-bottom:10px">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap">
+          <span style="font-family:Cinzel,serif;font-size:15px;font-weight:600;color:#60A5FA">🔧 v0.11</span>
           <span style="font-size:13px;color:var(--text)">Fix 6 bugs reportados post-Sesión 4</span>
           <span style="font-size:11px;color:var(--text3);margin-left:auto">2026-05-20</span>
         </div>
-        <ul style="list-style:none;padding:0;margin:0"><li style="margin-bottom:3px;font-size:12px;color:var(--text2)">· Subtítulo ya no muestra UUIDs de Foundry v12 — race/background se leen desde items del actor</li><li style="margin-bottom:3px;font-size:12px;color:var(--text2)">· Nivel ahora se calcula correctamente sumando niveles de class items (Foundry v12)</li><li style="margin-bottom:3px;font-size:12px;color:var(--text2)">· Recomendaciones de combate funcionan: spells era array de objetos, no strings</li><li style="margin-bottom:3px;font-size:12px;color:var(--text2)">· Inspiración aparece como número (homebrew stacking): ✦, 2✦, 3✦...</li><li style="margin-bottom:3px;font-size:12px;color:var(--text2)">· Poster de sesión abre lightbox a tamaño completo al hacer clic</li><li style="margin-bottom:3px;font-size:12px;color:var(--text2)">· Fecha 'Foundry: DD mmm AAAA' en español + 'cargado DD mmm AAAA' muestra cuándo se subió el JSON</li></ul>
+        <ul style="list-style:none;padding:0;margin:0"><li style="margin-bottom:3px;font-size:12px;color:var(--text2)">· Subtítulo ya no muestra UUIDs de Foundry v12 — race/background desde items del actor</li><li style="margin-bottom:3px;font-size:12px;color:var(--text2)">· Nivel calculado correctamente sumando niveles de class items (Foundry v12)</li><li style="margin-bottom:3px;font-size:12px;color:var(--text2)">· Recomendaciones de combate funcionan: spells era array de objetos, no strings</li><li style="margin-bottom:3px;font-size:12px;color:var(--text2)">· Inspiración como número (homebrew stacking): ✦, 2✦, 3✦...</li><li style="margin-bottom:3px;font-size:12px;color:var(--text2)">· Poster de sesión abre lightbox a tamaño completo al hacer clic (Esc para cerrar)</li><li style="margin-bottom:3px;font-size:12px;color:var(--text2)">· Fecha en español + separación entre fecha Foundry y fecha de carga</li></ul>
+      </div>
+      <div style="background:rgba(96,165,250,0.1);border:1px solid #60A5FA33;border-radius:8px;padding:14px 16px;margin-bottom:10px">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap">
+          <span style="font-family:Cinzel,serif;font-size:15px;font-weight:600;color:#60A5FA">🔧 v0.10</span>
+          <span style="font-size:13px;color:var(--text)">Fix upload JSON — confirmación y errores claros</span>
+          <span style="font-size:11px;color:var(--text3);margin-left:auto">2026-05-18</span>
+        </div>
+        <ul style="list-style:none;padding:0;margin:0"><li style="margin-bottom:3px;font-size:12px;color:var(--text2)">· loadCharJSON reescrito en 5 pasos separados con manejo de errores independiente</li><li style="margin-bottom:3px;font-size:12px;color:var(--text2)">· Toast de confirmación con estado: loading / success / warning / error</li><li style="margin-bottom:3px;font-size:12px;color:var(--text2)">· Datos se guardan antes de renderizar — subida exitosa aunque el render falle</li><li style="margin-bottom:3px;font-size:12px;color:var(--text2)">· parseFoundry maneja background/race como string u objeto {value:...} (Foundry v12)</li></ul>
+      </div>
+      <div style="background:rgba(232,184,75,0.1);border:1px solid #E8B84B33;border-radius:8px;padding:14px 16px;margin-bottom:10px">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap">
+          <span style="font-family:Cinzel,serif;font-size:15px;font-weight:600;color:#E8B84B">✦ v0.9</span>
+          <span style="font-size:13px;color:var(--text)">Historial de versiones en admin + changelog.json</span>
+          <span style="font-size:11px;color:var(--text3);margin-left:auto">2026-05-18</span>
+        </div>
+        <ul style="list-style:none;padding:0;margin:0"><li style="margin-bottom:3px;font-size:12px;color:var(--text2)">· Panel 'Historial de Versiones' en admin con tarjetas color-coded por tipo</li><li style="margin-bottom:3px;font-size:12px;color:var(--text2)">· data/changelog.json como fuente de verdad del historial</li><li style="margin-bottom:3px;font-size:12px;color:var(--text2)">· Tipos: 🚀 launch (verde), ✦ feature (dorado), 🔧 fix (azul), 📝 content (morado)</li></ul>
       </div>
       <div style="background:rgba(96,165,250,0.1);border:1px solid #60A5FA33;border-radius:8px;padding:14px 16px;margin-bottom:10px">
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap">
@@ -171,19 +219,20 @@ h1,h2,h3{font-family:'Cinzel',serif}
       </div>
 </div>
 <div style="text-align:center;padding:20px;font-size:11px;color:var(--text3);border-top:1px solid var(--surface3);margin-top:8px">
-  Adrik Compendium · <span style="color:var(--gold);font-family:'Cinzel',serif">v0.14</span>
+  Adrik Compendium · <span style="color:var(--gold);font-family:'Cinzel',serif">v0.15</span>
 </div>
 
 <script>
 const _SK = 'icewind_session';
 const _AK = 'icewind_analytics';
 const PARTY = [
-      { slug: "adrik", name: "Adrik Frostbeard", color: "#C9963A", class_str: "Clérigo · Dominio Crepúsculo", race: "Enano de Colina" },
-      { slug: "draxus", name: "Draxus", color: "#94A3B8", class_str: "Fighter", race: "Dragonborn Plateado" },
-      { slug: "sven", name: "Sven", color: "#38BDF8", class_str: "Rogue", race: "Elfo" },
-      { slug: "teska", name: "Teska", color: "#A78BFA", class_str: "Bardo", race: "Tiefling" },
-      { slug: "elian", name: "Elian", color: "#60A5FA", class_str: "Mago", race: "Humano" },
-      { slug: "yankavic", name: "Yankavic", color: "#34D399", class_str: "Paladín", race: "Semielfo" },
+      { slug: "adrik", name: "Adrik Frostbeard", color: "#C9963A", class_str: "Clérigo · Dominio Crepúsculo", race: "Enano de Colina", dm: false },
+      { slug: "draxus", name: "Draxus", color: "#94A3B8", class_str: "Fighter", race: "Dragonborn Plateado", dm: false },
+      { slug: "sven", name: "Sven", color: "#38BDF8", class_str: "Rogue", race: "Elfo", dm: false },
+      { slug: "teska", name: "Teska", color: "#A78BFA", class_str: "Bardo", race: "Tiefling", dm: false },
+      { slug: "elian", name: "Elian", color: "#60A5FA", class_str: "Mago", race: "Humano", dm: false },
+      { slug: "yankavic", name: "Yankavic", color: "#34D399", class_str: "Paladín", race: "Semielfo", dm: false },
+      { slug: "flint", name: "Flint", color: "#E05252", class_str: "Dungeon Master", race: "—", dm: true },
 ];
 
 function _getSess(){try{return JSON.parse(localStorage.getItem(_SK));}catch{return null;}}
@@ -252,11 +301,17 @@ function renderAll() {
     const lastUp      = localStorage.getItem('last_upload_'+p.slug);
     const lastLog     = localStorage.getItem('last_login_'+p.slug);
     const visits      = visitsBySlug[p.slug]||0;
-    const upBadge = uploadCount > 0
-      ? `<span class="badge-count">${uploadCount}×</span> <span style="font-size:11px;color:var(--text3)">${fmtDate(parseInt(lastUp))}</span>`
-      : '<span class="badge-no">✗ Nunca</span>';
-    return `<tr>
-      <td><span class="char-name" style="color:${p.color}">${p.name}</span></td>
+    const nameCell = p.dm
+      ? `<span class="char-name" style="color:${p.color}">${p.name}</span> <span style="font-size:10px;font-family:'Cinzel',serif;color:#E05252;border:1px solid rgba(224,82,82,0.4);border-radius:10px;padding:1px 7px;margin-left:4px">⚔ DM</span>`
+      : `<span class="char-name" style="color:${p.color}">${p.name}</span>`;
+    const upBadge = p.dm
+      ? '<span class="badge-never">— N/A</span>'
+      : uploadCount > 0
+        ? `<span class="badge-count">${uploadCount}×</span> <span style="font-size:11px;color:var(--text3)">${fmtDate(parseInt(lastUp))}</span>`
+        : '<span class="badge-no">✗ Nunca</span>';
+    const rowStyle = p.dm ? 'border-top:1px solid rgba(224,82,82,0.2);' : '';
+    return `<tr style="${rowStyle}">
+      <td>${nameCell}</td>
       <td style="font-size:13px;color:var(--text2)">${p.class_str}</td>
       <td>${upBadge}</td>
       <td style="font-size:13px;color:var(--text2)">${relTime(parseInt(lastLog))}</td>

@@ -26,8 +26,10 @@ def fmt(n):
 
 # ── Version tracking ───────────────────────────────────────────────────────────
 def load_and_bump_version():
-    """Read data/version.json, increment minor (or major if --major flag), save, return string."""
-    vpath = os.path.join(BASE, "data", "version.json")
+    """Read data/version.json, increment minor (or major if --major flag), save, return string.
+    Also auto-adds a placeholder changelog entry if the new version isn't documented yet."""
+    vpath  = os.path.join(BASE, "data", "version.json")
+    clpath = os.path.join(BASE, "data", "changelog.json")
     ver = {"major": 0, "minor": 0}
     if os.path.exists(vpath):
         with open(vpath, encoding="utf-8") as f:
@@ -39,7 +41,26 @@ def load_and_bump_version():
         ver["minor"] += 1
     with open(vpath, "w", encoding="utf-8") as f:
         json.dump(ver, f)
-    return f"v{ver['major']}.{ver['minor']}"
+    ver_num = f"{ver['major']}.{ver['minor']}"
+
+    # Auto-crear entrada en changelog si no existe
+    cl = {"versions": []}
+    if os.path.exists(clpath):
+        with open(clpath, encoding="utf-8") as f:
+            cl = json.load(f)
+    existing = {v.get("version") for v in cl.get("versions", [])}
+    if ver_num not in existing:
+        cl["versions"].insert(0, {
+            "version": ver_num,
+            "date":    datetime.now().strftime("%Y-%m-%d"),
+            "summary": "— editar en data/changelog.json —",
+            "type":    "update",
+            "changes": []
+        })
+        with open(clpath, "w", encoding="utf-8") as f:
+            json.dump(cl, f, ensure_ascii=False, indent=2)
+
+    return f"v{ver_num}"
 
 VERSION = load_and_bump_version()
 
@@ -1629,10 +1650,11 @@ function doLogin() {{
 def build_admin():
     # ── Changelog HTML ──
     type_colors = {
-        "launch":  ("#4ADE80", "rgba(74,222,128,0.1)", "🚀"),
-        "feature": ("#E8B84B", "rgba(232,184,75,0.1)",  "✦"),
-        "fix":     ("#60A5FA", "rgba(96,165,250,0.1)",  "🔧"),
-        "content": ("#A78BFA", "rgba(167,139,250,0.1)", "📝"),
+        "launch":  ("#4ADE80", "rgba(74,222,128,0.1)",  "🚀"),  # verde  — lanzamiento inicial
+        "feature": ("#E8B84B", "rgba(232,184,75,0.1)",   "✦"),   # dorado — nueva funcionalidad
+        "fix":     ("#60A5FA", "rgba(96,165,250,0.1)",   "🔧"),  # azul   — corrección de bug
+        "content": ("#A78BFA", "rgba(167,139,250,0.1)",  "📝"),  # morado — contenido/datos
+        "update":  ("#C8BEA8", "rgba(200,190,168,0.08)", "·"),   # gris   — pendiente de describir
     }
     cl_rows = ""
     for v in changelog.get("versions", []):
@@ -1662,7 +1684,10 @@ def build_admin():
         cs   = m["class_str"]
         rs   = m["race_str"]
         party_rows += f'''
-      {{ slug: "{slug}", name: "{name}", color: "{color}", class_str: "{cs}", race: "{rs}" }},'''
+      {{ slug: "{slug}", name: "{name}", color: "{color}", class_str: "{cs}", race: "{rs}", dm: false }},'''
+    # Agregar Flint (DM) al final
+    party_rows += f'''
+      {{ slug: "flint", name: "Flint", color: "#E05252", class_str: "Dungeon Master", race: "—", dm: true }},'''
 
     html = f'''<!DOCTYPE html>
 <html lang="es">
@@ -1856,11 +1881,17 @@ function renderAll() {{
     const lastUp      = localStorage.getItem('last_upload_'+p.slug);
     const lastLog     = localStorage.getItem('last_login_'+p.slug);
     const visits      = visitsBySlug[p.slug]||0;
-    const upBadge = uploadCount > 0
-      ? `<span class="badge-count">${{uploadCount}}×</span> <span style="font-size:11px;color:var(--text3)">${{fmtDate(parseInt(lastUp))}}</span>`
-      : '<span class="badge-no">✗ Nunca</span>';
-    return `<tr>
-      <td><span class="char-name" style="color:${{p.color}}">${{p.name}}</span></td>
+    const nameCell = p.dm
+      ? `<span class="char-name" style="color:${{p.color}}">${{p.name}}</span> <span style="font-size:10px;font-family:'Cinzel',serif;color:#E05252;border:1px solid rgba(224,82,82,0.4);border-radius:10px;padding:1px 7px;margin-left:4px">⚔ DM</span>`
+      : `<span class="char-name" style="color:${{p.color}}">${{p.name}}</span>`;
+    const upBadge = p.dm
+      ? '<span class="badge-never">— N/A</span>'
+      : uploadCount > 0
+        ? `<span class="badge-count">${{uploadCount}}×</span> <span style="font-size:11px;color:var(--text3)">${{fmtDate(parseInt(lastUp))}}</span>`
+        : '<span class="badge-no">✗ Nunca</span>';
+    const rowStyle = p.dm ? 'border-top:1px solid rgba(224,82,82,0.2);' : '';
+    return `<tr style="${{rowStyle}}">
+      <td>${{nameCell}}</td>
       <td style="font-size:13px;color:var(--text2)">${{p.class_str}}</td>
       <td>${{upBadge}}</td>
       <td style="font-size:13px;color:var(--text2)">${{relTime(parseInt(lastLog))}}</td>
