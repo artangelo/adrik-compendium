@@ -525,10 +525,7 @@ h1, h2, h3, h4 { font-family: 'Cinzel', serif; }
         <div class="char-sub">{{CHAR_SUBTITLE}}</div>
       </div>
     </div>
-    <div id="char-date-line" style="font-size:11px;color:var(--text3);font-style:italic;align-self:flex-end;text-align:right">
-      Foundry: <span id="char-foundry-date">{{LAST_UPDATED}}</span>
-      <span id="char-upload-date" style="display:none"> · cargado <span id="char-upload-val"></span></span>
-    </div>
+    <div style="font-size:11px;color:var(--text3);font-style:italic;align-self:flex-end">última actualización: <span id="char-last-update-val">{{LAST_UPDATED}}</span></div>
   </div>
 
   {{WARNINGS}}
@@ -1164,15 +1161,14 @@ window.addEventListener('DOMContentLoaded', function() {
   } else if (typeof PRELOADED_CHAR !== 'undefined' && PRELOADED_CHAR) {
     try { renderDynamicChar(PRELOADED_CHAR); } catch(e) {}
   }
-  // Show last upload date (from browser JSON upload)
+  // If user uploaded JSON from browser, use that date (most recent)
   const _lastUploadTs = localStorage.getItem('last_upload_' + CHAR_SLUG);
   if (_lastUploadTs) {
     const _d = new Date(parseInt(_lastUploadTs));
     const _meses = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
     const _upStr = _d.getDate() + ' ' + _meses[_d.getMonth()] + ' ' + _d.getFullYear();
-    const _upEl = document.getElementById('char-upload-date');
-    const _upVal = document.getElementById('char-upload-val');
-    if (_upEl && _upVal) { _upVal.textContent = _upStr; _upEl.style.display = 'inline'; }
+    const _el = document.getElementById('char-last-update-val');
+    if (_el) _el.textContent = _upStr;
   }
   // Apply auth restrictions after restoring state
   applyAuthRestrictions();

@@ -525,10 +525,7 @@ h1, h2, h3, h4 { font-family: 'Cinzel', serif; }
         <div class="char-sub">Clérigo · <span>Dominio Crepúsculo</span> · Nivel 2 · Enano de Colina · Outlander · <span>Selûne</span></div>
       </div>
     </div>
-    <div id="char-date-line" style="font-size:11px;color:var(--text3);font-style:italic;align-self:flex-end;text-align:right">
-      Foundry: <span id="char-foundry-date">16 may 2026</span>
-      <span id="char-upload-date" style="display:none"> · cargado <span id="char-upload-val"></span></span>
-    </div>
+    <div style="font-size:11px;color:var(--text3);font-style:italic;align-self:flex-end">última actualización: <span id="char-last-update-val">16 may 2026</span></div>
   </div>
 
   <div style="margin:14px 0 0;padding:12px 16px;background:rgba(201,80,30,0.1);border:1px solid rgba(201,80,30,0.3);border-radius:8px;line-height:1.7"><strong style="color:var(--amber);font-size:13px">⚠ Alertas de configuración Foundry:</strong><div style="display:flex;gap:8px;align-items:flex-start;padding:5px 0;font-size:13px;color:var(--text2)"><span>🔴</span><span>HP máximo no configurado en Foundry — configúralo manualmente en la hoja de personaje.</span></div>
@@ -1688,15 +1685,14 @@ window.addEventListener('DOMContentLoaded', function() {
   } else if (typeof PRELOADED_CHAR !== 'undefined' && PRELOADED_CHAR) {
     try { renderDynamicChar(PRELOADED_CHAR); } catch(e) {}
   }
-  // Show last upload date (from browser JSON upload)
+  // If user uploaded JSON from browser, use that date (most recent)
   const _lastUploadTs = localStorage.getItem('last_upload_' + CHAR_SLUG);
   if (_lastUploadTs) {
     const _d = new Date(parseInt(_lastUploadTs));
     const _meses = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
     const _upStr = _d.getDate() + ' ' + _meses[_d.getMonth()] + ' ' + _d.getFullYear();
-    const _upEl = document.getElementById('char-upload-date');
-    const _upVal = document.getElementById('char-upload-val');
-    if (_upEl && _upVal) { _upVal.textContent = _upStr; _upEl.style.display = 'inline'; }
+    const _el = document.getElementById('char-last-update-val');
+    if (_el) _el.textContent = _upStr;
   }
   // Apply auth restrictions after restoring state
   applyAuthRestrictions();
@@ -1710,7 +1706,7 @@ window.addEventListener('DOMContentLoaded', function() {
 </div>
 
 <div style="text-align:center;padding:20px 16px;font-size:11px;color:var(--text3);border-top:1px solid var(--surface3);margin-top:32px">
-  Adrik Compendium · <span style="color:var(--gold);font-family:'Cinzel',serif">v0.12</span>
+  Adrik Compendium · <span style="color:var(--gold);font-family:'Cinzel',serif">v0.13</span>
   · <a href="#" onclick="try{localStorage.removeItem('icewind_session')}catch(e){}location.href='../index.html';return false" style="color:var(--text3);text-decoration:none">Cerrar sesión</a>
 </div>
 
