@@ -132,17 +132,26 @@ PARTY_BY_SLUG = {m["slug"]: m for m in PARTY}
 
 # ── Credentials ────────────────────────────────────────────────────────────────
 CREDENTIALS = {
-    "adrik":    {"password": "selune",   "admin": True},
-    "draxus":   {"password": "yunque",   "admin": False},
-    "sven":     {"password": "escarcha", "admin": False},
-    "teska":    {"password": "arpistas", "admin": False},
-    "elian":    {"password": "elfico",   "admin": False},
-    "yankavic": {"password": "tormenta", "admin": False},
+    "adrik":    {"password": "selune",   "admin": True,  "dm": False},
+    "draxus":   {"password": "yunque",   "admin": False, "dm": False},
+    "sven":     {"password": "escarcha", "admin": False, "dm": False},
+    "teska":    {"password": "arpistas", "admin": False, "dm": False},
+    "elian":    {"password": "elfico",   "admin": False, "dm": False},
+    "yankavic": {"password": "tormenta", "admin": False, "dm": False},
+    "flint":    {"password": "master",   "admin": False, "dm": True},
+}
+
+# Flint — Dungeon Master (no es un personaje jugable, es el DM)
+DM = {
+    "slug": "flint", "name": "Flint",
+    "role": "Dungeon Master",
+    "color": "#E05252", "border": "rgba(224,82,82,0.5)", "bg": "rgba(224,82,82,0.1)",
+    "initial": "F",
 }
 
 # ── Auth script (injected in every character page) ────────────────────────────
 def auth_script(slug):
-    creds = json.dumps({k: {"p": v["password"], "a": v["admin"]} for k, v in CREDENTIALS.items()})
+    creds = json.dumps({k: {"p": v["password"], "a": v.get("admin", False), "dm": v.get("dm", False)} for k, v in CREDENTIALS.items()})
     m = PARTY_BY_SLUG.get(slug, {})
     char_color = m.get("color", "var(--gold)")
     return f"""<script>
@@ -178,22 +187,27 @@ function _trackUpload(slug) {{
   if (!sess) {{ location.replace('../index.html'); return; }}
 
   // Track visit
-  _track('visit', {{ slug: '{slug}', ts: Date.now() }});
-  localStorage.setItem('last_visit_{slug}', Date.now());
+  const _isPrivileged = !!(sess.admin || sess.dm);
+  const _isOwnPage = sess.slug === '{slug}';
+  _track('visit', {{ slug: '{slug}', privileged: _isPrivileged && !_isOwnPage }});
+  if (_isOwnPage) localStorage.setItem('last_visit_{slug}', Date.now());
 
   // Session badge in header
   const badge = document.getElementById('session-badge');
   if (badge) {{
     const portraitSrc = '../assets/portraits/' + sess.slug + '.jpg';
-    const adminBadge = sess.admin ? '<span class="session-badge-admin">★ admin</span>' : '';
+    const roleBadge = sess.dm
+      ? '<span class="session-badge-dm">⚔ DM</span>'
+      : (sess.admin ? '<span class="session-badge-admin">★ admin</span>' : '');
+    const badgeColor = sess.dm ? '#E05252' : '{char_color}';
     badge.innerHTML =
       '<img src="' + portraitSrc + '" alt="' + sess.slug + '" ' +
       'onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'">' +
       '<div class="session-badge-init" style="display:none;background:var(--char-bg);color:var(--char-color);border:1.5px solid var(--char-border)">' +
       sess.slug.charAt(0).toUpperCase() + '</div>' +
       '<div class="session-badge-info">' +
-      '<span class="session-badge-name" style="color:{char_color}">' + sess.slug + '</span>' +
-      adminBadge + '</div>' +
+      '<span class="session-badge-name" style="color:' + badgeColor + '">' + sess.slug + '</span>' +
+      roleBadge + '</div>' +
       '<div class="session-badge-logout"><a href="#" onclick="logout();return false" ' +
       'style="font-size:11px;color:var(--text3);text-decoration:none">salir</a></div>';
     badge.style.display = 'flex';
@@ -1233,11 +1247,16 @@ function logout(){{localStorage.removeItem(_SK2);location.href='../index.html';}
     if(footer)footer.insertAdjacentHTML('afterbegin',
       '<a href="../admin/index.html" style="color:var(--gold);text-decoration:none;font-family:Cinzel,serif;font-size:11px;text-transform:uppercase;letter-spacing:0.8px;margin-right:16px">★ Admin</a>');
   }}
-  // Show session user
+  // Show session user badge — DM gets red label, admin gets gold, others normal
   const header=document.querySelector('.hub-stats');
-  if(header)header.insertAdjacentHTML('beforeend',
-    '<div class="hub-stat" style="margin-left:8px;padding-left:16px;border-left:1px solid var(--surface3)">'+
-    'Sesión: <strong style="color:var(--gold)">'+s.slug+'</strong></div>');
+  if(header){{
+    const roleLabel = s.dm
+      ? '<strong style="color:#E05252;font-family:Cinzel,serif">⚔ DM</strong>'
+      : (s.admin ? '<strong style="color:var(--gold)">★ '+s.slug+'</strong>' : '<strong style="color:var(--gold)">'+s.slug+'</strong>');
+    header.insertAdjacentHTML('beforeend',
+      '<div class="hub-stat" style="margin-left:8px;padding-left:16px;border-left:1px solid var(--surface3)">'+
+      'Sesión: '+roleLabel+'</div>');
+  }}
 }})();
 </script>
 </html>'''
@@ -1327,7 +1346,7 @@ def build_character_page(member):
 
 # ── Login page ─────────────────────────────────────────────────────────────────
 def build_login():
-    creds_js = json.dumps({k: {"p": v["password"], "a": v["admin"]} for k, v in CREDENTIALS.items()})
+    creds_js = json.dumps({k: {"p": v["password"], "a": v.get("admin", False), "dm": v.get("dm", False)} for k, v in CREDENTIALS.items()})
     cards = ""
     for m in PARTY:
         slug    = m["slug"]
@@ -1409,6 +1428,19 @@ h1,h2{{font-family:'Cinzel',serif}}
 .error-msg{{color:#EE6060;font-size:13px;margin-top:10px;display:none}}
 .who-label{{font-size:13px;color:var(--text2);margin-bottom:14px}}
 .who-name{{color:var(--gold2);font-family:'Cinzel',serif}}
+.dm-separator{{display:flex;align-items:center;gap:12px;margin:20px 0 14px;font-family:'Cinzel',serif;
+  font-size:10px;color:#E05252;text-transform:uppercase;letter-spacing:2px}}
+.dm-separator::before,.dm-separator::after{{content:'';flex:1;height:1px;background:rgba(224,82,82,0.25)}}
+.dm-card{{background:var(--surface);border:2px solid rgba(224,82,82,0.3);border-radius:var(--radius);
+  padding:14px;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;gap:12px}}
+.dm-card:hover{{border-color:rgba(224,82,82,0.6);background:rgba(224,82,82,0.06)}}
+.dm-card.selected{{border-color:rgba(224,82,82,0.7);background:rgba(224,82,82,0.1);
+  box-shadow:0 0 0 1px rgba(224,82,82,0.4)}}
+.dm-init{{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-family:'Cinzel',serif;font-size:18px;font-weight:600;flex-shrink:0;
+  background:rgba(224,82,82,0.1);color:#E05252;border:1.5px solid rgba(224,82,82,0.5)}}
+.dm-info .card-name{{color:#E05252}}
+.dm-role{{font-size:11px;color:rgba(224,82,82,0.7)}}
 ::-webkit-scrollbar{{width:6px}}::-webkit-scrollbar-track{{background:var(--bg)}}
 ::-webkit-scrollbar-thumb{{background:var(--surface3);border-radius:3px}}
 </style>
@@ -1424,7 +1456,16 @@ h1,h2{{font-family:'Cinzel',serif}}
   <div class="chars-grid">{cards}
   </div>
 
-  <div class="login-form" id="loginForm">
+  <div class="dm-separator">Dungeon Master</div>
+  <div class="dm-card" data-slug="flint" onclick="selectChar(this)" id="dmCard">
+    <div class="dm-init">F</div>
+    <div class="card-info dm-info">
+      <div class="card-name">Flint</div>
+      <div class="dm-role">⚔ Dungeon Master</div>
+    </div>
+  </div>
+
+  <div class="login-form" id="loginForm" style="margin-top:20px">
     <div class="who-label">Bienvenido, <span class="who-name" id="whoName">—</span></div>
     <label class="form-label" for="pwInput">Contraseña</label>
     <div class="form-row">
@@ -1448,7 +1489,7 @@ let _sel = null;
   try {{
     const s = JSON.parse(localStorage.getItem(_SK));
     if (s && s.slug) {{
-      location.replace(s.admin ? 'hub/index.html' : s.slug + '/index.html');
+      location.replace((s.admin || s.dm) ? 'hub/index.html' : s.slug + '/index.html');
     }}
   }} catch(e) {{}}
 }})();
@@ -1475,7 +1516,7 @@ function doLogin() {{
     document.getElementById('pwInput').select();
     return;
   }}
-  const session = {{ slug: _sel, admin: cred.a, loginTime: Date.now() }};
+  const session = {{ slug: _sel, admin: cred.a, dm: cred.dm || false, loginTime: Date.now() }};
   localStorage.setItem(_SK, JSON.stringify(session));
   // Track login
   try {{
@@ -1484,7 +1525,7 @@ function doLogin() {{
     localStorage.setItem('icewind_analytics', JSON.stringify(ev));
     localStorage.setItem('last_login_' + _sel, Date.now());
   }} catch(e) {{}}
-  location.href = cred.a ? 'hub/index.html' : _sel + '/index.html';
+  location.href = (cred.a || cred.dm) ? 'hub/index.html' : _sel + '/index.html';
 }}
 </script>
 </body>
@@ -1568,6 +1609,12 @@ h1,h2,h3{{font-family:'Cinzel',serif}}
 .empty{{font-size:13px;color:var(--text3);font-style:italic;padding:16px 0}}
 .info-box{{background:var(--surface);border:1px solid var(--surface3);border-radius:var(--radius);
   padding:14px 16px;font-size:13px;color:var(--text3);margin-top:16px;line-height:1.6}}
+.reset-btn{{background:rgba(238,96,96,0.08);color:var(--red);border:1px solid rgba(238,96,96,0.3);
+  border-radius:8px;padding:8px 20px;font-family:'Cinzel',serif;font-size:12px;cursor:pointer;
+  letter-spacing:0.3px;transition:all 0.2s}}
+.reset-btn:hover{{background:rgba(238,96,96,0.18);border-color:var(--red)}}
+.badge-count{{background:rgba(42,157,127,0.1);color:#4ABFA0;border:1px solid rgba(42,157,127,0.3);
+  border-radius:20px;padding:2px 10px;font-size:11px;font-family:'Cinzel',serif}}
 </style>
 </head>
 <body>
@@ -1586,15 +1633,18 @@ h1,h2,h3{{font-family:'Cinzel',serif}}
   <div class="section-label">Resumen</div>
   <div class="stats-grid" id="statsGrid"><!-- JS --></div>
 
-  <div class="section-label">Estado de la Party</div>
+  <div style="display:flex;align-items:center;gap:16px;margin:28px 0 16px">
+    <div class="section-label" style="margin:0;flex:1">Estado de la Party</div>
+    <button class="reset-btn" onclick="resetCounters()">↺ Resetear contadores</button>
+  </div>
   <table class="char-table">
     <thead>
       <tr>
         <th>Personaje</th>
         <th>Clase</th>
-        <th>JSON subido</th>
+        <th>Actualizaciones JSON</th>
         <th>Último login</th>
-        <th>Visitas</th>
+        <th>Visitas reales</th>
       </tr>
     </thead>
     <tbody id="charTableBody"><!-- JS --></tbody>
@@ -1648,35 +1698,49 @@ function fmtDate(ts){{
   return new Date(ts).toLocaleDateString('es-CL',{{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}});
 }}
 
-window.addEventListener('DOMContentLoaded', function(){{
+function resetCounters() {{
+  if (!confirm('¿Resetear todos los contadores de analytics? Esto borra el historial de visitas, logins y tabs de este dispositivo.')) return;
+  localStorage.removeItem(_AK);
+  PARTY.forEach(p => {{
+    localStorage.removeItem('last_login_' + p.slug);
+    localStorage.removeItem('last_visit_' + p.slug);
+    localStorage.removeItem('upload_char_' + p.slug);
+    localStorage.removeItem('upload_count_' + p.slug);
+    localStorage.removeItem('last_upload_' + p.slug);
+  }});
+  location.reload();
+}}
+
+function renderAll() {{
   const events = JSON.parse(localStorage.getItem(_AK)||'[]');
+  const realVisits = events.filter(e=>e.t==='visit'&&!e.d?.admin_test);
 
   // ── Stats summary ──
   const loginsToday = events.filter(e=>e.t==='login'&&Date.now()-e.ts<86400000).length;
-  const uploads     = PARTY.filter(p=>localStorage.getItem('upload_char_'+p.slug)==='1').length;
-  const totalVisits = events.filter(e=>e.t==='visit').length;
+  const uploads     = PARTY.filter(p=>parseInt(localStorage.getItem('upload_count_'+p.slug)||'0')>0).length;
+  const totalVisits = realVisits.length;
   const grid = document.getElementById('statsGrid');
   grid.innerHTML =
     `<div class="stat-card"><span class="stat-val">${{loginsToday}}</span><span class="stat-lbl">Logins hoy</span></div>`+
     `<div class="stat-card"><span class="stat-val">${{uploads}}/6</span><span class="stat-lbl">JSON subidos</span></div>`+
-    `<div class="stat-card"><span class="stat-val">${{totalVisits}}</span><span class="stat-lbl">Visitas totales</span></div>`+
+    `<div class="stat-card"><span class="stat-val">${{totalVisits}}</span><span class="stat-lbl">Visitas reales</span></div>`+
     `<div class="stat-card"><span class="stat-val">${{events.length}}</span><span class="stat-lbl">Eventos registrados</span></div>`;
 
   // ── Character table ──
   const visitsBySlug = {{}};
-  events.filter(e=>e.t==='visit').forEach(e=>{{
+  realVisits.forEach(e=>{{
     const s=e.d?.slug||'';
     visitsBySlug[s]=(visitsBySlug[s]||0)+1;
   }});
   const tbody = document.getElementById('charTableBody');
   tbody.innerHTML = PARTY.map(p=>{{
-    const hasUpload = localStorage.getItem('upload_char_'+p.slug)==='1';
-    const lastUp    = localStorage.getItem('last_upload_'+p.slug);
-    const lastLog   = localStorage.getItem('last_login_'+p.slug);
-    const visits    = visitsBySlug[p.slug]||0;
-    const upBadge   = hasUpload
-      ? `<span class="badge-yes">✓ Sí</span> <span style="font-size:11px;color:var(--text3)">${{fmtDate(parseInt(lastUp))}}</span>`
-      : '<span class="badge-no">✗ No</span>';
+    const uploadCount = parseInt(localStorage.getItem('upload_count_'+p.slug)||'0');
+    const lastUp      = localStorage.getItem('last_upload_'+p.slug);
+    const lastLog     = localStorage.getItem('last_login_'+p.slug);
+    const visits      = visitsBySlug[p.slug]||0;
+    const upBadge = uploadCount > 0
+      ? `<span class="badge-count">${{uploadCount}}×</span> <span style="font-size:11px;color:var(--text3)">${{fmtDate(parseInt(lastUp))}}</span>`
+      : '<span class="badge-no">✗ Nunca</span>';
     return `<tr>
       <td><span class="char-name" style="color:${{p.color}}">${{p.name}}</span></td>
       <td style="font-size:13px;color:var(--text2)">${{p.class_str}}</td>
@@ -1723,16 +1787,20 @@ window.addEventListener('DOMContentLoaded', function(){{
       const action=typeLabel[e.t]||e.t;
       const who=e.d?.slug||'';
       const tab=e.d?.tab?' ('+e.d.tab+')':'';
+      const testFlag=e.d?.admin_test?' <span style="font-size:10px;color:var(--text3)">[test admin]</span>':'';
+      const dot=e.d?.admin_test?'style="background:var(--text3)"':'';
       return `<li class="activity-item">
-        <div class="activity-dot"></div>
+        <div class="activity-dot" ${{dot}}></div>
         <div>
-          <div class="activity-text"><strong>${{who}}</strong> ${{action}}${{tab}}</div>
+          <div class="activity-text"><strong>${{who}}</strong> ${{action}}${{tab}}${{testFlag}}</div>
           <div class="activity-ts">${{fmtDate(e.ts)}}</div>
         </div>
       </li>`;
     }}).join('');
   }}
-}});
+}}
+
+window.addEventListener('DOMContentLoaded', renderAll);
 </script>
 </body>
 </html>'''

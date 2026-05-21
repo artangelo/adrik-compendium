@@ -58,6 +58,12 @@ h1,h2,h3{font-family:'Cinzel',serif}
 .empty{font-size:13px;color:var(--text3);font-style:italic;padding:16px 0}
 .info-box{background:var(--surface);border:1px solid var(--surface3);border-radius:var(--radius);
   padding:14px 16px;font-size:13px;color:var(--text3);margin-top:16px;line-height:1.6}
+.reset-btn{background:rgba(238,96,96,0.08);color:var(--red);border:1px solid rgba(238,96,96,0.3);
+  border-radius:8px;padding:8px 20px;font-family:'Cinzel',serif;font-size:12px;cursor:pointer;
+  letter-spacing:0.3px;transition:all 0.2s}
+.reset-btn:hover{background:rgba(238,96,96,0.18);border-color:var(--red)}
+.badge-count{background:rgba(42,157,127,0.1);color:#4ABFA0;border:1px solid rgba(42,157,127,0.3);
+  border-radius:20px;padding:2px 10px;font-size:11px;font-family:'Cinzel',serif}
 </style>
 </head>
 <body>
@@ -76,15 +82,18 @@ h1,h2,h3{font-family:'Cinzel',serif}
   <div class="section-label">Resumen</div>
   <div class="stats-grid" id="statsGrid"><!-- JS --></div>
 
-  <div class="section-label">Estado de la Party</div>
+  <div style="display:flex;align-items:center;gap:16px;margin:28px 0 16px">
+    <div class="section-label" style="margin:0;flex:1">Estado de la Party</div>
+    <button class="reset-btn" onclick="resetCounters()">↺ Resetear contadores</button>
+  </div>
   <table class="char-table">
     <thead>
       <tr>
         <th>Personaje</th>
         <th>Clase</th>
-        <th>JSON subido</th>
+        <th>Actualizaciones JSON</th>
         <th>Último login</th>
-        <th>Visitas</th>
+        <th>Visitas reales</th>
       </tr>
     </thead>
     <tbody id="charTableBody"><!-- JS --></tbody>
@@ -103,7 +112,7 @@ h1,h2,h3{font-family:'Cinzel',serif}
   </div>
 </div>
 <div style="text-align:center;padding:20px;font-size:11px;color:var(--text3);border-top:1px solid var(--surface3);margin-top:8px">
-  Adrik Compendium · <span style="color:var(--gold);font-family:'Cinzel',serif">v0.4</span>
+  Adrik Compendium · <span style="color:var(--gold);font-family:'Cinzel',serif">v0.6</span>
 </div>
 
 <script>
@@ -144,35 +153,49 @@ function fmtDate(ts){
   return new Date(ts).toLocaleDateString('es-CL',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
 }
 
-window.addEventListener('DOMContentLoaded', function(){
+function resetCounters() {
+  if (!confirm('¿Resetear todos los contadores de analytics? Esto borra el historial de visitas, logins y tabs de este dispositivo.')) return;
+  localStorage.removeItem(_AK);
+  PARTY.forEach(p => {
+    localStorage.removeItem('last_login_' + p.slug);
+    localStorage.removeItem('last_visit_' + p.slug);
+    localStorage.removeItem('upload_char_' + p.slug);
+    localStorage.removeItem('upload_count_' + p.slug);
+    localStorage.removeItem('last_upload_' + p.slug);
+  });
+  location.reload();
+}
+
+function renderAll() {
   const events = JSON.parse(localStorage.getItem(_AK)||'[]');
+  const realVisits = events.filter(e=>e.t==='visit'&&!e.d?.admin_test);
 
   // ── Stats summary ──
   const loginsToday = events.filter(e=>e.t==='login'&&Date.now()-e.ts<86400000).length;
-  const uploads     = PARTY.filter(p=>localStorage.getItem('upload_char_'+p.slug)==='1').length;
-  const totalVisits = events.filter(e=>e.t==='visit').length;
+  const uploads     = PARTY.filter(p=>parseInt(localStorage.getItem('upload_count_'+p.slug)||'0')>0).length;
+  const totalVisits = realVisits.length;
   const grid = document.getElementById('statsGrid');
   grid.innerHTML =
     `<div class="stat-card"><span class="stat-val">${loginsToday}</span><span class="stat-lbl">Logins hoy</span></div>`+
     `<div class="stat-card"><span class="stat-val">${uploads}/6</span><span class="stat-lbl">JSON subidos</span></div>`+
-    `<div class="stat-card"><span class="stat-val">${totalVisits}</span><span class="stat-lbl">Visitas totales</span></div>`+
+    `<div class="stat-card"><span class="stat-val">${totalVisits}</span><span class="stat-lbl">Visitas reales</span></div>`+
     `<div class="stat-card"><span class="stat-val">${events.length}</span><span class="stat-lbl">Eventos registrados</span></div>`;
 
   // ── Character table ──
   const visitsBySlug = {};
-  events.filter(e=>e.t==='visit').forEach(e=>{
+  realVisits.forEach(e=>{
     const s=e.d?.slug||'';
     visitsBySlug[s]=(visitsBySlug[s]||0)+1;
   });
   const tbody = document.getElementById('charTableBody');
   tbody.innerHTML = PARTY.map(p=>{
-    const hasUpload = localStorage.getItem('upload_char_'+p.slug)==='1';
-    const lastUp    = localStorage.getItem('last_upload_'+p.slug);
-    const lastLog   = localStorage.getItem('last_login_'+p.slug);
-    const visits    = visitsBySlug[p.slug]||0;
-    const upBadge   = hasUpload
-      ? `<span class="badge-yes">✓ Sí</span> <span style="font-size:11px;color:var(--text3)">${fmtDate(parseInt(lastUp))}</span>`
-      : '<span class="badge-no">✗ No</span>';
+    const uploadCount = parseInt(localStorage.getItem('upload_count_'+p.slug)||'0');
+    const lastUp      = localStorage.getItem('last_upload_'+p.slug);
+    const lastLog     = localStorage.getItem('last_login_'+p.slug);
+    const visits      = visitsBySlug[p.slug]||0;
+    const upBadge = uploadCount > 0
+      ? `<span class="badge-count">${uploadCount}×</span> <span style="font-size:11px;color:var(--text3)">${fmtDate(parseInt(lastUp))}</span>`
+      : '<span class="badge-no">✗ Nunca</span>';
     return `<tr>
       <td><span class="char-name" style="color:${p.color}">${p.name}</span></td>
       <td style="font-size:13px;color:var(--text2)">${p.class_str}</td>
@@ -219,16 +242,20 @@ window.addEventListener('DOMContentLoaded', function(){
       const action=typeLabel[e.t]||e.t;
       const who=e.d?.slug||'';
       const tab=e.d?.tab?' ('+e.d.tab+')':'';
+      const testFlag=e.d?.admin_test?' <span style="font-size:10px;color:var(--text3)">[test admin]</span>':'';
+      const dot=e.d?.admin_test?'style="background:var(--text3)"':'';
       return `<li class="activity-item">
-        <div class="activity-dot"></div>
+        <div class="activity-dot" ${dot}></div>
         <div>
-          <div class="activity-text"><strong>${who}</strong> ${action}${tab}</div>
+          <div class="activity-text"><strong>${who}</strong> ${action}${tab}${testFlag}</div>
           <div class="activity-ts">${fmtDate(e.ts)}</div>
         </div>
       </li>`;
     }).join('');
   }
-});
+}
+
+window.addEventListener('DOMContentLoaded', renderAll);
 </script>
 </body>
 </html>

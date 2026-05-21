@@ -54,6 +54,19 @@ h1,h2{font-family:'Cinzel',serif}
 .error-msg{color:#EE6060;font-size:13px;margin-top:10px;display:none}
 .who-label{font-size:13px;color:var(--text2);margin-bottom:14px}
 .who-name{color:var(--gold2);font-family:'Cinzel',serif}
+.dm-separator{display:flex;align-items:center;gap:12px;margin:20px 0 14px;font-family:'Cinzel',serif;
+  font-size:10px;color:#E05252;text-transform:uppercase;letter-spacing:2px}
+.dm-separator::before,.dm-separator::after{content:'';flex:1;height:1px;background:rgba(224,82,82,0.25)}
+.dm-card{background:var(--surface);border:2px solid rgba(224,82,82,0.3);border-radius:var(--radius);
+  padding:14px;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;gap:12px}
+.dm-card:hover{border-color:rgba(224,82,82,0.6);background:rgba(224,82,82,0.06)}
+.dm-card.selected{border-color:rgba(224,82,82,0.7);background:rgba(224,82,82,0.1);
+  box-shadow:0 0 0 1px rgba(224,82,82,0.4)}
+.dm-init{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-family:'Cinzel',serif;font-size:18px;font-weight:600;flex-shrink:0;
+  background:rgba(224,82,82,0.1);color:#E05252;border:1.5px solid rgba(224,82,82,0.5)}
+.dm-info .card-name{color:#E05252}
+.dm-role{font-size:11px;color:rgba(224,82,82,0.7)}
 ::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:var(--bg)}
 ::-webkit-scrollbar-thumb{background:var(--surface3);border-radius:3px}
 </style>
@@ -147,7 +160,16 @@ h1,h2{font-family:'Cinzel',serif}
     </div>
   </div>
 
-  <div class="login-form" id="loginForm">
+  <div class="dm-separator">Dungeon Master</div>
+  <div class="dm-card" data-slug="flint" onclick="selectChar(this)" id="dmCard">
+    <div class="dm-init">F</div>
+    <div class="card-info dm-info">
+      <div class="card-name">Flint</div>
+      <div class="dm-role">⚔ Dungeon Master</div>
+    </div>
+  </div>
+
+  <div class="login-form" id="loginForm" style="margin-top:20px">
     <div class="who-label">Bienvenido, <span class="who-name" id="whoName">—</span></div>
     <label class="form-label" for="pwInput">Contraseña</label>
     <div class="form-row">
@@ -158,11 +180,11 @@ h1,h2{font-family:'Cinzel',serif}
     <div class="error-msg" id="errMsg">Contraseña incorrecta. Intenta de nuevo.</div>
   </div>
   <div style="text-align:center;margin-top:28px;font-size:11px;color:var(--text3)">
-    Adrik Compendium · <span style="color:var(--gold);font-family:'Cinzel',serif">v0.4</span>
+    Adrik Compendium · <span style="color:var(--gold);font-family:'Cinzel',serif">v0.6</span>
   </div>
 </div>
 <script>
-const CREDS = {"adrik": {"p": "selune", "a": true}, "draxus": {"p": "yunque", "a": false}, "sven": {"p": "escarcha", "a": false}, "teska": {"p": "arpistas", "a": false}, "elian": {"p": "elfico", "a": false}, "yankavic": {"p": "tormenta", "a": false}};
+const CREDS = {"adrik": {"p": "selune", "a": true, "dm": false}, "draxus": {"p": "yunque", "a": false, "dm": false}, "sven": {"p": "escarcha", "a": false, "dm": false}, "teska": {"p": "arpistas", "a": false, "dm": false}, "elian": {"p": "elfico", "a": false, "dm": false}, "yankavic": {"p": "tormenta", "a": false, "dm": false}, "flint": {"p": "master", "a": false, "dm": true}};
 const _SK = 'icewind_session';
 let _sel = null;
 
@@ -171,7 +193,7 @@ let _sel = null;
   try {
     const s = JSON.parse(localStorage.getItem(_SK));
     if (s && s.slug) {
-      location.replace(s.admin ? 'hub/index.html' : s.slug + '/index.html');
+      location.replace((s.admin || s.dm) ? 'hub/index.html' : s.slug + '/index.html');
     }
   } catch(e) {}
 })();
@@ -198,7 +220,7 @@ function doLogin() {
     document.getElementById('pwInput').select();
     return;
   }
-  const session = { slug: _sel, admin: cred.a, loginTime: Date.now() };
+  const session = { slug: _sel, admin: cred.a, dm: cred.dm || false, loginTime: Date.now() };
   localStorage.setItem(_SK, JSON.stringify(session));
   // Track login
   try {
@@ -207,7 +229,7 @@ function doLogin() {
     localStorage.setItem('icewind_analytics', JSON.stringify(ev));
     localStorage.setItem('last_login_' + _sel, Date.now());
   } catch(e) {}
-  location.href = cred.a ? 'hub/index.html' : _sel + '/index.html';
+  location.href = (cred.a || cred.dm) ? 'hub/index.html' : _sel + '/index.html';
 }
 </script>
 </body>

@@ -138,7 +138,7 @@ h1,h2,h3{font-family:'Cinzel',serif}
   </div>
 </div>
 </div>
-<div class="footer">Adrik Compendium · <span style="color:var(--gold);font-family:'Cinzel',serif">v0.4</span> · 19 May 2026 · <a href="#" onclick="logout();return false" style="color:var(--text3);text-decoration:none">Cerrar sesión</a></div>
+<div class="footer">Adrik Compendium · <span style="color:var(--gold);font-family:'Cinzel',serif">v0.6</span> · 20 May 2026 · <a href="#" onclick="logout();return false" style="color:var(--text3);text-decoration:none">Cerrar sesión</a></div>
 </body>
 <script>
 const _SK2='icewind_session';
@@ -153,11 +153,16 @@ function logout(){localStorage.removeItem(_SK2);location.href='../index.html';}
     if(footer)footer.insertAdjacentHTML('afterbegin',
       '<a href="../admin/index.html" style="color:var(--gold);text-decoration:none;font-family:Cinzel,serif;font-size:11px;text-transform:uppercase;letter-spacing:0.8px;margin-right:16px">★ Admin</a>');
   }
-  // Show session user
+  // Show session user badge — DM gets red label, admin gets gold, others normal
   const header=document.querySelector('.hub-stats');
-  if(header)header.insertAdjacentHTML('beforeend',
-    '<div class="hub-stat" style="margin-left:8px;padding-left:16px;border-left:1px solid var(--surface3)">'+
-    'Sesión: <strong style="color:var(--gold)">'+s.slug+'</strong></div>');
+  if(header){
+    const roleLabel = s.dm
+      ? '<strong style="color:#E05252;font-family:Cinzel,serif">⚔ DM</strong>'
+      : (s.admin ? '<strong style="color:var(--gold)">★ '+s.slug+'</strong>' : '<strong style="color:var(--gold)">'+s.slug+'</strong>');
+    header.insertAdjacentHTML('beforeend',
+      '<div class="hub-stat" style="margin-left:8px;padding-left:16px;border-left:1px solid var(--surface3)">'+
+      'Sesión: '+roleLabel+'</div>');
+  }
 })();
 </script>
 </html>

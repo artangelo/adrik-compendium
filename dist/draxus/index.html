@@ -483,6 +483,7 @@ h1, h2, h3, h4 { font-family: 'Cinzel', serif; }
 .session-badge-info { display: flex; flex-direction: column; gap: 1px; }
 .session-badge-name { font-size: 12px; font-family: 'Cinzel', serif; }
 .session-badge-admin { font-size: 10px; color: var(--gold); opacity: 0.8; font-family: 'Cinzel', serif; }
+.session-badge-dm    { font-size: 10px; color: #E05252;    opacity: 0.9; font-family: 'Cinzel', serif; }
 .session-badge-logout { margin-left: 4px; padding-left: 8px; border-left: 1px solid var(--surface3); }
 
 /* COMPLETED MISSIONS */
@@ -524,7 +525,7 @@ h1, h2, h3, h4 { font-family: 'Cinzel', serif; }
         <div class="char-sub">Fighter · Dragonborn Plateado</div>
       </div>
     </div>
-    <div style="font-size:11px;color:var(--text3);font-style:italic;align-self:flex-end">actualizado 19 May 2026</div>
+    <div style="font-size:11px;color:var(--text3);font-style:italic;align-self:flex-end">actualizado 20 May 2026</div>
   </div>
 
   
@@ -1070,6 +1071,8 @@ function loadCharJSON(input) {
       // Track upload directly (no dependency on auth script timing)
       localStorage.setItem('upload_char_' + CHAR_SLUG, '1');
       localStorage.setItem('last_upload_' + CHAR_SLUG, Date.now());
+      const _prevCount = parseInt(localStorage.getItem('upload_count_' + CHAR_SLUG) || '0');
+      localStorage.setItem('upload_count_' + CHAR_SLUG, _prevCount + 1);
       if (typeof _trackUpload !== 'undefined') _trackUpload(CHAR_SLUG);
       renderDynamicChar(char);
     } catch(err) {
@@ -1085,7 +1088,8 @@ function parseFoundry(data) {
   const sys = data.system || data.data || {};
   const attr = sys.attributes || {};
   const abils = sys.abilities || {};
-  const lvl = sys.details?.level?.value || sys.details?.level || 1;
+  const details = sys.details || {};
+  const lvl = details.level?.value || details.level || 1;
   const prof = Math.ceil(1 + lvl / 4);
   const abilities = {};
   ['str','dex','con','int','wis','cha'].forEach(k => {
@@ -1099,16 +1103,80 @@ function parseFoundry(data) {
   const wisMod = abilities.wis?.mod || 0;
   const spellSaveDC = 8 + prof + wisMod;
   const spellAttackBonus = prof + wisMod;
+
+  // Strip HTML tags from rich text fields
+  function stripHtml(html) {
+    return (html || '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+  }
+
+  // Rich character details
+  const biography = stripHtml(details.biography?.value || details.biography || '');
+  const trait  = stripHtml(details.trait  || '');
+  const ideal  = stripHtml(details.ideal  || '');
+  const bond   = stripHtml(details.bond   || '');
+  const flaw   = stripHtml(details.flaw   || '');
+  const background = details.background || '';
+  const race       = details.race       || '';
+
+  // Items: spells, equipment, features
+  const items = Array.isArray(data.items) ? data.items : [];
+
+  const classItems = items.filter(i => i.type === 'class');
+  const subclassItems = items.filter(i => i.type === 'subclass');
+  const classStr    = classItems[0]?.name    || details.class    || '';
+  const subclassStr = subclassItems[0]?.name || details.subclass || '';
+
+  const spells = items
+    .filter(i => i.type === 'spell')
+    .map(i => {
+      const sd = i.system || i.data || {};
+      return {
+        name:     i.name,
+        level:    sd.level ?? 0,
+        prepared: sd.preparation?.prepared || sd.preparation?.mode === 'always' || false,
+        school:   sd.school || '',
+      };
+    })
+    .sort((a, b) => a.level - b.level || a.name.localeCompare(b.name));
+
+  const equipment = items
+    .filter(i => ['weapon','equipment','loot','consumable','tool','backpack'].includes(i.type))
+    .map(i => {
+      const id = i.system || i.data || {};
+      return {
+        name:     i.name,
+        type:     i.type,
+        equipped: id.equipped ?? false,
+        quantity: id.quantity ?? 1,
+      };
+    })
+    .filter(i => i.equipped || i.type === 'weapon');
+
+  const features = items
+    .filter(i => ['feat'].includes(i.type))
+    .map(i => ({ name: i.name }));
+
   return {
     name: data.name || 'Personaje',
     level: lvl,
-    class: sys.details?.class || sys.details?.classes ? Object.keys(sys.details?.classes || {})[0] || '' : '',
+    class: classStr,
+    subclass: subclassStr,
+    race,
+    background,
     abilities,
     hp: { value: hp.value || 0, max: hp.max || 0 },
     ac: ac.value || 10,
     proficiencyBonus: prof,
     spellSaveDC,
     spellAttackBonus,
+    biography,
+    trait,
+    ideal,
+    bond,
+    flaw,
+    spells,
+    equipment,
+    features,
   };
 }
 
@@ -1116,27 +1184,80 @@ function renderDynamicChar(char) {
   const zone = document.querySelector('.upload-zone');
   const dyn = document.getElementById('dynamic-stats');
   if (!dyn) return;
+
+  // ── Stat boxes ──
   const order = [['str','FUE'],['dex','DES'],['con','CON'],['int','INT'],['wis','SAB'],['cha','CAR']];
   let boxes = order.map(([k, label]) => {
     const ab = char.abilities[k] || {};
     return `<div class="stat-box"><span class="stat-val">${ab.modStr||'+0'}</span><span class="stat-label">${label} ${ab.value||10}</span></div>`;
   }).join('');
-  boxes += `<div class="stat-box wide"><span class="stat-val">${char.ac}</span><span class="stat-label">Clase Armadura</span></div>`;
+  boxes += `<div class="stat-box wide"><span class="stat-val">${char.ac}</span><span class="stat-label">CA</span></div>`;
   boxes += `<div class="stat-box wide"><span class="stat-val">${char.hp.value}/${char.hp.max}</span><span class="stat-label">HP</span></div>`;
-  boxes += `<div class="stat-box wide"><span class="stat-val">${fmt(char.proficiencyBonus)}</span><span class="stat-label">Proficiencia</span></div>`;
-  boxes += `<div class="stat-box wide"><span class="stat-val">${char.spellSaveDC}</span><span class="stat-label">Spell Save DC</span></div>`;
-  boxes += `<div class="stat-box wide"><span class="stat-val">${fmt(char.spellAttackBonus)}</span><span class="stat-label">Ataque Hechizo</span></div>`;
-  dyn.innerHTML = `
-    <div class="section-label" style="margin-top:0">Stats de ${char.name} · Nivel ${char.level}</div>
-    <div class="stat-grid" style="margin-bottom:16px">${boxes}</div>
-    <div class="card" style="margin-bottom:0">
-      <div class="card-sub" style="font-size:13px;color:var(--text3)">
-        Datos cargados desde archivo local. Para ver hechizos y equipo detallado, usa la hoja de personaje de Foundry.
-      </div>
+  boxes += `<div class="stat-box wide"><span class="stat-val">${fmt(char.proficiencyBonus)}</span><span class="stat-label">Prof.</span></div>`;
+  boxes += `<div class="stat-box wide"><span class="stat-val">${char.spellSaveDC}</span><span class="stat-label">Save DC</span></div>`;
+  boxes += `<div class="stat-box wide"><span class="stat-val">${fmt(char.spellAttackBonus)}</span><span class="stat-label">Atk Hechizo</span></div>`;
+
+  // ── Biography ──
+  let bioHtml = '';
+  if (char.biography) {
+    bioHtml = `<div class="card" style="margin-bottom:12px">
+      <div class="feature-name" style="margin-bottom:6px">Historia</div>
+      <div class="feature-desc" style="font-size:13px;white-space:pre-line">${char.biography}</div>
     </div>`;
+  }
+
+  // ── Traits / Ideals / Bonds / Flaws ──
+  const tidbits = [
+    ['Rasgos de personalidad', char.trait],
+    ['Ideales', char.ideal],
+    ['Vínculos', char.bond],
+    ['Defectos', char.flaw],
+  ].filter(([,v]) => v);
+  let tibHtml = '';
+  if (tidbits.length) {
+    tibHtml = `<div class="card" style="margin-bottom:12px;display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;padding:14px 16px">` +
+      tidbits.map(([label, val]) =>
+        `<div><div style="font-size:11px;font-family:'Cinzel',serif;color:var(--text3);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:4px">${label}</div>
+         <div style="font-size:13px;color:var(--text2)">${val}</div></div>`
+      ).join('') + `</div>`;
+  }
+
+  // ── Spell list ──
+  let spellHtml = '';
+  if (char.spells && char.spells.length) {
+    const byLevel = {};
+    char.spells.forEach(s => { (byLevel[s.level] = byLevel[s.level] || []).push(s); });
+    const levelLabel = ['Truco','Nivel 1','Nivel 2','Nivel 3','Nivel 4','Nivel 5','Nivel 6','Nivel 7','Nivel 8','Nivel 9'];
+    spellHtml = `<div class="card" style="margin-bottom:12px">
+      <div class="feature-name" style="margin-bottom:10px">Hechizos (${char.spells.length})</div>` +
+      Object.keys(byLevel).sort((a,b)=>a-b).map(lvl => {
+        const names = byLevel[lvl].map(s =>
+          `<span style="font-size:13px;color:${s.prepared?'var(--text)':'var(--text3)'};margin-right:12px">${s.prepared?'●':'○'} ${s.name}</span>`
+        ).join('');
+        return `<div style="margin-bottom:8px"><div style="font-size:11px;font-family:'Cinzel',serif;color:var(--gold);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:4px">${levelLabel[lvl]||('Nivel '+lvl)}</div><div style="flex-wrap:wrap;display:flex;gap:4px 0">${names}</div></div>`;
+      }).join('') + `</div>`;
+  }
+
+  // ── Equipment ──
+  let equipHtml = '';
+  if (char.equipment && char.equipment.length) {
+    const items = char.equipment.map(e =>
+      `<span style="font-size:13px;color:var(--text2);margin-right:14px">· ${e.name}${e.quantity>1?' ×'+e.quantity:''}</span>`
+    ).join('');
+    equipHtml = `<div class="card" style="margin-bottom:12px">
+      <div class="feature-name" style="margin-bottom:6px">Equipo</div>
+      <div style="display:flex;flex-wrap:wrap;gap:4px 0">${items}</div>
+    </div>`;
+  }
+
+  const subtitle = [char.class, char.subclass, char.race, char.background].filter(Boolean).join(' · ');
+
+  dyn.innerHTML = `
+    <div class="section-label" style="margin-top:0">${char.name} · Nivel ${char.level}${subtitle ? ' · ' + subtitle : ''}</div>
+    <div class="stat-grid" style="margin-bottom:16px">${boxes}</div>
+    ${bioHtml}${tibHtml}${spellHtml}${equipHtml}`;
   dyn.classList.add('visible');
   if (zone) zone.style.display = 'none';
-  // Generate recommendations
   renderRecommendations(char);
 }
 
@@ -1145,7 +1266,9 @@ function applyAuthRestrictions() {
   if (typeof _getSession === 'undefined') return;
   const sess = _getSession();
   if (!sess) return;
-  if (!sess.admin && sess.slug !== CHAR_SLUG) {
+  // Admin, DM, and the character's own player see all tabs
+  const fullAccess = sess.admin || sess.dm || sess.slug === CHAR_SLUG;
+  if (!fullAccess) {
     document.querySelectorAll('.tab-btn.tab-personal').forEach(b => b.style.display = 'none');
     const lbl = document.querySelector('.tab-group-label.personal-label');
     if (lbl) lbl.style.display = 'none';
@@ -1184,7 +1307,7 @@ window.addEventListener('DOMContentLoaded', function() {
 </script>
 
 <div style="text-align:center;padding:20px 16px;font-size:11px;color:var(--text3);border-top:1px solid var(--surface3);margin-top:32px">
-  Adrik Compendium · <span style="color:var(--gold);font-family:'Cinzel',serif">v0.4</span>
+  Adrik Compendium · <span style="color:var(--gold);font-family:'Cinzel',serif">v0.6</span>
   · <a href="#" onclick="if(typeof logout!=='undefined')logout();return false" style="color:var(--text3);text-decoration:none">Cerrar sesión</a>
 </div>
 
@@ -1192,7 +1315,7 @@ window.addEventListener('DOMContentLoaded', function() {
 // ── Session & Analytics ────────────────────────────────────────────────────
 const _SK = 'icewind_session';
 const _AK = 'icewind_analytics';
-const _CREDS = {"adrik": {"p": "selune", "a": true}, "draxus": {"p": "yunque", "a": false}, "sven": {"p": "escarcha", "a": false}, "teska": {"p": "arpistas", "a": false}, "elian": {"p": "elfico", "a": false}, "yankavic": {"p": "tormenta", "a": false}};
+const _CREDS = {"adrik": {"p": "selune", "a": true, "dm": false}, "draxus": {"p": "yunque", "a": false, "dm": false}, "sven": {"p": "escarcha", "a": false, "dm": false}, "teska": {"p": "arpistas", "a": false, "dm": false}, "elian": {"p": "elfico", "a": false, "dm": false}, "yankavic": {"p": "tormenta", "a": false, "dm": false}, "flint": {"p": "master", "a": false, "dm": true}};
 
 function _getSession() {
   try { return JSON.parse(localStorage.getItem(_SK)); } catch { return null; }
@@ -1221,22 +1344,27 @@ function _trackUpload(slug) {
   if (!sess) { location.replace('../index.html'); return; }
 
   // Track visit
-  _track('visit', { slug: 'draxus', ts: Date.now() });
-  localStorage.setItem('last_visit_draxus', Date.now());
+  const _isPrivileged = !!(sess.admin || sess.dm);
+  const _isOwnPage = sess.slug === 'draxus';
+  _track('visit', { slug: 'draxus', privileged: _isPrivileged && !_isOwnPage });
+  if (_isOwnPage) localStorage.setItem('last_visit_draxus', Date.now());
 
   // Session badge in header
   const badge = document.getElementById('session-badge');
   if (badge) {
     const portraitSrc = '../assets/portraits/' + sess.slug + '.jpg';
-    const adminBadge = sess.admin ? '<span class="session-badge-admin">★ admin</span>' : '';
+    const roleBadge = sess.dm
+      ? '<span class="session-badge-dm">⚔ DM</span>'
+      : (sess.admin ? '<span class="session-badge-admin">★ admin</span>' : '');
+    const badgeColor = sess.dm ? '#E05252' : '#94A3B8';
     badge.innerHTML =
       '<img src="' + portraitSrc + '" alt="' + sess.slug + '" ' +
       'onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">' +
       '<div class="session-badge-init" style="display:none;background:var(--char-bg);color:var(--char-color);border:1.5px solid var(--char-border)">' +
       sess.slug.charAt(0).toUpperCase() + '</div>' +
       '<div class="session-badge-info">' +
-      '<span class="session-badge-name" style="color:#94A3B8">' + sess.slug + '</span>' +
-      adminBadge + '</div>' +
+      '<span class="session-badge-name" style="color:' + badgeColor + '">' + sess.slug + '</span>' +
+      roleBadge + '</div>' +
       '<div class="session-badge-logout"><a href="#" onclick="logout();return false" ' +
       'style="font-size:11px;color:var(--text3);text-decoration:none">salir</a></div>';
     badge.style.display = 'flex';
